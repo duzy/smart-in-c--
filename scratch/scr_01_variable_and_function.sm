@@ -1,0 +1,36 @@
+
+# Variable assignment(variables is infect 'macros')
+FOO = abc
+
+# GNU Make function calls
+# substitutes
+$(subst ";",":",$(PATH))
+# -> 'xx'
+$(strip " xx ")
+# -> '.c' and '.cpp' files
+$(filter %.c %.cpp,$(FILES))
+# -> files not '.c' and '.cpp' files
+$(filter-out %.c %.cpp,$(FILES))
+
+$(info "print some messages...")
+$(warning "emit some warning messages....")
+$(error "emit an error and stop any process")
+
+# GNU Make uses 'call' to expand user-defined 'function'(macro)
+get_files = $(wildcard $(1))
+$(call get_files,"src/*.cpp")
+
+define commands
+  echo "some shell commands"
+endef
+$(shell $(commands))
+
+define foo
+  shell: {
+    echo "xxx"
+  }
+  smart: {
+    #if 
+  }
+endef
+
