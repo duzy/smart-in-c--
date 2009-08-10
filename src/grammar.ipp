@@ -43,12 +43,12 @@ namespace smart
           ;
 
         assignment
-          =     token_node_d[ macro_name ]
-                >> ( root_node_d[ch_p('=')]
-                   | root_node_d[str_p("+=")]
-                   | root_node_d[str_p(":=")]
+          =     macro_name
+                >> (    root_node_d[ch_p('=')]
+                   |    root_node_d[str_p("+=")]
+                   |    root_node_d[str_p(":=")]
                    )
-                >> token_node_d[ macro_value ]
+                >> leaf_node_d[ macro_value ]
           ;
 
         macro_name
