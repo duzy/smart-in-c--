@@ -18,9 +18,14 @@ OBJECT_PAT = $(OUT_DIR)/objs/%.o
 OBJECTS = $(SOURCES:%.cpp=$(OBJECT_PAT))
 DEPEND_PAT = $(OUT_DIR)/deps/%.d
 DEPENDS = $(SOURCES:%.cpp=$(DEPEND_PAT))
+
 UNITS = $(wildcard t/*.t)
-UNIT_PAT = $(OUT_DIR)/%.test
-TESTS = $(UNITS:%.t=$(UNIT_PAT))
+UNIT_PAT = $(OUT_DIR)/objs/%.o
+UNIT_OBJECTS = $(UNITS:%.t=$(UNIT_PAT))
+TEST_PAT = $(OUT_DIR)/%.test
+TESTS = $(UNITS:%.t=$(TEST_PAT))
+TEST_DEPEND_PAT = $(OUT_DIR)/deps/%.d
+TEST_DEPENDS = $(UNITS:%.t=$(TEST_DEPEND_PAT))
 
 ##################################################
 PREPARE_OUTPUT_DIR = @[ -d `dirname $@` ] || mkdir -pv `dirname $@`
@@ -45,8 +50,15 @@ $(OBJECTS):$(OBJECT_PAT):%.cpp
 $(DEPENDS):$(DEPEND_PAT):%.cpp
 	$(PREPARE_OUTPUT_DIR)
 	$(CXX) -MM -MT $(OUT_DIR)/objs/$*.o -MF $@ $<
-$(TESTS):$(UNIT_PAT):%.t
+$(UNIT_OBJECTS):$(UNIT_PAT):%.t
 	$(PREPARE_OUTPUT_DIR)
-	$(LINK.cc) -x c++ -o $@ $^
+	$(COMPILE.cc) -xc++ -o $@ $<
+$(TESTS):$(TEST_PAT):$(OUT_DIR)/objs/%.o
+	$(PREPARE_OUTPUT_DIR)
+	$(LINK.cc) -o $@ $^
+$(TEST_DEPENDS):$(TEST_DEPEND_PAT):%.t
+	$(PREPARE_OUTPUT_DIR)
+	$(CXX) -xc++ -MM -MT $(OUT_DIR)/objs/$*.o -MF $@ $<
 
 include $(DEPENDS)
+include $(TEST_DEPENDS)

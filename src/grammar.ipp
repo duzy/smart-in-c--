@@ -2,17 +2,16 @@
  *
  */
 
-#include <boost/spirit.hpp>
-#include <boost/spirit/tree/ast.hpp>
-#include <boost/spirit/tree/parse_tree.hpp>
-#include <boost/spirit/tree/parse_tree_utils.hpp>
-//#include <boost/spirit/utility/chset_operators.hpp>
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/classic_ast.hpp>
+#include <boost/spirit/include/classic_parse_tree.hpp>
+#include <boost/spirit/include/classic_parse_tree_utils.hpp>
 
 namespace smart
 {
-  using namespace boost::spirit;
+  using namespace boost::spirit::classic;
 
-  struct grammar : boost::spirit::grammar<grammar>
+  struct grammar : boost::spirit::classic::grammar<grammar>
   {
     enum parser_id_e {
       id_noop,
@@ -35,7 +34,7 @@ namespace smart
       definition( const smart::grammar & self )
       {
         statements
-          =     *statement
+          =     *statement >> end_p
           ;
 
         statement
@@ -43,20 +42,29 @@ namespace smart
           ;
 
         assignment
-          =     macro_name
+          =        discard_node_d[ *space_p ]
+                >> macro_name
                 >> (    root_node_d[ch_p('=')]
                    |    root_node_d[str_p("+=")]
                    |    root_node_d[str_p(":=")]
                    )
-                >> leaf_node_d[ macro_value ]
+		>> leaf_node_d[ macro_value ]
+                >> discard_node_d[ *(space_p | chset_p("\r\n")) ]
           ;
 
         macro_name
-          =     +( ~ch_p('=') )
+          =     lexeme_d[
+                        graph_p
+                    >>  *( ~chset_p("+:= \r\n") )
+                ]
           ;
 
         macro_value
-          =     *( ~ch_p('\n') )
+          =     !lexeme_d[
+                        graph_p
+                    >>  *( ~chset_p("\\\r\n") )
+                    >>  *( ch_p('\\') >> eol_p >> *( ~chset_p("\\\r\n") ) )
+                ]
           ;
 
         debug();
@@ -82,7 +90,7 @@ namespace smart
 
   //============================================================
 
-  struct grammar_skip : boost::spirit::grammar<grammar_skip>
+  struct grammar_skip : boost::spirit::classic::grammar<grammar_skip>
   {
     template<typename TScan>
     struct definition
