@@ -34,37 +34,56 @@ namespace smart
       definition( const smart::grammar & self )
       {
         statements
-          =     *statement >> end_p
+          =  *statement
+             >> end_p
           ;
 
         statement
-          =     assignment
+          =  assignment
+          |  discard_node_d[ space_p ]
+          |  discard_node_d[ eol_p ]
           ;
 
         assignment
-          =        discard_node_d[ *space_p ]
-                >> macro_name
-                >> (    root_node_d[ch_p('=')]
-                   |    root_node_d[str_p("+=")]
-                   |    root_node_d[str_p(":=")]
-                   )
-		>> leaf_node_d[ macro_value ]
-                >> discard_node_d[ *(space_p | chset_p("\r\n")) ]
+          =  macro_name
+             >> (  root_node_d[ ch_p('=')   ]
+                |  root_node_d[ str_p("+=") ]
+                |  root_node_d[ str_p(":=") ]
+                )
+             >> macro_value
+             >> discard_node_d
+                [
+                   lexeme_d[ !(eol_p | end_p) ]
+                ]
           ;
 
         macro_name
-          =     lexeme_d[
-                        graph_p
-                    >>  *( ~chset_p("+:= \r\n") )
-                ]
+          =  token_node_d
+             [
+                +alnum_p
+             ]
           ;
 
         macro_value
-          =     !lexeme_d[
-                        graph_p
-                    >>  *( ~chset_p("\\\r\n") )
-                    >>  *( ch_p('\\') >> eol_p >> *( ~chset_p("\\\r\n") ) )
-                ]
+          =  lexeme_d
+             [
+                //!< discard the heading spaces
+                discard_node_d[ *(space_p - chset_p("\r\n")) ]
+                >> token_node_d
+                   [
+                      *(graph_p - ch_p('\\'))
+                   ]
+                >> *(
+                       discard_node_d
+                       [
+                          ch_p('\\') >> eol_p >> *space_p
+                       ]
+                       >> token_node_d
+                          [
+                             *(graph_p - ch_p('\\'))
+                          ]
+                    )
+             ]
           ;
 
         debug();
@@ -98,8 +117,9 @@ namespace smart
       definition( const grammar_skip & self )
       {
         skip
-          =     space_p
-          |     comment_p("#")
+          =   space_p
+          |   comment_p("#")
+          //|   confix_p( str_p("#"), *anychar_p, eol_p )
           ;
 
 #       ifdef BOOST_SPIRIT_DEBUG

@@ -4,6 +4,7 @@ include Makefile.conf
 INCLUDES = -I$(BOOST_DIR)
 
 CXXFLAGS = -std=gnu++0x $(INCLUDES)
+#CXXFLAGS = $(INCLUDES)
 
 #LOADLIBRES = -L$(BOOST_DIR)/stage/lib
 LOADLIBRES =

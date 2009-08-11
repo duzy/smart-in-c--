@@ -1,0 +1,22 @@
+
+     # comment...
+   ### comment...
+
+
+FOO = foo
+BAR = bar
+
+ML = xx\
+  yy\
+zz
+
+#FOOBAR := $(FOO)$(BAR)
+
+## comment...
+FF = ff
+
+ # comment...
+## comment...
+
+EE =
+#EEE =

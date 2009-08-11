@@ -2,16 +2,26 @@
  *
  */
 
+// BOOST_SPIRIT_DEBUG_FLAGS_NODES
+// BOOST_SPIRIT_DEBUG_FLAGS_TREES
+// BOOST_SPIRIT_DEBUG_FLAGS_CLOSURES
+// BOOST_SPIRIT_DEBUG_FLAGS_ESCAPE_CHAR
+// BOOST_SPIRIT_DEBUG_FLAGS_SLEX
+
 //#define BOOST_SPIRIT_DEBUG
+#define BOOST_SPIRIT_DEBUG_FLAGS BOOST_SPIRIT_DEBUG_FLAGS_NODES
 #include "../src/grammar.ipp"
+#include <boost/spirit/include/classic_tree_to_xml.hpp>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <stdexcept>
+#include <map>
 
-template<typename TTreeIter>
-std::string get_value( const TTreeIter & iter )
+template<typename TTreeNode>
+std::string get_value( const TTreeNode & nd )
 {
-  return std::string(iter.value.begin(), iter.value.end());
+  return std::string(nd.value.begin(), nd.value.end());
 }
 
 template<typename TTreeIter>
@@ -19,6 +29,7 @@ void dump_assignment( const TTreeIter & iter )
 {
   assert( iter->value.id() == smart::grammar::id_assignment );
   assert( 0 < iter->children.size() );
+  assert( iter->children.size() < 3 );
   if ( iter->children.size() == 2 )
     std::clog<<"'"<<get_value(iter->children[0])
 	     <<"' = '"<<get_value(iter->children[1])
@@ -26,7 +37,7 @@ void dump_assignment( const TTreeIter & iter )
       ;
   else
     std::clog<<"'"<<get_value(iter->children[0])
-	     <<"' = '<empty>'"
+	     <<"' = <empty>"
       ;
 }
 
@@ -101,15 +112,20 @@ int main(int argc, const char** argv)
   BOOST_SPIRIT_DEBUG_GRAMMAR(s);
 # endif
 
-  std::string str
-    ("  \n\n \r\n"
-     "FOO = foo\n"
-     "BAR = bar\n"
-     "FOOBAR := $(FOO)$(BAR)\n"
-     "\n"
-     "FOO = xx\\\nyy\\\nzz\n"
-     "FF ="
-     );
+  std::string str;
+  {
+    std::ifstream ifs( "assignments.txt" );
+    if ( !ifs ) ifs.open( "t/assignments.txt" );
+    ifs.seekg( 0, ifs.end );
+    int sz( ifs.tellg() );
+    if ( 0 < sz ) {
+      str.resize( sz );
+      ifs.seekg( 0, ifs.beg );
+      ifs.read( &str[0], sz );
+      //std::clog<<str<<std::endl;
+    }
+  }
+  //BOOST_CHECK( !str.empty() );
 
   using namespace boost::spirit;
   typedef classic::position_iterator<std::string::const_iterator> iter_t;
@@ -120,6 +136,15 @@ int main(int argc, const char** argv)
 
   parse_tree_info_t pt( classic::ast_parse<factory_t>(beg,end,g,s) );
   dump_parse_tree( pt.trees );
+  {
+    std::map<classic::parser_id, std::string> names;
+    names[smart::grammar::id_statements] = "statements";
+    names[smart::grammar::id_statement] = "statement";
+    names[smart::grammar::id_assignment] = "assignment";
+    names[smart::grammar::id_macro_name] = "macro_name";
+    names[smart::grammar::id_macro_value] = "macro_value";
+    classic::tree_to_xml(std::cout, pt.trees, str, names);
+  }
   if (!pt.full) {
     std::ostringstream err;
     err
