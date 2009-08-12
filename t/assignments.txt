@@ -8,7 +8,8 @@ BAR = bar
 
 ML = xx\
   yy\
-zz
+zz   \
+mm
 
 #FOOBAR := $(FOO)$(BAR)
 
@@ -19,4 +20,5 @@ FF = ff
 ## comment...
 
 EE =
-#EEE =
+EEE =
+EEEE =

@@ -20,6 +20,7 @@ namespace smart
       id_assignment,
       id_macro_name,
       id_macro_value,
+      id_in_spaces,
     };//enum parser_id_e
 
     template<typename TScan>
@@ -30,6 +31,7 @@ namespace smart
       rule<TScan, parser_tag<id_assignment> > assignment;
       rule<TScan, parser_tag<id_macro_name> > macro_name;
       rule<TScan, parser_tag<id_macro_value> > macro_value;
+      rule<TScan, parser_tag<id_in_spaces> > in_spaces; //!< inline spaces
 
       definition( const smart::grammar & self )
       {
@@ -45,16 +47,21 @@ namespace smart
           ;
 
         assignment
-          =  macro_name
-             >> (  root_node_d[ ch_p('=')   ]
-                |  root_node_d[ str_p("+=") ]
-                |  root_node_d[ str_p(":=") ]
-                )
-             >> macro_value
-             >> discard_node_d
-                [
-                   lexeme_d[ !(eol_p | end_p) ]
-                ]
+          =  lexeme_d
+             [
+                 macro_name
+                 >> no_node_d[ in_spaces/* *(space_p - eol_p) */ ]
+                 >> (  root_node_d[ ch_p('=')   ]
+                    |  root_node_d[ str_p("+=") ]
+                    |  root_node_d[ str_p(":=") ]
+                    )
+                 >> no_node_d[ /*in_spaces*/*(space_p - eol_p) ]
+                 >> ( no_node_d[ eol_p ]
+                    | ( macro_value
+                        >> no_node_d[ !(eol_p | end_p) ]
+                      )
+                    )
+             ]
           ;
 
         macro_name
@@ -68,15 +75,17 @@ namespace smart
           =  lexeme_d
              [
                 //!< discard the heading spaces
-                discard_node_d[ *(space_p - chset_p("\r\n")) ]
-                >> token_node_d
+                no_node_d[ in_spaces/* *(space_p - eol_p) */ ]
+                >> token_node_d //!< the first line
                    [
                       *(graph_p - ch_p('\\'))
                    ]
                 >> *(
-                       discard_node_d
+		       no_node_d //!< more lines
                        [
-                          ch_p('\\') >> eol_p >> *space_p
+                          in_spaces //*(space_p - eol_p)
+                          >> ch_p('\\') >> eol_p
+                          >> in_spaces //*(space_p - eol_p)
                        ]
                        >> token_node_d
                           [
@@ -84,6 +93,10 @@ namespace smart
                           ]
                     )
              ]
+          ;
+
+        in_spaces
+          = lexeme_d[ *(space_p - eol_p) ]
           ;
 
         debug();
@@ -97,6 +110,7 @@ namespace smart
         BOOST_SPIRIT_DEBUG_RULE(assignment);
         BOOST_SPIRIT_DEBUG_RULE(macro_name);
         BOOST_SPIRIT_DEBUG_RULE(macro_value);
+        BOOST_SPIRIT_DEBUG_RULE(in_spaces);
 #       endif
       }//debug()
 
