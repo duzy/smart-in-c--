@@ -32,7 +32,7 @@ void dump_macro_name( const TNode & )
 template<typename TNode>
 std::string get_macro_value( const TNode & nd )
 {
-  assert( nd.value.id() == smart::grammar::id_macro_value );
+  //assert( nd.value.id() == smart::grammar::id_macro_value );
   if ( 1 < nd.children.size() ) {
     std::string str;
     typename TNode::children_t::const_iterator it( nd.children.begin() );
@@ -54,7 +54,6 @@ void dump_assignment( const TTreeIter & iter )
   assert( iter->children.size() < 3 );
   if ( iter->children.size() == 2 )
     std::clog<<"'"<<get_value(iter->children[0])
-      //<<"' = '"<<get_value(iter->children[1])
 	     <<"' = '"<<get_macro_value(iter->children[1])
 	     <<"'"
       ;

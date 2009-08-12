@@ -6,6 +6,8 @@
 FOO = foo
 BAR = bar
 
+FOOBAR = foo bar
+
 ML = xx\
   yy\
 zz   \
@@ -28,4 +30,12 @@ $(FOO)$(BAR) = xxx
 xx$(FOO)xx = xxx
 xx$(FOO)xx$(BAR) = xxx
 $(FOO)xx$(BAR)xx = xxx
+
+xx$()xx = xx_xx
+xx$Nxx = xx_xx
+
+#${print $(FOO)}
+
+FOOBAR = $()
+
 

@@ -59,9 +59,8 @@ namespace smart
                     )
                  >> no_node_d[ /*in_spaces*/*(space_p - eol_p) ]
                  >> (  no_node_d[ eol_p ]
-                    |  (  macro_value
-                          >> no_node_d[ !(eol_p | end_p) ]
-                       )
+                    |  macro_value
+                       >> no_node_d[ !(eol_p | end_p) ]
                     )
              ]
           ;
@@ -76,26 +75,35 @@ namespace smart
                  |  macro_ref
                  )
              ]
+             >> ( eps_p('=') | eps_p("+=") | eps_p(":=") )
           ;
 
         macro_ref
           =  lexeme_d
              [
-                no_node_d[ str_p("$(") ]
-                >> token_node_d[ +(graph_p - ch_p(')')) ]
-                >> no_node_d[ ch_p(')') ]
+                eps_p('$')
+                >> (  no_node_d[ str_p("$(") ]
+                      >> token_node_d[ +(graph_p - ch_p(')')) ]
+                      >> no_node_d[ ch_p(')') ]
+                   |  no_node_d[ str_p("${") ]
+                      >> token_node_d[ +(graph_p - ch_p('}')) ]
+                      >> no_node_d[ ch_p('}') ]
+                   |  no_node_d[ str_p("$()") ]
+                   |  no_node_d[ str_p("${}") ]
+                   |  no_node_d[ ch_p('$') ] >> graph_p
+                   )
              ]
           ;
 
+        //!< list
         macro_value
           =  lexeme_d
              [
                 //!< discard the heading spaces
                 no_node_d[ in_spaces/* *(space_p - eol_p) */ ]
-                >> token_node_d //!< the first line
-                   [
-                      *(graph_p - ch_p('\\'))
-                   ]
+                >> *(  ~eps_p(eol_p) >> macro_ref
+                    |  token_node_d[ +(anychar_p - chset_p("\\$\r\n")) ]
+                    )
                 >> *(
 		       no_node_d //!< more lines
                        [
@@ -103,10 +111,9 @@ namespace smart
                           >> ch_p('\\') >> eol_p
                           >> in_spaces //*(space_p - eol_p)
                        ]
-                       >> token_node_d
-                          [
-                             *(graph_p - ch_p('\\'))
-                          ]
+                       >> *(  ~eps_p(eol_p) >> macro_ref
+                           |  token_node_d[ +(anychar_p - chset_p("\\$\r\n")) ]
+                           )
                     )
              ]
           ;
