@@ -36,6 +36,20 @@ xx$Nxx = xx_xx
 
 #${print $(FOO)}
 
-FOOBAR = $()
+FOOBAR = $() ${}
 
+FOOBAR = $F $B
+
+#${eval
+#  print $(FOO);
+#  if $(FOO) eq '' {
+#    print "xx";
+#  }
+#}
+
+# computed name
+$(N1$(N2$(xx3$(N3)xx3)xx2)xx1) = xx
+
+XX = $(N1$(N2$(xx3$(N3)xx3)xx2)xx1)
+YY = y $(N1$(N2$(xx3$(N3)xx3)xx2)xx1) y
 

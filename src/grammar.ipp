@@ -52,13 +52,14 @@ namespace smart
           =  lexeme_d
              [
                  macro_name
-                 >> no_node_d[ in_spaces/* *(space_p - eol_p) */ ]
+                 >> no_node_d[ in_spaces ]
                  >> (  root_node_d[ ch_p('=')   ]
                     |  root_node_d[ str_p("+=") ]
                     |  root_node_d[ str_p(":=") ]
                     )
-                 >> no_node_d[ /*in_spaces*/*(space_p - eol_p) ]
-                 >> (  no_node_d[ eol_p ]
+                 >> no_node_d[ *(space_p - eol_p) ]
+                 //>> no_node_d[ in_spaces ] //!< will eat \n
+                 >> (  no_node_d[ (eol_p | end_p) ]
                     |  macro_value
                        >> no_node_d[ !(eol_p | end_p) ]
                     )
@@ -83,10 +84,14 @@ namespace smart
              [
                 eps_p('$')
                 >> (  no_node_d[ str_p("$(") ]
-                      >> token_node_d[ +(graph_p - ch_p(')')) ]
+                      >> +(  token_node_d[ +(graph_p - chset_p("$)")) ]
+                          |  macro_ref //!< recursive
+                          )
                       >> no_node_d[ ch_p(')') ]
                    |  no_node_d[ str_p("${") ]
-                      >> token_node_d[ +(graph_p - ch_p('}')) ]
+                      >> +(  token_node_d[ +(graph_p - chset_p("$}")) ]
+                          |  macro_ref //!< recursive
+                          )
                       >> no_node_d[ ch_p('}') ]
                    |  no_node_d[ str_p("$()") ]
                    |  no_node_d[ str_p("${}") ]
@@ -100,16 +105,16 @@ namespace smart
           =  lexeme_d
              [
                 //!< discard the heading spaces
-                no_node_d[ in_spaces/* *(space_p - eol_p) */ ]
+                no_node_d[ in_spaces ]
                 >> *(  ~eps_p(eol_p) >> macro_ref
                     |  token_node_d[ +(anychar_p - chset_p("\\$\r\n")) ]
                     )
                 >> *(
 		       no_node_d //!< more lines
                        [
-                          in_spaces //*(space_p - eol_p)
+                          in_spaces
                           >> ch_p('\\') >> eol_p
-                          >> in_spaces //*(space_p - eol_p)
+                          >> in_spaces
                        ]
                        >> *(  ~eps_p(eol_p) >> macro_ref
                            |  token_node_d[ +(anychar_p - chset_p("\\$\r\n")) ]
@@ -133,6 +138,7 @@ namespace smart
         BOOST_SPIRIT_DEBUG_RULE(assignment);
         BOOST_SPIRIT_DEBUG_RULE(macro_name);
         BOOST_SPIRIT_DEBUG_RULE(macro_ref);
+        BOOST_SPIRIT_DEBUG_RULE(macro_ref_in);
         BOOST_SPIRIT_DEBUG_RULE(macro_value);
         BOOST_SPIRIT_DEBUG_RULE(in_spaces);
 #       endif
