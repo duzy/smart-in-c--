@@ -11,8 +11,6 @@ ML = xx\
 zz   \
 mm
 
-#FOOBAR := $(FOO)$(BAR)
-
 ## comment...
 FF = ff
 
@@ -22,3 +20,12 @@ FF = ff
 EE =
 EEE =
 EEEE =
+
+FOOBAR := $(FOO)$(BAR)
+
+$(FOO)$(BAR) = 
+$(FOO)$(BAR) = xxx
+xx$(FOO)xx = xxx
+xx$(FOO)xx$(BAR) = xxx
+$(FOO)xx$(BAR)xx = xxx
+

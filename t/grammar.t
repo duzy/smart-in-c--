@@ -24,6 +24,28 @@ std::string get_value( const TTreeNode & nd )
   return std::string(nd.value.begin(), nd.value.end());
 }
 
+template<typename TNode>
+void dump_macro_name( const TNode & )
+{
+}
+
+template<typename TNode>
+std::string get_macro_value( const TNode & nd )
+{
+  assert( nd.value.id() == smart::grammar::id_macro_value );
+  if ( 1 < nd.children.size() ) {
+    std::string str;
+    typename TNode::children_t::const_iterator it( nd.children.begin() );
+    for(;;) {
+      str += get_value( *it++ );
+      if ( it == nd.children.end() ) break;
+      else str += " ";
+    }
+    return str;
+  }
+  else return get_value(nd);
+}
+
 template<typename TTreeIter>
 void dump_assignment( const TTreeIter & iter )
 {
@@ -32,7 +54,8 @@ void dump_assignment( const TTreeIter & iter )
   assert( iter->children.size() < 3 );
   if ( iter->children.size() == 2 )
     std::clog<<"'"<<get_value(iter->children[0])
-	     <<"' = '"<<get_value(iter->children[1])
+      //<<"' = '"<<get_value(iter->children[1])
+	     <<"' = '"<<get_macro_value(iter->children[1])
 	     <<"'"
       ;
   else
@@ -142,7 +165,9 @@ int main(int argc, const char** argv)
     names[smart::grammar::id_statement] = "statement";
     names[smart::grammar::id_assignment] = "assignment";
     names[smart::grammar::id_macro_name] = "macro_name";
+    names[smart::grammar::id_macro_ref] = "macro_ref";
     names[smart::grammar::id_macro_value] = "macro_value";
+    names[smart::grammar::id_in_spaces] = "in_spaces";
     classic::tree_to_xml(std::cout, pt.trees, str, names);
   }
   if (!pt.full) {
