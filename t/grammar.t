@@ -64,6 +64,13 @@ void dump_assignment( const TTreeIter & iter )
 }
 
 template<typename TTreeIter>
+void dump_rule( const TTreeIter & iter )
+{
+  assert( iter->value.id() == smart::grammar::id_make_rule );
+  std::clog<<get_value( *iter );
+}
+
+template<typename TTreeIter>
 void dump_statement( const TTreeIter & iter )
 {
   assert( iter->value.id() == smart::grammar::id_statement );
@@ -97,8 +104,13 @@ void dump( TTreeIter & iter, const TTreeIter & end )
       dump_assignment( iter );
       std::clog<<std::endl;
       break;
+    case smart::grammar::id_make_rule:
+      std::clog<<"rule: ";
+      dump_rule( iter );
+      std::clog<<std::endl;
+      break;
     default:
-      std::clog<<"Unkown supported statement."<<std::endl;
+      std::clog<<"Unkown statement."<<std::endl;
       break;
     }
   }
@@ -136,8 +148,10 @@ int main(int argc, const char** argv)
 
   std::string str;
   {
-    std::ifstream ifs( "assignments.txt" );
-    if ( !ifs ) ifs.open( "t/assignments.txt" );
+    //std::string nm("assignments.txt");
+    std::string nm("rules.sm");
+    std::ifstream ifs( nm.c_str() );
+    if ( !ifs ) ifs.open( ("t/" + nm).c_str() );
     ifs.seekg( 0, ifs.end );
     int sz( ifs.tellg() );
     if ( 0 < sz ) {
@@ -165,7 +179,12 @@ int main(int argc, const char** argv)
     names[smart::grammar::id_assignment] = "assignment";
     names[smart::grammar::id_macro_name] = "macro_name";
     names[smart::grammar::id_macro_ref] = "macro_ref";
+    names[smart::grammar::id_macro_ref_args] = "macro_ref_args";
+    names[smart::grammar::id_macro_ref_pattern] = "macro_ref_pattern";
     names[smart::grammar::id_macro_value] = "macro_value";
+    names[smart::grammar::id_make_rule] = "make_rule";
+    names[smart::grammar::id_make_rule_targets] = "make_rule_targets";
+    names[smart::grammar::id_make_rule_prereqs] = "make_rule_prereqs";
     names[smart::grammar::id_in_spaces] = "in_spaces";
     classic::tree_to_xml(std::cout, pt.trees, str, names);
   }

@@ -53,3 +53,17 @@ $(N1$(N2$(xx3$(N3)xx3)xx2)xx1) = xx
 XX = $(N1$(N2$(xx3$(N3)xx3)xx2)xx1)
 YY = y $(N1$(N2$(xx3$(N3)xx3)xx2)xx1) y
 
+FUN = xx$1yy
+# AA -> xxiiiyy
+AA = $(FUN iii)
+BB = $(FOO:%.a=%.b)
+CC = $(FOO: %.a = %.b )
+DD = ${FOO: %.a = %.b }
+
+EE(a,b,c) = xx$axx$bxx$cxx
+FF = $(EE aa,bb,cc)
+
+LIST = aa bb cc dd
+AA = $(foreach print,$(LIST))
+AA = $(for 1..10,print)
+

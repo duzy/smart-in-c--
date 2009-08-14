@@ -1,0 +1,20 @@
+# -*- Makefile -*-
+
+rule: a b c
+
+#
+  xxx : bbb
+
+xx =
+
+#
+
+xxx = 
+
+$(xx) : xxxx
+
+#
+
+   $(xxx) : xxxxxxx
+
+ xx	 $(xxx) yy : xxx$(xx)x $(yy)
