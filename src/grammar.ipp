@@ -26,6 +26,7 @@ namespace smart
       id_make_rule,
       id_make_rule_targets,
       id_make_rule_prereqs,
+      id_make_rule_commands,
       id_in_spaces,
     };//enum parser_id_e
 
@@ -43,6 +44,7 @@ namespace smart
       rule<TScan, parser_tag<id_make_rule> > make_rule;
       rule<TScan, parser_tag<id_make_rule_targets> > make_rule_targets;
       rule<TScan, parser_tag<id_make_rule_prereqs> > make_rule_prereqs;
+      rule<TScan, parser_tag<id_make_rule_commands> > make_rule_commands;
       rule<TScan, parser_tag<id_in_spaces> > in_spaces; //!< inline spaces
 
       definition( const smart::grammar & self )
@@ -179,28 +181,57 @@ namespace smart
           ;
 
         make_rule
-          =  make_rule_targets
-             >> no_node_d[ ch_p(':') ]
-             >> no_node_d[ *(space_p - eol_p) ] //!< spirit can't eat these spaces
-             >> make_rule_prereqs
+          =  lexeme_d
+             [
+                make_rule_targets
+                >> no_node_d[ *(space_p - eol_p) ] //!< spirit can't eat these spaces
+                >> no_node_d[ ch_p(':') ]
+                >> no_node_d[ *(space_p - eol_p) ] //!< spirit can't eat these spaces
+                >> make_rule_prereqs
+                >> no_node_d[ eol_p | end_p ]
+                //>> !(eps_p('\t') >> make_rule_commands)
+                >> !(no_node_d[ ch_p('\t') ] >> make_rule_commands)
+             ]
           ;
 
         make_rule_targets
-          =  +( token_node_d[ +( graph_p - ':' ) ]
-                >> no_node_d[ *( space_p - eol_p ) ] //!< spirit can't eat these spaces
-              | macro_ref
-              )
+          =  lexeme_d
+             [
+                +( token_node_d[ +( anychar_p - chset_p(": \t\r\n") ) ]
+                 | no_node_d[ +(space_p - eol_p) ]
+                 | macro_ref
+                 )
+             ]
           ;
 
         make_rule_prereqs
-          =  token_node_d[ +( anychar_p - eol_p ) ]
-//              lexeme_d
-//              [
-//                 *( token_node_d[ +( graph_p - eol_p ) ]
-//                    >> no_node_d[ *( space_p - eol_p ) ]
-//                  | macro_ref
-//                  )
-//              ]
+          =  lexeme_d
+             [
+                *( token_node_d
+                   [
+                      //~eps_p( (*space_p >> eol_p) >> eol_p  ) >>
+                      +( anychar_p - eol_p )
+                   ]
+                 | ~eps_p(chset_p("\t\r\n")) >> macro_ref
+                 )
+             ]
+          ;
+
+        make_rule_commands
+          =  lexeme_d
+             [
+                token_node_d[ *(anychar_p - (eol_p|'\\')) ]
+                >> no_node_d[ eol_p ]
+                >> *( no_node_d[ ch_p('\t') ]
+                      >> token_node_d[ *(anychar_p - (eol_p|'\\')) ]
+                      >> ( no_node_d[ eol_p ]
+                         | +( no_node_d[ ch_p('\\') >> eol_p ]
+                              >> token_node_d[ *(anychar_p - (eol_p|'\\')) ]
+                            )
+                           >> no_node_d[ eol_p ]
+                         )
+                    )
+             ]
           ;
 
         in_spaces
@@ -224,6 +255,7 @@ namespace smart
         BOOST_SPIRIT_DEBUG_RULE(make_rule);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_targets);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_prereqs);
+        BOOST_SPIRIT_DEBUG_RULE(make_rule_commands);
         BOOST_SPIRIT_DEBUG_RULE(in_spaces);
 #       endif
       }//debug()

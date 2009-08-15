@@ -2,19 +2,29 @@
 
 rule: a b c
 
-#
-  xxx : bbb
+# #
+   xxx : bbb
 
 xx =
 
-#
+# #
 
 xxx = 
 
-$(xx) : xxxx
+ $(xx) : xxxx
+	echo aaa
+	echo bbb
+	echo ccc
 
-#
+# #
 
-   $(xxx) : xxxxxxx
+    $(xxx) : xxxxxxx
+	if [ -d xx ]; then \
+	  echo xx; \
+	fi
 
- xx	 $(xxx) yy : xxx$(xx)x $(yy)
+  xx yy zz : x$(x)x y$(y)y
+	command 1
+	command 2
+
+  xx	 $(xxx) yy : xxx$(xx)x $(yy)
