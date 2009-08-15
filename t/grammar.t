@@ -8,7 +8,7 @@
 // BOOST_SPIRIT_DEBUG_FLAGS_ESCAPE_CHAR
 // BOOST_SPIRIT_DEBUG_FLAGS_SLEX
 
-#define BOOST_SPIRIT_DEBUG
+//#define BOOST_SPIRIT_DEBUG
 #define BOOST_SPIRIT_DEBUG_FLAGS BOOST_SPIRIT_DEBUG_FLAGS_NODES
 #include "../src/grammar.ipp"
 #include <boost/spirit/include/classic_tree_to_xml.hpp>
@@ -148,8 +148,8 @@ int main(int argc, const char** argv)
 
   std::string str;
   {
-    //std::string nm("assignments.txt");
-    std::string nm("rules.sm");
+    std::string nm("assignments.txt");
+    //std::string nm("rules.sm");
     std::ifstream ifs( nm.c_str() );
     if ( !ifs ) ifs.open( ("t/" + nm).c_str() );
     ifs.seekg( 0, ifs.end );
@@ -186,6 +186,7 @@ int main(int argc, const char** argv)
     names[smart::grammar::id_make_rule_targets] = "make_rule_targets";
     names[smart::grammar::id_make_rule_prereqs] = "make_rule_prereqs";
     names[smart::grammar::id_make_rule_commands] = "make_rule_commands";
+    names[smart::grammar::id_make_rule_command] = "make_rule_command";
     names[smart::grammar::id_in_spaces] = "in_spaces";
     classic::tree_to_xml(std::cout, pt.trees, str, names);
   }

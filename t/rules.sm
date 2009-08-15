@@ -27,4 +27,10 @@ xxx =
 	command 1
 	command 2
 
+xx: dd
+	if [ -d xx ]; then \
+  echo xx; \
+fi; \
+  echo aa
+
   xx	 $(xxx) yy : xxx$(xx)x $(yy)

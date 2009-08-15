@@ -27,6 +27,7 @@ namespace smart
       id_make_rule_targets,
       id_make_rule_prereqs,
       id_make_rule_commands,
+      id_make_rule_command,
       id_in_spaces,
     };//enum parser_id_e
 
@@ -45,6 +46,7 @@ namespace smart
       rule<TScan, parser_tag<id_make_rule_targets> > make_rule_targets;
       rule<TScan, parser_tag<id_make_rule_prereqs> > make_rule_prereqs;
       rule<TScan, parser_tag<id_make_rule_commands> > make_rule_commands;
+      rule<TScan, parser_tag<id_make_rule_command> > make_rule_command;
       rule<TScan, parser_tag<id_in_spaces> > in_spaces; //!< inline spaces
 
       definition( const smart::grammar & self )
@@ -94,7 +96,7 @@ namespace smart
                 eps_p('$')
                 >> (  no_node_d[ str_p("$(") ]  //!< $(...)
                       >> +(  token_node_d[ +(graph_p - chset_p("$:)")) ]
-                          |  macro_ref //!< recursive
+                          |  macro_ref
                           )
                       >> !( ( no_node_d[ space_p ] >> macro_ref_args )
                           | ( eps_p(':') >> macro_ref_pattern )
@@ -104,20 +106,20 @@ namespace smart
                       //!<<<<<<<<<<<<<<<<< @{
                    |  no_node_d[ str_p("${") ]  // ${...}
                       >> +(  token_node_d[ +(graph_p - chset_p("$:}")) ]
-                          |  macro_ref //!< recursive
+                          |  macro_ref
                           )
                       >> no_node_d[ ch_p('}') ]
 		   |  no_node_d[ str_p("${") ]
                       >> +(  token_node_d[ +(graph_p - chset_p("$:}")) ]
-                          |  macro_ref //!< recursive
+                          |  macro_ref
                           )
 		      >> ( space_p | ':' )
                       >> +(  token_node_d[ +(anychar_p - chset_p("$=}")) ]
-                          |  macro_ref //!< recursive
+                          |  macro_ref
                           )
 		      >> '='
                       >> +(  token_node_d[ +(anychar_p - chset_p("$}")) ]
-                          |  macro_ref //!< recursive
+                          |  macro_ref
                           )
                       >> no_node_d[ ch_p('}') ]
                       //!<<<<<<<<<<<<<<<<< @}
@@ -133,7 +135,7 @@ namespace smart
           =  lexeme_d
              [
                 +(  token_node_d[ +(anychar_p - chset_p("$,)")) ]
-                    |  macro_ref //!< recursive
+                    |  macro_ref
                     )
                 >> *(  no_node_d[ ch_p(',') ]
                        >> +(  token_node_d[ +(anychar_p - chset_p("$,)")) ]
@@ -148,11 +150,11 @@ namespace smart
              [
                 no_node_d[ ch_p(':') ]
                 >> +(  token_node_d[ +(anychar_p - chset_p("$=)")) ]
-                    |  macro_ref //!< recursive
+                    |  macro_ref
                     )
                 >> no_node_d[ ch_p('=') ]
                 >> +(  token_node_d[ +(anychar_p - chset_p("$)")) ]
-                    |  macro_ref //!< recursive
+                    |  macro_ref
                     )
              ]
           ;
@@ -207,12 +209,9 @@ namespace smart
         make_rule_prereqs
           =  lexeme_d
              [
-                *( token_node_d
-                   [
-                      //~eps_p( (*space_p >> eol_p) >> eol_p  ) >>
-                      +( anychar_p - eol_p )
-                   ]
-                 | ~eps_p(chset_p("\t\r\n")) >> macro_ref
+                *( token_node_d[ +( anychar_p - chset_p(" \t\r\n") ) ]
+                 | no_node_d[ +(space_p - eol_p) ]
+                 | ~eps_p(chset_p(" \t\r\n")) >> macro_ref
                  )
              ]
           ;
@@ -220,16 +219,19 @@ namespace smart
         make_rule_commands
           =  lexeme_d
              [
+                make_rule_command
+                >> *(  no_node_d[ eol_p >> ch_p('\t') ]
+                       >> make_rule_command
+                    )
+             ]
+          ;
+
+        make_rule_command
+          =  lexeme_d
+             [
                 token_node_d[ *(anychar_p - (eol_p|'\\')) ]
-                >> no_node_d[ eol_p ]
-                >> *( no_node_d[ ch_p('\t') ]
-                      >> token_node_d[ *(anychar_p - (eol_p|'\\')) ]
-                      >> ( no_node_d[ eol_p ]
-                         | +( no_node_d[ ch_p('\\') >> eol_p ]
-                              >> token_node_d[ *(anychar_p - (eol_p|'\\')) ]
-                            )
-                           >> no_node_d[ eol_p ]
-                         )
+                >> *(  no_node_d[ ch_p('\\') >> eol_p ]
+                       >> token_node_d[ *(anychar_p - (eol_p|'\\')) ]
                     )
              ]
           ;
@@ -256,6 +258,7 @@ namespace smart
         BOOST_SPIRIT_DEBUG_RULE(make_rule_targets);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_prereqs);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_commands);
+        BOOST_SPIRIT_DEBUG_RULE(make_rule_command);
         BOOST_SPIRIT_DEBUG_RULE(in_spaces);
 #       endif
       }//debug()
