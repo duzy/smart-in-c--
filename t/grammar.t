@@ -148,7 +148,7 @@ int main(int argc, const char** argv)
 
   std::string str;
   {
-    std::string nm("assignments.txt");
+    std::string nm("assignments.sm");
     //std::string nm("rules.sm");
     std::ifstream ifs( nm.c_str() );
     if ( !ifs ) ifs.open( ("t/" + nm).c_str() );
