@@ -8,8 +8,9 @@ namespace smart
    */
   struct context
   {
+    
   private:
-
+    
   };//struct context
 }//namespace smart
 
