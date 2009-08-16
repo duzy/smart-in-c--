@@ -42,6 +42,9 @@ PHONY += test
 test: $(TESTS)
 	@for T in $(TESTS); do $$T; done
 
+test-%: $(OUT_DIR)/t/%.test
+	./$<
+
 $(TARGET):$(OBJECTS)
 	$(PREPARE_OUTPUT_DIR)
 	$(LINK.cc) -o $@ $^ $(LOADLIBRES) $(LDLIBS)

@@ -2,6 +2,15 @@
 #include "context.hpp"
 #include "grammar.ipp"
 
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+
+# ifdef BOOST_SPIRIT_DEBUG
+#   include <boost/spirit/include/classic_tree_to_xml.hpp>
+#   include <iostream>
+# endif
+
 namespace smart
 {
   namespace detail
@@ -42,7 +51,7 @@ namespace smart
 	default:
 	  {
 	    std::ostringstream err;
-	    err<<"Unimplemented statement: "<<iter->value;
+	    err<<"Unimplemented statement: "<<iter->value.id().to_long();
 	    throw std::runtime_error( err.str() );
 	  }
 	}//switch
@@ -59,7 +68,7 @@ namespace smart
 
   //============================================================
 
-  void compiler::compiler( context & ctx )
+  compiler::compiler( context & ctx )
     : _context( ctx )
   {
   }
@@ -90,8 +99,8 @@ namespace smart
     compile( code.begin(), code.end() );
   }
 
-  void compiler::compile( const std::string::const_string & codeBeg,
-			  const std::string::const_string & codeEnd )
+  void compiler::compile( const std::string::const_iterator & codeBeg,
+			  const std::string::const_iterator & codeEnd )
   {
     grammar g;
     grammar_skip s;
@@ -134,10 +143,11 @@ namespace smart
       names[smart::grammar::id_make_rule_commands] = "make_rule_commands";
       names[smart::grammar::id_make_rule_command] = "make_rule_command";
       names[smart::grammar::id_in_spaces] = "in_spaces";
-      classic::tree_to_xml(std::cout, pt.trees, code, names);
+      std::string code( codeBeg, codeEnd );
+      classic::tree_to_xml(std::clog, pt.trees, code, names);
     }
 #   endif
 
-    detail::compile_tree( _context, pt );
+    detail::compile_tree( _context, pt.trees );
   }
 }//namespace smart
