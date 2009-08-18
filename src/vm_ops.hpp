@@ -15,19 +15,6 @@ namespace smart
 	_number_of_ops,
       };
 
-    struct jit_info_t
-    {
-      int registers[];
-    };//struct jit_info_t
-
-    typedef void (*jit_fn_t)( jit_info_t *ji, context * ctx );
-
-    struct op_t
-    {
-      jit_fn_t fn;
-      opcode_t code;
-    };//struct op_t
-
     /**
      *  @brief Argument for ops
      *	Of the following types:
@@ -41,6 +28,19 @@ namespace smart
       unsigned type : 2; //!< decide which register to use
       unsigned index : 30; //32-2
     };//struct operand
+
+    struct jit_info_t
+    {
+      int registers[];
+    };//struct jit_info_t
+
+    typedef void (*jit_fn_t)( jit_info_t *ji, context * ctx );
+
+    struct op_t
+    {
+      jit_fn_t fn;
+      opcode_t code;
+    };//struct op_t
 
     extern op_t *op_jit;
     

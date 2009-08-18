@@ -3,18 +3,26 @@
 
 namespace smart
 {
+
+  struct string_table_entry
+  {
+    std::string * ptr;
+  };//struct string_table_entry
+
   struct string_table
   {
-    typedef std::string * item;
+    typedef string_table_entry entry;
 
     string_table();
 
-    item add( const std::string & );
-    item get( const std::string & );
+    entry add( const std::string & );
+    entry get( const std::string & );
 
   private:
-    std::set<std::string> _table;
+    std::map<entry, int> _table;
+    std::vector<std::string> _entries;
   };//struct string_table
+
 }//namespace smart
 
 #endif//__SMART_STRING_TABLE__HPP____by_Duzy_Chan__

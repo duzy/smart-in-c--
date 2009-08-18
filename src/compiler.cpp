@@ -28,6 +28,9 @@ namespace smart
       assert( iter->value.id() == grammar::id_macro_name ||
 	      iter->value.id() == grammar::id_macro_ref );
       std::string name( iter->value.begin(), iter->value.end() );
+
+      vm::type_string str( ctx.const_string( name ) );
+
       if ( iter->value.id() == grammar::id_macro_ref ) {
 	std::clog<<"ref: "<<name<<std::endl;
       }

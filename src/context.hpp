@@ -5,26 +5,24 @@
 namespace smart
 {
   struct string_table;
+  struct real_table;
 
   /**
    *  @brief Smart script running context
    */
   struct context
   {
-    /**
-     *  @brief Calling stuffs 
-     *  @{
-     */
-    frame * current_frame();
-    frame * push_frame(); //!< return the new top frame
-    /*  @}
-     */
+    context();
+
+    vm::type_string const_string( const std::string & c );
+    //vm::type_real const_number( double c );
 
   private:
-    string_table *_stringTable;
-    float_table *_floatTable;
+    string_table *_string_table; //!< for string constants
+    //real_table *_number_table; //!< for real number constants
     std::stack< frame* > _frames;
   };//struct context
+
 }//namespace smart
 
 /**
