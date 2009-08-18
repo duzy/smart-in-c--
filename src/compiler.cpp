@@ -1,5 +1,6 @@
 #include "compiler.hpp"
 #include "context.hpp"
+#include "builtins.hpp"
 #include "grammar.ipp"
 
 #include <fstream>
@@ -7,19 +8,58 @@
 #include <stdexcept>
 
 # ifdef BOOST_SPIRIT_DEBUG
-#   include <boost/spirit/include/classic_tree_to_xml.hpp>
 #   include <iostream>
 # endif
+# ifdef BOOST_SPIRIT_DEBUG_XML
+#   include <boost/spirit/include/classic_tree_to_xml.hpp>
+# endif
+
+#   include <iostream>
 
 namespace smart
 {
   namespace detail
   {
+    
+
+    template<typename TTreeIter>
+    static std::string compute_macro_name( context & ctx, const TTreeIter & iter )
+    {
+      assert( iter->value.id() == grammar::id_macro_name ||
+	      iter->value.id() == grammar::id_macro_ref );
+      std::string name( iter->value.begin(), iter->value.end() );
+      if ( iter->value.id() == grammar::id_macro_ref ) {
+	std::clog<<"ref: "<<name<<std::endl;
+      }
+      else {
+      }
+      return name;
+    }
+
     template<typename TTreeIter>
     static void compile_assignment( context & ctx, const TTreeIter & iter )
     {
       assert( iter->value.id() == grammar::id_assignment );
-      
+      assert( 0 < iter->children.size() );
+      //assert( iter->children.size() < 3 );
+
+      std::string name( compute_macro_name( ctx, iter->children.begin() ) );
+      if ( 1 < iter->children.size() ) { //!< has value
+	char type( *(iter->value.begin()) );
+	std::string value( iter->children[1].value.begin(),
+			   iter->children[1].value.end() );
+	std::clog<<"assign: "<<name<<type<<value<<std::endl;
+	switch( type ) {
+	case '=':
+	  break;
+	case '+':
+	  break;
+	case ':':
+	  break;
+	default:
+	  break;
+	}
+      }
     }
 
     template<typename TTreeIter>
@@ -61,7 +101,7 @@ namespace smart
     template<typename TTree>
     static void compile_tree( context & ctx, const TTree & tree )
     {
-      if ( tree.size() ) return;
+      if ( tree.size() <= 0 ) return;
       compile_statements( ctx, tree.begin() );
     }//compile_tree()
   }//namespace detail
@@ -108,7 +148,7 @@ namespace smart
 #   ifdef BOOST_SPIRIT_DEBUG
     BOOST_SPIRIT_DEBUG_GRAMMAR(g);
     BOOST_SPIRIT_DEBUG_GRAMMAR(s);
-#   endif
+#   endif//BOOST_SPIRIT_DEBUG
 
     using namespace boost::spirit;
     typedef classic::position_iterator<std::string::const_iterator> iter_t;
@@ -126,7 +166,7 @@ namespace smart
       throw std::runtime_error( err.str() );
     }
 
-#   ifdef BOOST_SPIRIT_DEBUG
+#   ifdef BOOST_SPIRIT_DEBUG_XML
     {
       std::map<classic::parser_id, std::string> names;
       names[smart::grammar::id_statements] = "statements";
@@ -146,7 +186,7 @@ namespace smart
       std::string code( codeBeg, codeEnd );
       classic::tree_to_xml(std::clog, pt.trees, code, names);
     }
-#   endif
+#   endif//BOOST_SPIRIT_DEBUG_XML
 
     detail::compile_tree( _context, pt.trees );
   }

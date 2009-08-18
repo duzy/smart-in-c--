@@ -1,4 +1,4 @@
-#				-*- Makefile -*-
+#								-*- Makefile -*-
 
      # comment...
    ### comment...
@@ -50,6 +50,8 @@ FOOBAR = $F $B
 
 # computed name
 $(N1$(N2$(xx3$(N3)xx3)xx2)xx1) = xx
+$($($($N))) = nnn
+$(N1)$(N2) = nn
 
 XX = $(N1$(N2$(xx3$(N3)xx3)xx2)xx1)
 YY = y $(N1$(N2$(xx3$(N3)xx3)xx2)xx1) y
