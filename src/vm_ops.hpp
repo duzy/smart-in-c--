@@ -5,7 +5,6 @@ namespace smart
 {
   namespace vm
   {
-
     typedef long opcode_t;
 
     enum opcode_enum
@@ -18,6 +17,7 @@ namespace smart
 
     struct jit_info_t
     {
+      int registers[];
     };//struct jit_info_t
 
     typedef void (*jit_fn_t)( jit_info_t *ji, context * ctx );
@@ -27,6 +27,20 @@ namespace smart
       jit_fn_t fn;
       opcode_t code;
     };//struct op_t
+
+    /**
+     *  @brief Argument for ops
+     *	Of the following types:
+     *		o Integer
+     *		o Real(floating)
+     *		o String
+     *		o Object
+     */
+    struct operand
+    {
+      unsigned type : 2; //!< decide which register to use
+      unsigned index : 30; //32-2
+    };//struct operand
 
     extern op_t *op_jit;
     

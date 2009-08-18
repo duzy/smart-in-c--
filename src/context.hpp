@@ -22,6 +22,7 @@ namespace smart
 
   private:
     string_table *_stringTable;
+    float_table *_floatTable;
     std::stack< frame* > _frames;
   };//struct context
 }//namespace smart
