@@ -1,5 +1,6 @@
 #include "compiler.hpp"
 #include "context.hpp"
+#include "string_table.hpp"
 #include "builtins.hpp"
 #include "vm_types.hpp"
 #include "grammar.ipp"
@@ -30,6 +31,7 @@ namespace smart
       std::string name( iter->value.begin(), iter->value.end() );
 
       vm::type_string str( ctx.const_string( name ) );
+      assert( 0 < ctx.stable()->size() );
 
       if ( iter->value.id() == grammar::id_macro_ref ) {
 	std::clog<<"ref: "<<name<<std::endl;

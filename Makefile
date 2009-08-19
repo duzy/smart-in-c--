@@ -10,10 +10,12 @@ INCLUDES = -I$(BOOST_DIR)
 
 CXXFLAGS = -std=gnu++0x $(INCLUDES)
 #CXXFLAGS = $(INCLUDES)
+#CXXFLAGS = -ftemplate-depth-128 -O3 -finline-functions -DNDEBUG
 
 #LOADLIBRES = -L$(BOOST_DIR)/stage/lib
 LOADLIBRES = -L$(OUT_DIR)/lib
-LDLIBS = -lsmart
+#LDLIBS = -lsmart
+LDLIBS = -lpthread
 ##################################################
 
 SOURCES = $(wildcard src/*.cpp)
@@ -45,11 +47,11 @@ PHONY += test
 test: $(TESTS)
 	@for T in $(TESTS); do $$T; done
 
+$(TESTS): $(SMART.LIB)
 test-%: $(OUT_DIR)/t/%.test
 	./$<
 
-#$(SMART):$(OBJECTS)
-$(SMART):$(SMART.LIB)
+$(SMART):$(OBJECTS)
 	$(PREPARE_OUTPUT_DIR)
 	$(LINK.cc) -o $@ $^ $(LOADLIBRES) $(LDLIBS)
 $(SMART.LIB):$(OBJECTS)
@@ -66,7 +68,7 @@ $(UNIT_OBJECTS):$(UNIT_PAT):%.t
 	$(COMPILE.cc) -xc++ -o $@ $<
 $(TESTS):$(TEST_PAT):$(OUT_DIR)/objs/%.o
 	$(PREPARE_OUTPUT_DIR)
-	$(LINK.cc) -o $@ $^ $(LOADLIBRES) $(LDLIBS)
+	$(LINK.cc) -o $@ $^ $(LOADLIBRES) $(LDLIBS) -lsmart
 $(TEST_DEPENDS):$(TEST_DEPEND_PAT):%.t
 	$(PREPARE_OUTPUT_DIR)
 	$(CXX) -xc++ -MM -MT $(OUT_DIR)/objs/$*.o -MF $@ $<

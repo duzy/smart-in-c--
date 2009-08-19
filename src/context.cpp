@@ -9,6 +9,11 @@ namespace smart
   {
   }
 
+  string_table * context::stable() const
+  {
+    return _string_table;
+  }
+
   vm::type_string context::const_string( const std::string & c )
   {
     string_table::entry v( _string_table->add( c ) );

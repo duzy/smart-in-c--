@@ -15,6 +15,8 @@ namespace smart
   {
     context();
 
+    string_table * stable() const;
+
     vm::type_string const_string( const std::string & c );
     //vm::type_real const_number( double c );
 

@@ -29,14 +29,6 @@ namespace smart
 
     struct type_string : type_base<type_string>
     {
-      enum {
-	variable, //!< variable string value
-	constant, //!< constant string value
-	//name, //!< macro name, function name, etc..
-      };
-
-      bool is_constant() const;
-
       explicit type_string( const std::string & v );
       explicit type_string( const string_table_entry & );
 
@@ -46,9 +38,8 @@ namespace smart
       virtual ~type_string();
 
     private:
-      unsigned is_constant_ : 1; //!< constant or variable
-      unsigned is_copied_ : 1;
-      std::string * ptr_;
+      struct imp;
+      imp * _i;
     };//struct type_string
 
     struct type_object : type_base<type_object>
