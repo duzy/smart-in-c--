@@ -1,10 +1,11 @@
 #include "context.hpp"
 #include "string_table.hpp"
+#include "vm_types.hpp"
 namespace smart
 {
 
   context::context()
-    : table_string_( new string_table )
+    : _string_table( new string_table )
   {
   }
 

@@ -1,6 +1,7 @@
 
 #ifndef __SMART_VM_TYPES__hpp____by_Duzy_Chan__
 #define __SMART_VM_TYPES__hpp____by_Duzy_Chan__ 1
+#	include <string>
 
 namespace smart
 {

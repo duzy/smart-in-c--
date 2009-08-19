@@ -7,11 +7,11 @@ namespace smart
   namespace vm
   {
 
-    struct frame
-    {
-      object_ptr operator[] ( int ); //!< indexed
-      object_ptr operator[] ( const std::string & ); //!< named
-    };//struct frame
+//     struct frame
+//     {
+//       object_ptr operator[] ( int ); //!< indexed
+//       object_ptr operator[] ( const std::string & ); //!< named
+//     };//struct frame
 
     /**
      *  @brief Executor

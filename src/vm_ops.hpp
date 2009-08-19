@@ -3,6 +3,8 @@
 
 namespace smart
 {
+  struct context;
+
   namespace vm
   {
     typedef long opcode_t;

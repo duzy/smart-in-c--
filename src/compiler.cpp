@@ -1,6 +1,7 @@
 #include "compiler.hpp"
 #include "context.hpp"
 #include "builtins.hpp"
+#include "vm_types.hpp"
 #include "grammar.ipp"
 
 #include <fstream>
@@ -20,7 +21,6 @@ namespace smart
 {
   namespace detail
   {
-    
 
     template<typename TTreeIter>
     static std::string compute_macro_name( context & ctx, const TTreeIter & iter )

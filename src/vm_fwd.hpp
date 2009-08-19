@@ -7,6 +7,8 @@ namespace smart
   {
 
     struct frame;
+    struct type_string;
+    struct type_object;
 
   }//namespace vm
 }//namespace smart

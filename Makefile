@@ -1,5 +1,10 @@
 
+V = debug
+OUT_DIR = out/$(V)
+
 include Makefile.conf
+
+##################################################
 
 INCLUDES = -I$(BOOST_DIR)
 
@@ -7,12 +12,9 @@ CXXFLAGS = -std=gnu++0x $(INCLUDES)
 #CXXFLAGS = $(INCLUDES)
 
 #LOADLIBRES = -L$(BOOST_DIR)/stage/lib
-LOADLIBRES =
-LDLIBS = 
+LOADLIBRES = -L$(OUT_DIR)/lib
+LDLIBS = -lsmart
 ##################################################
-
-V = debug
-OUT_DIR = out/$(V)
 
 SOURCES = $(wildcard src/*.cpp)
 OBJECT_PAT = $(OUT_DIR)/objs/%.o
@@ -33,10 +35,11 @@ PREPARE_OUTPUT_DIR = @[ -d `dirname $@` ] || mkdir -pv `dirname $@`
 
 ##################################################
 
-TARGET = smart
+SMART = smart
+SMART.LIB = $(OUT_DIR)/lib/libsmart.a
 
 PHONY = all
-all: $(TARGET)
+all: $(SMART)
 
 PHONY += test
 test: $(TESTS)
@@ -45,9 +48,13 @@ test: $(TESTS)
 test-%: $(OUT_DIR)/t/%.test
 	./$<
 
-$(TARGET):$(OBJECTS)
+#$(SMART):$(OBJECTS)
+$(SMART):$(SMART.LIB)
 	$(PREPARE_OUTPUT_DIR)
 	$(LINK.cc) -o $@ $^ $(LOADLIBRES) $(LDLIBS)
+$(SMART.LIB):$(OBJECTS)
+	$(PREPARE_OUTPUT_DIR)
+	$(AR) crs $@ $^
 $(OBJECTS):$(OBJECT_PAT):%.cpp
 	$(PREPARE_OUTPUT_DIR)
 	$(COMPILE.cc) -o $@ $<
@@ -59,7 +66,7 @@ $(UNIT_OBJECTS):$(UNIT_PAT):%.t
 	$(COMPILE.cc) -xc++ -o $@ $<
 $(TESTS):$(TEST_PAT):$(OUT_DIR)/objs/%.o
 	$(PREPARE_OUTPUT_DIR)
-	$(LINK.cc) -o $@ $^
+	$(LINK.cc) -o $@ $^ $(LOADLIBRES) $(LDLIBS)
 $(TEST_DEPENDS):$(TEST_DEPEND_PAT):%.t
 	$(PREPARE_OUTPUT_DIR)
 	$(CXX) -xc++ -MM -MT $(OUT_DIR)/objs/$*.o -MF $@ $<

@@ -1,5 +1,7 @@
 #ifndef __SMART_STRING_TABLE__HPP____by_Duzy_Chan__
 #define __SMART_STRING_TABLE__HPP____by_Duzy_Chan__ 1
+#	include <vector>
+#	include <map>
 
 namespace smart
 {

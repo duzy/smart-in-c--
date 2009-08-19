@@ -7,8 +7,10 @@
 #include "../src/context.hpp"
 #include "../src/compiler.hpp"
 
-#include "../src/context.cpp"
-#include "../src/compiler.cpp"
+// #include "../src/context.cpp"
+// #include "../src/compiler.cpp"
+// #include "../src/string_table.cpp"
+// #include "../src/vm_types.cpp"
 
 int main( int argc, const char** argv )
 {

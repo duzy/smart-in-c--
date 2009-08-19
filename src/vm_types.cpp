@@ -1,3 +1,4 @@
+#include "vm_types.hpp"
 namespace smart
 {
   namespace vm
