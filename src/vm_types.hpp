@@ -37,7 +37,7 @@ namespace smart
 
       virtual ~type_string();
 
-      operator const std::string &();
+      operator const std::string&();
       bool operator==( const type_string & o );
 
       long refcount() const;

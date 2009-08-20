@@ -37,7 +37,7 @@ namespace smart
       imp::deref( _i );
     }
 
-    type_string::operator const std::string &()
+    type_string::operator const std::string&()
     {
       return *_i->_str;
     }
