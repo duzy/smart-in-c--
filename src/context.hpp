@@ -1,6 +1,7 @@
 #ifndef __SMART_CONTEXT__HPP____by_Duzy_Chan__
 #define __SMART_CONTEXT__HPP____by_Duzy_Chan__ 1
 #	include "vm_fwd.hpp"
+#	include "builtin_types.hpp"
 #	include <string>
 
 namespace smart
@@ -19,6 +20,8 @@ namespace smart
 
     vm::type_string const_string( const std::string & c );
     //vm::type_real const_number( double c );
+
+    builtin::macro macro( const vm::type_string & v );
 
   private:
     string_table *_string_table; //!< for string constants

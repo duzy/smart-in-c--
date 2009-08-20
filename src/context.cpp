@@ -24,4 +24,9 @@ namespace smart
 //   {
 //   }
 
+  builtin::macro context::macro( const vm::type_string & v )
+  {
+    
+  }
+
 }//namespace smart

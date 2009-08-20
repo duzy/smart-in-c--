@@ -1,6 +1,7 @@
 #include "string_table.hpp"
 #include "vm_types.hpp"
 #include "vm_string_imp.hpp"
+#include <sstream>
 
 namespace smart
 {
@@ -40,6 +41,23 @@ namespace smart
     type_string::operator const std::string&()
     {
       return *_i->_str;
+    }
+
+    std::ostream & type_string::operator<<( std::ostream & os )
+    {
+      os << ( *_i->_cstr );
+      return os;
+    }
+
+    std::istream & type_string::operator>>( std::istream & is )
+    {
+      if ( _i->_usage == -1 ) {
+	std::ostringstream err;
+	err<<"overide a constant string";
+	throw std::runtime_error( err.str() );
+      }
+      is >> ( *_i->_str );
+      return is;
     }
 
     bool type_string::operator==( const type_string & o )

@@ -7,9 +7,22 @@ namespace smart
   namespace builtin
   {
 
-    struct integer : vm::type_integer
+//     struct integer : vm::type_integer
+//     {
+//     };//struct integer
+
+    struct macro : vm::type_object
     {
-    };//struct integer
+      explicit macro( vm::type_string name );
+
+      vm::type_string expand() const;
+      vm::type_string expand( const std::vector<vm::type_string> & args ) const;
+      
+      void assign( vm::type_string );
+      void append( vm::type_string );
+      
+      vm::type_string str() const;
+    };//struct macro
 
   }//namespace builtin
 }//namespace smart

@@ -2,6 +2,8 @@
 #ifndef __SMART_VM_TYPES__hpp____by_Duzy_Chan__
 #define __SMART_VM_TYPES__hpp____by_Duzy_Chan__ 1
 #	include <string>
+#	include <istream>
+#	include <ostream>
 
 namespace smart
 {
@@ -38,6 +40,10 @@ namespace smart
       virtual ~type_string();
 
       operator const std::string&();
+
+      std::ostream & operator<<( std::ostream & );
+      std::istream & operator>>( std::istream & );
+
       bool operator==( const type_string & o );
 
       long refcount() const;
@@ -49,6 +55,7 @@ namespace smart
 
     struct type_object : type_base<type_object>
     {
+      virtual ~type_object() {}
     };//struct type_object
 
   }//namespace vm
