@@ -9,7 +9,40 @@ namespace smart
 
     struct type_string::imp
     {
-      std::string * _str;
+      union {
+	std::string * _str;
+	const std::string * _cstr;
+      };
+      long _usage;
+
+      explicit imp( const std::string & v )
+	: _str( new std::string(v) )
+	, _usage( 1 )
+      {
+      }
+
+      explicit imp( const string_table_entry & e )
+	: _cstr( e.ptr )
+	, _usage( -1 )
+      {
+      }
+
+      static long inref( imp * p )
+      {
+	if ( p->_usage < 0 ) return p->_usage;
+	return ++p->_usage;
+      }
+
+      static long deref( imp * & p )
+      {
+	if ( p->_usage < 0 ) return p->_usage;
+	if ( --p->_usage == 0 ) {
+	  delete p;
+	  p = 0;
+	  return 0;
+	}
+	return p->_usage;
+      }
     };//struct type_string::imp
 
   }//namespace vm

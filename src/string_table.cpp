@@ -8,6 +8,13 @@ namespace smart
   {
   }
 
+  string_table::~string_table()
+  {
+    //struct delete_entry { void operator()( std::string * p ) { delete p; } };
+    //std::for_each( _entries.begin(), _entries.end(), delete_entry() );
+    //_entries.clear();
+  }
+
   int string_table::size() const
   {
     return _entries.size();
@@ -25,7 +32,7 @@ namespace smart
 
   # else//NO_FLYWEIGHT_STRING
 
-    typedef std::map<const std::string, int>::const_iterator iterator_t;
+    typedef table_t::const_iterator iterator_t;
     typedef std::pair<iterator_t, bool> result_t;
     int i( _entries.size() );
     result_t res( _table.insert(std::make_pair(s, i)) );
@@ -51,7 +58,7 @@ namespace smart
   # else//NO_FLYWEIGHT_STRING
 
     entry ent = { NULL, {0} }; //entry( NULL );
-    typedef std::map<std::string, int>::const_iterator iterator_t;
+    typedef table_t::const_iterator iterator_t;
     iterator_t it( _table.find(s) );
     if ( it == _table.end() ) return ent;
     ent.ptr = &(it->first);

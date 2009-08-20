@@ -8,7 +8,7 @@ include Makefile.conf
 
 INCLUDES = -I$(BOOST_DIR)
 
-CXXFLAGS = -std=gnu++0x $(INCLUDES)
+CXXFLAGS = -std=gnu++0x -g -ggdb $(INCLUDES)
 #CXXFLAGS = $(INCLUDES)
 #CXXFLAGS = -ftemplate-depth-128 -O3 -finline-functions -DNDEBUG
 
@@ -72,6 +72,9 @@ $(TESTS):$(TEST_PAT):$(OUT_DIR)/objs/%.o
 $(TEST_DEPENDS):$(TEST_DEPEND_PAT):%.t
 	$(PREPARE_OUTPUT_DIR)
 	$(CXX) -xc++ -MM -MT $(OUT_DIR)/objs/$*.o -MF $@ $<
+
+clean:
+	$(RM) $(SMART) $(SMART.LIB) $(OBJECTS)
 
 include $(DEPENDS)
 include $(TEST_DEPENDS)

@@ -33,6 +33,8 @@ namespace smart
       vm::type_string str( ctx.const_string( name ) );
       assert( 0 < ctx.stable()->size() );
 
+      std::clog<<"vm::type_string = '"<<std::string(str)<<"'"<<std::endl;
+
       if ( iter->value.id() == grammar::id_macro_ref ) {
 	std::clog<<"ref: "<<name<<std::endl;
       }

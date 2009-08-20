@@ -1,7 +1,12 @@
 #ifndef __SMART_STRING_TABLE__HPP____by_Duzy_Chan__
 #define __SMART_STRING_TABLE__HPP____by_Duzy_Chan__ 1
+#   define NO_FLYWEIGHT_STRING
+#   ifndef NO_FLYWEIGHT_STRING
 #	include <boost/flyweight.hpp>
 #	include <boost/flyweight/no_tracking.hpp>
+#   else//NO_FLYWEIGHT_STRING
+#	include <boost/unordered/unordered_map.hpp>
+#   endif//NO_FLYWEIGHT_STRING
 #	include <vector>
 
 namespace smart
@@ -26,6 +31,7 @@ namespace smart
     enum { max_size };
 
     string_table();
+    virtual ~string_table();
 
     int size() const;
 
@@ -35,12 +41,18 @@ namespace smart
 
   private:
   # ifndef NO_FLYWEIGHT_STRING
+
     typedef boost::flyweights::flyweight
-      < std::string, boost::flyweights::no_tracking > flyweight_string;
-    std::vector<flyweight_string> _entries;
+	< std::string, boost::flyweights::no_tracking > flyweight_string;
+    std::vector<flyweight_string> _entries; //!< using vector to maintain a
+					    //!< strict order of strings
   # else//NO_FLYWEIGHT_STRING
-    std::map<const std::string, int/* entry index */> _table;
+
+    typedef boost::unordered_map
+	<const std::string, int/* entry index */> table_t;
+    table_t _table;
     std::vector<const std::string*> _entries;
+
   # endif//NO_FLYWEIGHT_STRING
   };//struct string_table
 
