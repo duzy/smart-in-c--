@@ -31,7 +31,7 @@ namespace smart
 
     struct type_string : type_base<type_string>
     {
-      explicit type_string( const std::string & v );
+      explicit type_string( const std::string & v = "" );
       explicit type_string( const string_table_entry & );
 
       type_string( const type_string & );
@@ -39,12 +39,14 @@ namespace smart
 
       virtual ~type_string();
 
+      std::size_t hash_value() const;
+
       operator const std::string&();
 
-      std::ostream & operator<<( std::ostream & );
+      std::ostream & operator<<( std::ostream & ) const;
       std::istream & operator>>( std::istream & );
 
-      bool operator==( const type_string & o );
+      bool operator==( const type_string & o ) const;
 
       long refcount() const;
 
@@ -60,5 +62,20 @@ namespace smart
 
   }//namespace vm
 }//namespace smart
+
+//==================================================
+#	include <boost/functional/hash.hpp>
+namespace boost
+{
+  template <>
+  struct hash<smart::vm::type_string>
+    : std::unary_function<smart::vm::type_string, std::size_t>
+  {
+    std::size_t operator()(smart::vm::type_string const& val) const
+    {
+      return val.hash_value();
+    }
+  };
+}//namespace boost
 
 #endif//__SMART_VM_TYPES__hpp____by_Duzy_Chan__

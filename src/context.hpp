@@ -1,13 +1,15 @@
 #ifndef __SMART_CONTEXT__HPP____by_Duzy_Chan__
 #define __SMART_CONTEXT__HPP____by_Duzy_Chan__ 1
 #	include "vm_fwd.hpp"
-#	include "builtin_types.hpp"
+#	include "builtin_macro.hpp"
 #	include <string>
 
 namespace smart
 {
   struct string_table;
   struct real_table;
+  struct macro_table;
+  struct rule_table;
 
   /**
    *  @brief Smart script running context
@@ -26,7 +28,8 @@ namespace smart
   private:
     string_table *_string_table; //!< for string constants
     //real_table *_number_table; //!< for real number constants
-    //std::stack< frame* > _frames;
+    macro_table *_macro_table;
+    rule_table *_rule_table;
   };//struct context
 
 }//namespace smart

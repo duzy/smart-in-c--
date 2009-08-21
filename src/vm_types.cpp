@@ -43,7 +43,7 @@ namespace smart
       return *_i->_str;
     }
 
-    std::ostream & type_string::operator<<( std::ostream & os )
+    std::ostream & type_string::operator<<( std::ostream & os ) const
     {
       os << ( *_i->_cstr );
       return os;
@@ -60,7 +60,7 @@ namespace smart
       return is;
     }
 
-    bool type_string::operator==( const type_string & o )
+    bool type_string::operator==( const type_string & o ) const
     {
       return _i == o._i;
     }
@@ -69,5 +69,11 @@ namespace smart
     {
       return _i->_usage;
     }
+
+    std::size_t type_string::hash_value() const
+    {
+      return boost::hash_value( _i );
+    }
   }//namespace vm
 }//namespace smart
+

@@ -1,11 +1,14 @@
 #include "context.hpp"
 #include "string_table.hpp"
+#include "macro_table.hpp"
 #include "vm_types.hpp"
 namespace smart
 {
 
   context::context()
     : _string_table( new string_table )
+    , _macro_table( new macro_table )
+    , _rule_table()
   {
   }
 
@@ -24,9 +27,9 @@ namespace smart
 //   {
 //   }
 
-  builtin::macro context::macro( const vm::type_string & v )
+  builtin::macro context::macro( const vm::type_string & name )
   {
-    
+    return _macro_table->map( name );
   }
 
 }//namespace smart
