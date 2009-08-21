@@ -27,6 +27,11 @@ namespace smart
 //   {
 //   }
 
+  macro_table *context::mtable() const
+  {
+    return _macro_table;
+  }
+
   builtin::macro context::macro( const vm::type_string & name )
   {
     return _macro_table->map( name );

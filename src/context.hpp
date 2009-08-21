@@ -23,6 +23,7 @@ namespace smart
     vm::type_string const_string( const std::string & c );
     //vm::type_real const_number( double c );
 
+    macro_table *mtable() const;
     builtin::macro macro( const vm::type_string & v );
 
   private:

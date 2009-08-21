@@ -24,21 +24,36 @@ namespace smart
   {
 
     template<typename TTreeIter>
-    static std::string compute_macro_name( context & ctx, const TTreeIter & iter )
+    static vm::type_string get_macro_ref_name( context & ctx, const TTreeIter & iter )
+    {
+      vm::type_string name;
+      return name;
+    }
+
+    template<typename TTreeIter>
+    static vm::type_string compute_macro_name( context & ctx, const TTreeIter & iter )
     {
       assert( iter->value.id() == grammar::id_macro_name ||
 	      iter->value.id() == grammar::id_macro_ref );
-      std::string name( iter->value.begin(), iter->value.end() );
 
-      vm::type_string str( ctx.const_string( name ) );
-      assert( 0 < ctx.stable()->size() );
+      //std::string name( iter->value.begin(), iter->value.end() );
+      //vm::type_string str( ctx.const_string( name ) );
+      //assert( 0 < ctx.stable()->size() );
 
       if ( iter->value.id() == grammar::id_macro_ref ) {
-	std::clog<<"ref: "<<name<<std::endl;
+	//std::clog<<"ref: "<<name<<std::endl;
+	vm::type_string refName( get_macro_ref_name( iter ) );
+	builtin::macro m( ctx.mtable()->get( refName ) );
+	return m.expand( ctx );
       }
       else {
+	TTreeIter child( iter->children.begin() );
+	TTreeIter const end( iter->children.end() );
+	for(; child != end; ++child) {
+	  
+	}
       }
-      return name;
+      return vm::type_string();
     }
 
     template<typename TTreeIter>
