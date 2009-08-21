@@ -23,4 +23,13 @@ namespace smart
     }
     return it->second;
   }
+
+  builtin::macro macro_table::get( vm::type_string name )
+  {
+    typedef table_t::const_iterator iterator_t;
+    iterator_t it( _table.find(name) );
+    if ( it == _table.end() ) return builtin::macro();
+    return it->second;
+  }
+
 }//namespace smart

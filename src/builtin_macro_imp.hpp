@@ -7,9 +7,19 @@ namespace smart
   {
     struct macro::imp
     {
-      vm::type_string value;
       vm::type_string origin;
       vm::type_string flavor;
+      vm::type_string name;
+      vm::type_string value;
+
+      imp( const vm::type_string & ori, const vm::type_string & fla,
+	   const vm::type_string & nam, const vm::type_string & val )
+	: origin( ori )
+	, flavor( fla )
+	, name( nam )
+	, value( val )
+      {
+      }
     };//struct macro::imp
   }//namespace builtin
 }//namespace smart

@@ -57,9 +57,10 @@ namespace smart
           ;
 
         statement
-          =  no_node_d[ *space_p ] >> assignment
-          |  no_node_d[ *space_p ] /* looks spirit can't eat spaces between two rules */
-             >> make_rule
+          =  no_node_d[ *space_p ] /* looks spirit can't eat spaces between two rules */
+	     >> assignment
+          |  no_node_d[ *space_p ] >> make_rule
+	  |  no_node_d[ *space_p ] >> macro_ref
           ;
 
         assignment

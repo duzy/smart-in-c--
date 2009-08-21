@@ -13,9 +13,8 @@ namespace smart
     struct macro : vm::type_object
     {
       macro();
-      explicit macro( vm::type_string name );
-
-      bool is_defined();
+      explicit macro( const vm::type_string & name,
+                      const vm::type_string & value = vm::type_string() );
 
       /**
        *  @brief Unexpended value
@@ -25,9 +24,17 @@ namespace smart
       vm::type_string expand( const context & ) const;
       vm::type_string expand( const context &, const std::vector<vm::type_string> & args ) const;
 
-      void assign( vm::type_string );
-      void append( vm::type_string );
+      void assign( const vm::type_string & );
+      void append( const vm::type_string & );
 
+      static const vm::type_string origin_undefined;
+      static const vm::type_string origin_default;
+      static const vm::type_string origin_environment;
+      static const vm::type_string origin_environment_override;
+      static const vm::type_string origin_file;
+      static const vm::type_string origin_command_line;
+      static const vm::type_string origin_override;
+      static const vm::type_string origin_automatic;
       /**
        *  @brief Tells where the macro come from.
        *        `undefined'
@@ -41,6 +48,9 @@ namespace smart
        */
       vm::type_string origin() const;
 
+      static const vm::type_string flavor_undefined;
+      static const vm::type_string flavor_recursive;
+      static const vm::type_string flavor_simple;
       /**
        *  @brief The flavor of the macro
        *  @return One of the following:
