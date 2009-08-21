@@ -33,6 +33,41 @@ int main(int argc, const char** argv )
     assert( s0.refcount() == 1 );
     assert( s1.refcount() == 1 );
   }
+  {// operator +=
+    smart::vm::type_string s0( "foo" );
+    smart::vm::type_string s1( "bar" );
+    smart::vm::type_string s( s0 );
+    assert( s0.refcount() == 2 );
+    assert( s1.refcount() == 1 );
+    assert( s.refcount() == s0.refcount() );
+    assert( s == s0 );
+    assert( std::string(s) == "foo" );
+    s += s1;
+    assert( s.refcount() == 1 );
+    assert( s0.refcount() == 1 );
+    assert( s1.refcount() == 1 );
+    assert( std::string(s) == "foobar" );
+    assert( std::string(s0) == "foo" );
+    assert( std::string(s1) == "bar" );
+    //std::clog<<std::string(s)<<std::endl;
+  }
+  {// operator +
+    smart::vm::type_string s0( "foo" );
+    smart::vm::type_string s1( "bar" );
+    smart::vm::type_string s( s0 + s1 );
+    assert( s0.refcount() == 1 );
+    assert( s1.refcount() == 1 );
+    assert( s.refcount() == 1 );
+    assert( std::string(s0) == "foo" );
+    assert( std::string(s1) == "bar" );
+    assert( std::string(s) == "foobar" );
+    std::string t( "-" );
+    s = s + t;
+    assert( std::string(s) == "foobar-" );
+    s = t + s;
+    assert( std::string(s) == "-foobar-" );
+    //std::clog<<s<<std::endl;
+  }
   return 0;
 }
 

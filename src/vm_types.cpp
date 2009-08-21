@@ -38,31 +38,61 @@ namespace smart
       imp::deref( _i );
     }
 
-    type_string::operator const std::string&()
+    type_string::operator const std::string&() const
     {
       return *_i->_str;
     }
 
-    std::ostream & type_string::operator<<( std::ostream & os ) const
+    std::ostream & operator<<( std::ostream &os, const type_string & s )
     {
-      os << ( *_i->_cstr );
+      os << ( *s._i->_cstr );
       return os;
     }
 
-    std::istream & type_string::operator>>( std::istream & is )
+    std::istream & operator>>( std::istream &is, type_string & s )
     {
-      if ( _i->_usage == -1 ) {
+      if ( s._i->_usage == -1 ) {
 	std::ostringstream err;
 	err<<"overide a constant string";
 	throw std::runtime_error( err.str() );
       }
-      is >> ( *_i->_str );
+      is >> ( *s._i->_str );
       return is;
     }
 
     bool type_string::operator==( const type_string & o ) const
     {
       return _i == o._i;
+    }
+
+    type_string & type_string::operator+=( const type_string & o )
+    {
+      imp::copy_if_refs( _i );
+      *_i->_str += *o._i->_cstr;
+      return *this;
+    }
+
+    type_string operator+( const type_string & lhs, const type_string & rhs )
+    {
+      const std::string & s( lhs );
+      type_string tmp( lhs );
+      tmp += rhs;
+      return tmp;
+    }
+
+    type_string operator+( const std::string & lhs, const type_string & rhs )
+    {
+      type_string tmp( lhs );
+      tmp += rhs;
+      return tmp;
+    }
+
+    type_string operator+( const type_string & lhs, const std::string & rhs )
+    {
+      const std::string & s( lhs );
+      type_string tmp( lhs );
+      *tmp._i->_str += rhs;
+      return tmp;
     }
 
     long type_string::refcount() const

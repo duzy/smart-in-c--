@@ -28,6 +28,31 @@ namespace smart
       void assign( vm::type_string );
       void append( vm::type_string );
 
+      /**
+       *  @brief Tells where the macro come from.
+       *        `undefined'
+       *        `default'
+       *        `environment'
+       *        `environment override'
+       *        `file'
+       *        `command line'
+       *        `override'
+       *        `automatic'
+       */
+      vm::type_string origin() const;
+
+      /**
+       *  @brief The flavor of the macro
+       *  @return One of the following:
+       *        `undefined'
+       *                if MACRO was never defined.
+       *        `recursive'
+       *                if MACRO is a recursively expanded variable.
+       *        `simple'
+       *                if MACRO is a simply expanded variable.
+       */
+      vm::type_string flavor() const;
+
     private:
       struct imp;
       imp *_i;

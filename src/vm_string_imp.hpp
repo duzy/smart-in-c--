@@ -29,19 +29,27 @@ namespace smart
 
       static long inref( imp * p )
       {
-	if ( p->_usage < 0 ) return p->_usage;
+	if ( p->_usage == -1 ) return p->_usage;
 	return ++p->_usage;
       }
 
       static long deref( imp * & p )
       {
-	if ( p->_usage < 0 ) return p->_usage;
+	if ( p->_usage == -1 ) return p->_usage;
 	if ( --p->_usage == 0 ) {
 	  delete p;
 	  p = 0;
 	  return 0;
 	}
 	return p->_usage;
+      }
+
+      static void copy_if_refs( imp * & p ) //!< copy-on-write
+      {
+	if ( p->_usage == 1 ) return;
+	std::string str( *p->_cstr );
+	deref( p );
+	p = new imp( str );
       }
     };//struct type_string::imp
 

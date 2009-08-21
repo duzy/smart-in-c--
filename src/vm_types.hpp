@@ -41,18 +41,20 @@ namespace smart
 
       std::size_t hash_value() const;
 
-      operator const std::string&();
-
-      std::ostream & operator<<( std::ostream & ) const;
-      std::istream & operator>>( std::istream & );
+      operator const std::string&() const;
 
       bool operator==( const type_string & o ) const;
+      type_string & operator+=( const type_string & o );
 
       long refcount() const;
 
     private:
       struct imp;
       imp * _i;
+
+      friend std::ostream & operator<<( std::ostream &, const type_string & );
+      friend std::istream & operator>>( std::istream &, type_string & );
+      friend type_string operator+( const type_string &, const std::string & );
     };//struct type_string
 
     struct type_object : type_base<type_object>
@@ -60,6 +62,13 @@ namespace smart
       virtual ~type_object() {}
     };//struct type_object
 
+    //--------------------------------------------------
+
+    std::ostream & operator<<( std::ostream &, const type_string & );
+    std::istream & operator>>( std::istream &, type_string & );
+    type_string operator+( const type_string & lhs, const type_string & rhs );
+    type_string operator+( const std::string & lhs, const type_string & rhs );
+    type_string operator+( const type_string & lhs, const std::string & rhs );
   }//namespace vm
 }//namespace smart
 
