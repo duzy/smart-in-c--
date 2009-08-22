@@ -40,6 +40,13 @@ int main( int argc, const char** argv )
     assert( ctx.stable()->get("i3   ").ptr != NULL );
     assert( ctx.stable()->get("i4").ptr != NULL );
     //assert( *ctx.stable()->get("NnN").ptr == "NnN" );
+    assert( *ctx.stable()->get("N").ptr == "N" );
+    assert( *ctx.stable()->get("L1").ptr == "L1" );
+    assert( *ctx.stable()->get("L2").ptr == "L2" );
+    assert( *ctx.stable()->get("i1").ptr == "i1" );
+    assert( *ctx.stable()->get("i2").ptr == "i2" );
+    assert( *ctx.stable()->get("i3   ").ptr == "i3   " );
+    assert( *ctx.stable()->get("i4").ptr == "i4" );
 
     smart::builtin::macro m1( ctx.macro("N") );
     smart::builtin::macro m2( ctx.macro("NnN") );
