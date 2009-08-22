@@ -3,11 +3,23 @@
      # comment...
    ### comment...
 
+N3 = -
+xx3$(N3)xx3 = -
+N2$(xx3$(N3)xx3)xx2 = -
+N1$(N2$(xx3$(N3)xx3)xx2)xx1 = XX
+$(N1$(N2$(xx3$(N3)xx3)xx2)xx1) = xx
+V = $($(N1$(N2$(xx3$(N3)xx3)xx2)xx1))
 
+$($($($N))) = nnn
+$(N1)$(N2) = nn
+
+FOO = foo
 FOO = foo
 BAR = bar
 
 FOOBAR = foo bar
+SIMPLE := $(FOO)$(BAR)
+FOOBAR := $(FOO)$(BAR)
 
 ML = xx\
   yy\
@@ -23,8 +35,6 @@ FF = ff
 EE =
 EEE =
 EEEE =
-
-FOOBAR := $(FOO)$(BAR)
 
 $(FOO)$(BAR) = 
 $(FOO)$(BAR) = xxx
@@ -49,6 +59,7 @@ FOOBAR = $F $B
 #}
 
 # computed name
+N3 = -
 $(N1$(N2$(xx3$(N3)xx3)xx2)xx1) = xx
 $($($($N))) = nnn
 $(N1)$(N2) = nn

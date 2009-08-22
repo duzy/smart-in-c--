@@ -33,6 +33,13 @@ namespace smart
       return *this;
     }
 
+    type_string & type_string::operator=( const std::string & s )
+    {
+      imp::copy_if_refs( _i );
+      *_i->_str = s;
+      return *this;
+    }
+
     type_string::~type_string()
     {
       imp::deref( _i );
@@ -66,10 +73,22 @@ namespace smart
       return *_i->_cstr == *o._i->_cstr;
     }
 
+    bool type_string::operator==( const std::string & o ) const
+    {
+      return *_i->_cstr == o;
+    }
+
     type_string & type_string::operator+=( const type_string & o )
     {
       imp::copy_if_refs( _i );
       *_i->_str += *o._i->_cstr;
+      return *this;
+    }
+
+    type_string & type_string::operator+=( const std::string & s )
+    {
+      imp::copy_if_refs( _i );
+      *_i->_str += s;
       return *this;
     }
 
@@ -103,7 +122,13 @@ namespace smart
 
     std::size_t type_string::hash_value() const
     {
-      return boost::hash_value( _i );
+      //return boost::hash_value( _i );
+      return boost::hash_value( *_i->_cstr );
+    }
+
+    bool type_string::empty() const
+    {
+      return _i->_cstr->empty();
     }
   }//namespace vm
 }//namespace smart

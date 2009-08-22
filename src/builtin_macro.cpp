@@ -1,5 +1,6 @@
 #include "builtin_macro.hpp"
 #include "builtin_macro_imp.hpp"
+#include "expand.hpp"
 namespace smart
 {
   namespace builtin
@@ -27,16 +28,18 @@ namespace smart
     {
     }
 
-    vm::type_string macro::expand( const context & ) const
+    macro::~macro()
     {
-      vm::type_string str;
-      return str;
     }
 
-    vm::type_string macro::expand( const context &, const std::vector<vm::type_string> & args ) const
+    vm::type_string macro::expand( const context & ctx ) const
     {
-      vm::type_string str;
-      return str;
+      return smart::expand( ctx, _i->value );
+    }
+
+    vm::type_string macro::expand( const context & ctx, const std::vector<vm::type_string> & args ) const
+    {
+      return smart::expand( ctx, _i->value, args );
     }
       
     void macro::assign( const vm::type_string & s )
@@ -48,7 +51,12 @@ namespace smart
     {
       _i->value += s;
     }
-      
+
+    vm::type_string macro::name() const
+    {
+      return _i->name;
+    }
+
     vm::type_string macro::value() const
     {
       return _i->value;
@@ -62,6 +70,21 @@ namespace smart
     vm::type_string macro::flavor() const
     {
       return _i->flavor;
+    }
+
+    void macro::set_value( const vm::type_string & s )
+    {
+      _i->value = s;
+    }
+
+    void macro::set_origin( const vm::type_string & s )
+    {
+      _i->origin = s;
+    }
+
+    void macro::set_flavor( const vm::type_string & s )
+    {
+      _i->flavor = s;
     }
 
   }//namespace builtin

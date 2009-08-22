@@ -10,8 +10,8 @@ namespace smart
   {
     macro_table();
 
-    builtin::macro map( vm::type_string name );
-    builtin::macro get( vm::type_string name );
+    builtin::macro map( const vm::type_string & name );
+    builtin::macro get( const vm::type_string & name );
 
   private:
     typedef boost::unordered_map<vm::type_string, builtin::macro> table_t;

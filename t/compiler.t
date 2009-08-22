@@ -3,7 +3,7 @@
  */
 
 //#define BOOST_SPIRIT_DEBUG
-#define BOOST_SPIRIT_DEBUG_XML
+//#define BOOST_SPIRIT_DEBUG_XML
 #include "../src/context.hpp"
 #include "../src/compiler.hpp"
 

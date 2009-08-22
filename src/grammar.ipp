@@ -127,7 +127,7 @@ namespace smart
 
                    |  no_node_d[ str_p("$()") ]
                    |  no_node_d[ str_p("${}") ]
-                   |  no_node_d[ ch_p('$') ] >> graph_p
+                   |  ch_p('$') >> graph_p
                    )
              ]
           ;

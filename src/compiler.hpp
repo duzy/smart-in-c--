@@ -16,6 +16,8 @@ namespace smart
   private:
     context & _context;
   };//struct compiler
+
+  
 }//namespace smart
 
 #endif//__SMART_COMPILER__HPP____by_Duzy_Chan__

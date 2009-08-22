@@ -16,10 +16,15 @@ namespace smart
       explicit macro( const vm::type_string & name,
                       const vm::type_string & value = vm::type_string() );
 
+      virtual ~macro();
+
+      vm::type_string name() const;
+
       /**
        *  @brief Unexpended value
        */
       vm::type_string value() const;
+      void set_value( const vm::type_string & );
 
       vm::type_string expand( const context & ) const;
       vm::type_string expand( const context &, const std::vector<vm::type_string> & args ) const;
@@ -47,6 +52,7 @@ namespace smart
        *        `automatic'
        */
       vm::type_string origin() const;
+      void set_origin( const vm::type_string & );
 
       static const vm::type_string flavor_undefined;
       static const vm::type_string flavor_recursive;
@@ -62,6 +68,7 @@ namespace smart
        *                if MACRO is a simply expanded variable.
        */
       vm::type_string flavor() const;
+      void set_flavor( const vm::type_string & );
 
     private:
       struct imp;

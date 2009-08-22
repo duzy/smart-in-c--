@@ -6,7 +6,7 @@ namespace smart
   {
   }
 
-  builtin::macro macro_table::map( vm::type_string name )
+  builtin::macro macro_table::map( const vm::type_string & name )
   {
     typedef table_t::const_iterator iterator_t;
 
@@ -24,11 +24,11 @@ namespace smart
     return it->second;
   }
 
-  builtin::macro macro_table::get( vm::type_string name )
+  builtin::macro macro_table::get( const vm::type_string & name )
   {
     typedef table_t::const_iterator iterator_t;
     iterator_t it( _table.find(name) );
-    if ( it == _table.end() ) return builtin::macro();
+    if ( it == _table.end() ) return builtin::macro( name );
     return it->second;
   }
 
