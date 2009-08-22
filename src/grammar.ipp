@@ -71,6 +71,7 @@ namespace smart
                  >> (  root_node_d[ ch_p('=')   ]
                     |  root_node_d[ str_p("+=") ]
                     |  root_node_d[ str_p(":=") ]
+                    |  root_node_d[ str_p("?=") ]
                     )
                  >> no_node_d[ *(space_p - eol_p) ]
                  //>> no_node_d[ in_spaces ] //!< will eat \n while entering in_spaces
@@ -88,7 +89,7 @@ namespace smart
                  |  macro_ref //token_node_d[ macro_ref ]
                  )
              ]
-             >> ( eps_p('=') | eps_p("+=") | eps_p(":=") )
+	     >> ( eps_p( ch_p('=' ) | "+=" | ":=" | "?=" ) )
           ;
 
         macro_ref

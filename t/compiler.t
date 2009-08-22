@@ -24,7 +24,9 @@ int main( int argc, const char** argv )
 	"   i2\\\n"
 	"i3   \\\n"
 	"i4\n"
+	"##############\n"
 	"" );
+
     smart::compiler sm( ctx );
     sm.compile( code );
     smart::builtin::macro m1( ctx.macro("N") );
@@ -48,6 +50,35 @@ int main( int argc, const char** argv )
     assert( m4.value() == "i1 i2 i3    i4" );
     assert( m4.origin() == smart::builtin::macro::origin_file );
     assert( m4.flavor() == smart::builtin::macro::flavor_simple );
+  }
+  {
+    {
+      smart::builtin::macro m0( ctx.macro("N2") );
+      assert( m0.flavor() == smart::builtin::macro::flavor_undefined );
+      assert( m0.origin() == smart::builtin::macro::origin_undefined );
+      assert( m0.name() == "N2" );
+      assert( m0.value() == "" );
+    }
+
+    std::string code
+      ( "##############\n"
+	"N ?= xxx\n"
+	"N2 ?= n2\n"
+	"##############\n"
+	"" );
+    smart::compiler sm( ctx );
+    sm.compile( code );
+
+    smart::builtin::macro m1( ctx.macro("N") );
+    smart::builtin::macro m2( ctx.macro("N2") );
+    assert( m1.name() == "N" );
+    assert( m1.value() == "n" );
+    assert( m1.origin() == smart::builtin::macro::origin_file );
+    assert( m1.flavor() == smart::builtin::macro::flavor_recursive );
+    assert( m2.name() == "N2" );
+    assert( m2.value() == "n2" );
+    assert( m2.origin() == smart::builtin::macro::origin_file );
+    assert( m2.flavor() == smart::builtin::macro::flavor_recursive );
   }
 
 //   {
