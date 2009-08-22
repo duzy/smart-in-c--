@@ -7,6 +7,7 @@ namespace smart
   {
     struct macro::imp
     {
+      long usage;
       vm::type_string origin;
       vm::type_string flavor;
       vm::type_string name;
@@ -14,11 +15,25 @@ namespace smart
 
       imp( const vm::type_string & ori, const vm::type_string & fla,
 	   const vm::type_string & nam, const vm::type_string & val )
-	: origin( ori )
+	: usage( 1 )
+	, origin( ori )
 	, flavor( fla )
 	, name( nam )
 	, value( val )
       {
+      }
+
+      static void inref( imp * p )
+      {
+	++p->usage;
+      }
+
+      static void deref( imp * & p )
+      {
+	if ( 0 == --p->usage ) {
+	  delete p;
+	  p = 0;
+	}
       }
     };//struct macro::imp
   }//namespace builtin

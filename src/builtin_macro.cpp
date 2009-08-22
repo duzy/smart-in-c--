@@ -30,6 +30,21 @@ namespace smart
 
     macro::~macro()
     {
+      imp::deref( _i );
+    }
+
+    macro::macro( const macro & o )
+      : _i( o._i )
+    {
+      imp::inref( _i );
+    }
+
+    macro & macro::operator=( const macro & o )
+    {
+      imp::deref( _i );
+      _i = o._i;
+      imp::inref( _i );
+      return *this;
     }
 
     vm::type_string macro::expand( const context & ctx ) const

@@ -16,6 +16,9 @@ namespace smart
       explicit macro( const vm::type_string & name,
                       const vm::type_string & value = vm::type_string() );
 
+      macro( const macro & o );
+      macro & operator=( const macro & o );
+
       virtual ~macro();
 
       vm::type_string name() const;
