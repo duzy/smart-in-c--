@@ -84,22 +84,50 @@ int main( int argc, const char** argv )
 	"N ?= xxx\n"
 	"N2 ?= n2\n"
 	"##############\n"
+	"V = v\n"
+	"V1 = $(V)$(V)\n"
+	"V2 := $(V)$(V)\n"
 	"" );
     smart::compiler sm( ctx );
     sm.compile( code );
-
-    smart::builtin::macro m1( ctx.macro("N") );
-    smart::builtin::macro m2( ctx.macro("N2") );
-    assert( m1.name() == "N" );
-    assert( m1.value() == "n" );
-    assert( m1.origin() == smart::builtin::macro::origin_file );
-    assert( m1.flavor() == smart::builtin::macro::flavor_recursive );
-    assert( m2.name() == "N2" );
-    assert( m2.value() == "n2" );
-    assert( m2.origin() == smart::builtin::macro::origin_file );
-    assert( m2.flavor() == smart::builtin::macro::flavor_recursive );
+    {
+      smart::builtin::macro m1( ctx.macro("N") );
+      smart::builtin::macro m2( ctx.macro("N2") );
+      assert( m1.name() == "N" );
+      assert( m1.value() == "n" );
+      assert( m1.origin() == smart::builtin::macro::origin_file );
+      assert( m1.flavor() == smart::builtin::macro::flavor_recursive );
+      assert( m2.name() == "N2" );
+      assert( m2.value() == "n2" );
+      assert( m2.origin() == smart::builtin::macro::origin_file );
+      assert( m2.flavor() == smart::builtin::macro::flavor_recursive );
+    }
+    {
+      smart::builtin::macro m1( ctx.macro("V1") );
+      smart::builtin::macro m2( ctx.macro("V2") );
+      assert( m1.flavor() == smart::builtin::macro::flavor_recursive );
+      assert( m1.value() == "$(V)$(V)" );
+      assert( m2.flavor() == smart::builtin::macro::flavor_simple );
+      assert( m2.value() == "vv" );
+    }
   }
-
+  {
+    std::string code
+      ( "##############\n"
+	"V1 += $(V)\n"
+	"V2 += $(V)\n"
+	"" );
+    smart::compiler sm( ctx );
+    sm.compile( code );
+    {
+      smart::builtin::macro m1( ctx.macro("V1") );
+      smart::builtin::macro m2( ctx.macro("V2") );
+      assert( m1.flavor() == smart::builtin::macro::flavor_recursive );
+      assert( m1.value() == "$(V)$(V)$(V)" );
+      assert( m2.flavor() == smart::builtin::macro::flavor_simple );
+      assert( m2.value() == "vvv" );
+    }
+  }
 //   {
 //     smart::context ct;
 //     smart::compiler sm( ct );
