@@ -8,7 +8,7 @@
 #include "../src/compiler.hpp"
 #include "../src/string_table.hpp"
 
-int main( int argc, const char** argv )
+void test_assignments()
 {
   smart::context ctx;
   {
@@ -128,11 +128,18 @@ int main( int argc, const char** argv )
       assert( m2.value() == "vvv" );
     }
   }
+}
+
+
+int main( int argc, const char** argv )
+{
 //   {
 //     smart::context ct;
 //     smart::compiler sm( ct );
 //     sm.compile_file( "assignments.sm" );
 //     //sm.compile_file( "rules.sm" );
 //   }
+
+  test_assignments();
   return 0;
 }

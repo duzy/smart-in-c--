@@ -9,7 +9,7 @@
 // BOOST_SPIRIT_DEBUG_FLAGS_SLEX
 
 //#define BOOST_SPIRIT_DEBUG
-#define BOOST_SPIRIT_DEBUG_FLAGS BOOST_SPIRIT_DEBUG_FLAGS_NODES
+//#define BOOST_SPIRIT_DEBUG_FLAGS BOOST_SPIRIT_DEBUG_FLAGS_NODES
 #include "../src/grammar.ipp"
 #include <boost/spirit/include/classic_tree_to_xml.hpp>
 #include <string>
@@ -171,6 +171,7 @@ int main(int argc, const char** argv)
   iter_t beg(str.begin(), str.end()), end;
 
   parse_tree_info_t pt( classic::ast_parse<factory_t>(beg,end,g,s) );
+  #if 0
   dump_parse_tree( pt.trees );
   {
     std::map<classic::parser_id, std::string> names;
@@ -190,6 +191,7 @@ int main(int argc, const char** argv)
     names[smart::grammar::id_in_spaces] = "in_spaces";
     classic::tree_to_xml(std::cout, pt.trees, str, names);
   }
+  #endif
   if (!pt.full) {
     std::ostringstream err;
     err

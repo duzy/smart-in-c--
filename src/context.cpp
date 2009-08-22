@@ -1,6 +1,7 @@
 #include "context.hpp"
 #include "string_table.hpp"
 #include "macro_table.hpp"
+#include "function_table.hpp"
 #include "vm_types.hpp"
 namespace smart
 {
@@ -9,6 +10,7 @@ namespace smart
     : _string_table( new string_table )
     , _macro_table( new macro_table )
     , _rule_table()
+    , _function_table( new function_table )
   {
   }
 

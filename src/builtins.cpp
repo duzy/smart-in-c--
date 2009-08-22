@@ -1,13 +1,19 @@
-#include "vm_ops.hpp"
 #include "context.hpp"
 namespace smart
 {
   namespace builtins
   {
 
-    void expand_macro( vm::jit_info_t *ji, context *ctx )
+    void noop( context & ctx )
     {
-      
+    }
+
+    void assign_macro( context & ctx )
+    {
+    }
+
+    void expand_macro( context & ctx )
+    {
     }
 
   }//namespace builtins

@@ -10,6 +10,7 @@ namespace smart
   struct real_table;
   struct macro_table;
   struct rule_table;
+  struct function_table;
 
   /**
    *  @brief Smart script running context
@@ -32,6 +33,7 @@ namespace smart
     //real_table *_number_table; //!< for real number constants
     macro_table *_macro_table;
     rule_table *_rule_table;
+    function_table *_function_table;
   };//struct context
 
 }//namespace smart

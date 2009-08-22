@@ -1,22 +1,19 @@
 #ifndef __SMART_BUILTINS__hpp____by_Duzy_Chan__
 #define __SMART_BUILTINS__hpp____by_Duzy_Chan__ 1
-#	include "vm_ops.hpp"
+#	include "vm_fwd.hpp"
 
 namespace smart
 {
   struct context;
 
-  namespace vm
-  {
-    struct type_object;
-  }//namespace vm
-
-  namespace builtin
+  namespace builtins
   {
 
-    void expand_macro( vm::jit_info_t *ji, context *ctx );
+    void noop( context & ctx );
+    void assign_macro( context & ctx );
+    void expand_macro( context & ctx );
 
-  }//namespace builtin
+  }//namespace builtins
 }//namespace smart
 
 #endif//__SMART_BUILTINS__hpp____by_Duzy_Chan__

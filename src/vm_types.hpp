@@ -29,9 +29,11 @@ namespace smart
     {
     };//struct type_real
 
+    //--------------------------------------------------
+
     struct type_string : type_base<type_string>
     {
-      explicit type_string( const std::string & v = "" );
+      /*explicit*/ type_string( const std::string & v = "" );
       explicit type_string( const string_table_entry & );
 
       type_string( const type_string & );
@@ -63,6 +65,8 @@ namespace smart
       friend std::istream & operator>>( std::istream &, type_string & );
       friend type_string operator+( const type_string &, const std::string & );
     };//struct type_string
+
+    //--------------------------------------------------
 
     struct type_object : type_base<type_object>
     {

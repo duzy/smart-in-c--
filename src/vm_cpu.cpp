@@ -1,4 +1,4 @@
-#include "vm_ops.hpp"
+#include "vm_cpu.hpp"
 
 namespace smart
 {

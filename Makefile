@@ -8,7 +8,8 @@ include Makefile.conf
 
 INCLUDES = -I$(BOOST_DIR)
 
-CXXFLAGS = -std=gnu++0x -g -ggdb -DBOOST_SPIRIT_DEBUG_XML $(INCLUDES)
+#CXXFLAGS = -std=gnu++0x -g -ggdb -DBOOST_SPIRIT_DEBUG_XML $(INCLUDES)
+CXXFLAGS = -std=gnu++0x -g -ggdb $(INCLUDES)
 #CXXFLAGS = $(INCLUDES)
 #CXXFLAGS = -ftemplate-depth-128 -O3 -finline-functions -DNDEBUG
 
@@ -45,7 +46,7 @@ all: $(SMART)
 
 PHONY += test
 test: $(TESTS)
-	@for T in $(TESTS); do $$T; done
+	@for T in $(TESTS); do echo "unit: $$T"; $$T; done
 
 $(TESTS): $(SMART.LIB)
 test-%: $(OUT_DIR)/t/%.test
@@ -74,7 +75,7 @@ $(TEST_DEPENDS):$(TEST_DEPEND_PAT):%.t
 	$(CXX) -xc++ -MM -MT $(OUT_DIR)/objs/$*.o -MF $@ $<
 
 clean:
-	$(RM) $(SMART) $(SMART.LIB) $(OBJECTS)
+	$(RM) $(SMART) $(SMART.LIB) $(OBJECTS) $(DEPENDS)
 
 include $(DEPENDS)
 include $(TEST_DEPENDS)

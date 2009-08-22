@@ -1,5 +1,5 @@
-#ifndef __SMART_VM_OPS__hpp____by_Duzy_Chan__
-#define __SMART_VM_OPS__hpp____by_Duzy_Chan__ 1
+#ifndef __SMART_VM_CPU__hpp____by_Duzy_Chan__
+#define __SMART_VM_CPU__hpp____by_Duzy_Chan__ 1
 
 namespace smart
 {
@@ -49,4 +49,4 @@ namespace smart
   }//namespace vm
 }//namespace smart
 
-#endif//__SMART_VM_OPS__hpp____by_Duzy_Chan__
+#endif//__SMART_VM_CPU__hpp____by_Duzy_Chan__

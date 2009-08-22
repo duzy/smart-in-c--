@@ -38,8 +38,6 @@ namespace smart
       if ( iter->children.size() == 2 || iter->children.size() == 3 ) {
         //!< $X, $(X), ${X}
         TTreeIter nodeName( iter->children.begin() + 1 );
-        //std::string s(nodeName->value.begin(), nodeName->value.end());
-        //return vm::type_string(s);
         return ctx.const_string( std::string(nodeName->value.begin(), nodeName->value.end()) );
       }
 
@@ -53,7 +51,6 @@ namespace smart
           name += expanded_macro_value( ctx, child );
           break;
         default:
-          //name += std::string( child->value.begin(), child->value.end() );
           name += ctx.const_string( std::string( child->value.begin(), child->value.end()) );
         }//switch
       }//for
@@ -82,15 +79,16 @@ namespace smart
         else t += s;
         value += t;
       }//for
-      
+
       return value;
     }//unexpended_macro_value()
 
     template<typename TTreeIter>
     static vm::type_string expanded_macro_value( context & ctx, const TTreeIter & iter )
     {
-      //assert( iter->value.id() == grammar::id_macro_value ||
-      //        iter->value.id() == grammar::id_macro_ref );
+      assert( iter->value.id() == grammar::id_macro_name ||
+	      iter->value.id() == grammar::id_macro_value ||
+              iter->value.id() == grammar::id_macro_ref );
 
       if ( iter->value.id() == grammar::id_macro_ref ) {
         vm::type_string refName( get_macro_ref_name( ctx, iter ) );
@@ -102,9 +100,8 @@ namespace smart
       }
 
       if ( iter->children.empty() ) {
-        //std::string s( iter->value.begin(), iter->value.end() );
-        //return vm::type_string( s );
-        return ctx.const_string(std::string( iter->value.begin(), iter->value.end() ));
+	std::string s( iter->value.begin(), iter->value.end() );
+        return ctx.const_string(s);
       }
 
       vm::type_string v;
@@ -127,8 +124,6 @@ namespace smart
           break;
         }//switch
       }//for
-
-      //std::clog<<"expand: "<<v<<std::endl;
       
       return v;
     }//expanded_macro_value()
@@ -138,19 +133,17 @@ namespace smart
     {
       assert( iter->value.id() == grammar::id_assignment );
       assert( 0 < iter->children.size() );
-      //assert( iter->children.size() < 3 );
 
       vm::type_string name( expanded_macro_value( ctx, iter->children.begin() ) );
       TTreeIter nodeValue( 1 < iter->children.size()
                            ? iter->children.begin() + 1
-                           : iter->children.end() );
+			   : iter->children.end() );
 
       builtin::macro m( ctx.mtable()->map(name) );
-      //std::clog<<"macro: "<<m.name()<<" = "<<m.value()<<std::endl;
+      assert( m.name() == name );
 
       char type( *(iter->value.begin()) );
       switch( type ) {
-
       case '=': //!< recursive expended
       case '?': //!< recursive if undefined
         {
@@ -161,7 +154,6 @@ namespace smart
           if ( nodeValue != iter->children.end() ) {
             m.set_value( unexpended_macro_value(ctx, nodeValue) );
           }
-          //std::clog<<"assignment: "<<m.name()<<" = "<<m.value()<<std::endl;
         }
         break;
 
@@ -170,23 +162,18 @@ namespace smart
           m.set_origin( builtin::macro::origin_file );
           m.set_flavor( builtin::macro::flavor_simple );
           if ( nodeValue != iter->children.end() ) {
-            vm::type_string value( expanded_macro_value( ctx, nodeValue ) );
-            m.set_value( value );
+            m.set_value( expanded_macro_value( ctx, nodeValue ) );
           }
-          //std::clog<<"assignment: "<<m.name()<<" := "<<m.value()<<std::endl;
         }
         break;
 
       case '+':
         if ( nodeValue == iter->children.end() ) break;
         if ( m.flavor() == builtin::macro::flavor_simple ) { //!< :=
-          vm::type_string value( expanded_macro_value( ctx, nodeValue ) );
-          m.set_value( m.value() + value );
-          //std::clog<<"assignment: "<<m.name()<<" += "<<value<<std::endl;
+          m.set_value( m.value() + expanded_macro_value( ctx, nodeValue ) );
         }
         else { //!< =, or undefined
           m.set_value( m.value() + unexpended_macro_value(ctx, nodeValue) );
-          //std::clog<<"assignment: "<<m.name()<<" += "<<m.value()<<std::endl;
         }
         break;
 
@@ -198,7 +185,7 @@ namespace smart
         }
         break;
 
-      }//switch
+      }//switch( type )
     }//compile_assignment()
 
     template<typename TTreeIter>
