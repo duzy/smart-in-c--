@@ -25,6 +25,7 @@ namespace smart
 
     macro_table *mtable() const;
     builtin::macro macro( const vm::type_string & v );
+    builtin::macro macro( const std::string & v );
 
   private:
     string_table *_string_table; //!< for string constants

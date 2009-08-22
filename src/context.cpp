@@ -34,7 +34,13 @@ namespace smart
 
   builtin::macro context::macro( const vm::type_string & name )
   {
-    return _macro_table->map( name );
+    //return _macro_table->map( name );
+    return _macro_table->get( name );
+  }
+
+  builtin::macro context::macro( const std::string & name )
+  {
+    return _macro_table->get( vm::type_string(name) );
   }
 
 }//namespace smart

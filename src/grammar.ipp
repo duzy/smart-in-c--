@@ -170,12 +170,9 @@ namespace smart
                     |  token_node_d[ +(anychar_p - chset_p("\\$\r\n")) ]
                     )
                 >> *(
-		       no_node_d //!< more lines
-                       [
-                          in_spaces
-                          >> ch_p('\\') >> eol_p
-                          >> in_spaces
-                       ]
+		       //!< more lines
+		       no_node_d[ in_spaces ]
+		       >> ch_p('\\') >> no_node_d[ eol_p >> in_spaces ]
                        >> *(  ~eps_p(eol_p) >> macro_ref
                            |  token_node_d[ +(anychar_p - chset_p("\\$\r\n")) ]
                            )
