@@ -38,8 +38,9 @@ namespace smart
       if ( iter->children.size() == 2 || iter->children.size() == 3 ) {
         //!< $X, $(X), ${X}
         TTreeIter nodeName( iter->children.begin() + 1 );
-        std::string s(nodeName->value.begin(), nodeName->value.end());
-        return vm::type_string(s);
+        //std::string s(nodeName->value.begin(), nodeName->value.end());
+        //return vm::type_string(s);
+        return ctx.const_string( std::string(nodeName->value.begin(), nodeName->value.end()) );
       }
 
       vm::type_string name;
@@ -52,7 +53,8 @@ namespace smart
           name += expanded_macro_value( ctx, child );
           break;
         default:
-          name += std::string( child->value.begin(), child->value.end() );
+          //name += std::string( child->value.begin(), child->value.end() );
+          name += ctx.const_string( std::string( child->value.begin(), child->value.end()) );
         }//switch
       }//for
       
@@ -64,15 +66,18 @@ namespace smart
     {
       vm::type_string value;
       if ( iter->children.empty() || iter->value.id() == grammar::id_macro_ref ) {
-        value = std::string( iter->value.begin(), iter->value.end() );
-        return value;
+        //value = std::string( iter->value.begin(), iter->value.end() );
+        //return value;
+        return ctx.const_string( std::string(iter->value.begin(), iter->value.end()) );
       }
 
       TTreeIter child( iter->children.begin() );
       TTreeIter const end( iter->children.end() );
       for(; child != end; ++child ) {
-        std::string t;
         std::string s( child->value.begin(), child->value.end() );
+        ctx.const_string(s);
+
+        std::string t;
         if ( s == "\\" ) t = ( value.empty() ? "" : " " );
         else t += s;
         value += t;
@@ -97,8 +102,9 @@ namespace smart
       }
 
       if ( iter->children.empty() ) {
-        std::string s( iter->value.begin(), iter->value.end() );
-        return vm::type_string( s );
+        //std::string s( iter->value.begin(), iter->value.end() );
+        //return vm::type_string( s );
+        return ctx.const_string(std::string( iter->value.begin(), iter->value.end() ));
       }
 
       vm::type_string v;
@@ -113,6 +119,8 @@ namespace smart
         default:
           {
             std::string s( child->value.begin(), child->value.end() );
+            ctx.const_string( s );
+
             if ( s == "\\" ) v += " ";
             else v += s;
           }
