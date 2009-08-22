@@ -6,6 +6,7 @@
 //#define BOOST_SPIRIT_DEBUG_XML
 #include "../src/context.hpp"
 #include "../src/compiler.hpp"
+#include "../src/string_table.hpp"
 
 int main( int argc, const char** argv )
 {
@@ -29,6 +30,17 @@ int main( int argc, const char** argv )
 
     smart::compiler sm( ctx );
     sm.compile( code );
+    assert( ctx.stable()->size() == 10 );
+    //assert( ctx.stable()->get("NnN").ptr != NULL );
+    assert( ctx.stable()->get("N").ptr != NULL );
+    assert( ctx.stable()->get("L1").ptr != NULL );
+    assert( ctx.stable()->get("L2").ptr != NULL );
+    assert( ctx.stable()->get("i1").ptr != NULL );
+    assert( ctx.stable()->get("i2").ptr != NULL );
+    assert( ctx.stable()->get("i3   ").ptr != NULL );
+    assert( ctx.stable()->get("i4").ptr != NULL );
+    //assert( *ctx.stable()->get("NnN").ptr == "NnN" );
+
     smart::builtin::macro m1( ctx.macro("N") );
     smart::builtin::macro m2( ctx.macro("NnN") );
     assert( m1.name() == "N" );
