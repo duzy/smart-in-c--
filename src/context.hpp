@@ -28,6 +28,8 @@ namespace smart
     builtin::macro macro( const vm::type_string & v );
     builtin::macro macro( const std::string & v );
 
+    function_table *ftable() const;
+
   private:
     string_table *_string_table; //!< for string constants
     //real_table *_number_table; //!< for real number constants

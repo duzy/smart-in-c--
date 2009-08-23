@@ -6,6 +6,7 @@
 #include <boost/spirit/include/classic_ast.hpp>
 #include <boost/spirit/include/classic_parse_tree.hpp>
 #include <boost/spirit/include/classic_parse_tree_utils.hpp>
+#include <boost/spirit/include/classic_grammar_def.hpp>
 
 namespace smart
 {
@@ -33,6 +34,10 @@ namespace smart
 
     template<typename TScan>
     struct definition
+      : boost::spirit::classic::grammar_def<
+      rule<TScan, parser_tag<id_statements> >,
+      rule<TScan, parser_tag<id_macro_value> >
+      >
     {
       rule<TScan, parser_tag<id_statements> > statements;
       rule<TScan, parser_tag<id_statement> > statement;
@@ -154,7 +159,7 @@ namespace smart
                 >> +(  token_node_d[ +(anychar_p - chset_p("$=)")) ]
                     |  macro_ref
                     )
-                >> no_node_d[ ch_p('=') ]
+                >> root_node_d[ ch_p('=') ]
                 >> +(  token_node_d[ +(anychar_p - chset_p("$)")) ]
                     |  macro_ref
                     )
@@ -239,6 +244,8 @@ namespace smart
           =  lexeme_d[ *(space_p - eol_p) ]
           ;
 
+	this->start_parsers( statements, macro_value );
+
         debug();
       }//definition()
 
@@ -268,6 +275,19 @@ namespace smart
       }
     };//struct definition
   };//struct grammar
+
+  //============================================================
+
+  struct grammar_partial : boost::spirit::classic::grammar<grammar_partial>
+  {
+    template<typename TScan>
+    struct definition
+    {
+      definition( const smart::grammar_partial & self )
+      {
+      }
+    };//struct definition
+  };//struct grammar_partial
 
   //============================================================
 

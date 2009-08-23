@@ -45,4 +45,8 @@ namespace smart
     return _macro_table->get( vm::type_string(name) );
   }
 
+  function_table *context::ftable() const
+  {
+    return _function_table;
+  }
 }//namespace smart

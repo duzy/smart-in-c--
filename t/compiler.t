@@ -8,6 +8,8 @@
 #include "../src/compiler.hpp"
 #include "../src/string_table.hpp"
 
+#include <iostream>
+
 void test_assignments()
 {
   smart::context ctx;
@@ -128,8 +130,33 @@ void test_assignments()
       assert( m2.value() == "vvv" );
     }
   }
-}
+  {
+    std::string code
+      ( "##############\n"
+	"fun = $1;$2\n"
+	"CALL := $(fun abc,def)\n"
+	"PATT := $(V:%=%.o)\n"
+	"" );
+    smart::compiler sm( ctx );
+    sm.compile( code );
+    {
+      smart::builtin::macro m0( ctx.macro("fun") );
+      smart::builtin::macro m1( ctx.macro("CALL") );
+      smart::builtin::macro m2( ctx.macro("PATT") );
+      std::clog<<"CALL: "<<m1.value()<<std::endl;
+      assert( m0.flavor() == smart::builtin::macro::flavor_recursive );
+      assert( m0.value() == "$1;$2" );
+      assert( m1.flavor() == smart::builtin::macro::flavor_simple );
+      assert( m1.value() == "abc;def" );
+      assert( m2.flavor() == smart::builtin::macro::flavor_simple );
+      assert( m2.value() == "v.o" );
+    }
+  }
+}//test_assignments()
 
+void test_function_call()
+{
+}
 
 int main( int argc, const char** argv )
 {
