@@ -154,8 +154,21 @@ namespace smart
         //std::clog<<"ref: "<<m.name()<<" = "<<m.value()
 	//	 <<"; "<<m.expand( ctx, ref.args )<<std::endl;
         //return m.value();
-        return m.expand( ctx );
-      }
+	switch( ref.type ) {
+	case macro_ref_type_normal:
+	  return m.expand( ctx );
+	case macro_ref_type_funcall:
+	  return m.expand( ctx, ref.args );
+	case macro_ref_type_pattern:
+	  return m.value(); //TODO
+	default:
+	  {
+	    std::ostringstream err;
+	    err<<"invalid macro ref type: "<<ref.type;
+	    throw std::runtime_error( err.str() );
+	  }
+	}//switch
+      }//if( macro-ref )
 
       if ( iter->children.empty() ) {
 	std::string s( iter->value.begin(), iter->value.end() );
@@ -320,7 +333,7 @@ namespace smart
     }
 
     return detail::expanded_macro_value( const_cast<context&>(ctx), pt.trees.begin() );
-  }
+  }//expand()
 
   //======================================================================
 
