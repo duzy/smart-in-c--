@@ -7,6 +7,10 @@
 #include <boost/spirit/include/classic_parse_tree.hpp>
 #include <boost/spirit/include/classic_parse_tree_utils.hpp>
 #include <boost/spirit/include/classic_grammar_def.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
+//#include <boost/spirit/include/classic_attribute.hpp>
+//#include <boost/spirit/include/classic_parametric.hpp>
+#include <stdexcept>
 
 namespace smart
 {
@@ -55,6 +59,9 @@ namespace smart
       rule<TScan, parser_tag<id_in_spaces> > in_spaces; //!< inline spaces
 
       definition( const smart::grammar & self )
+        : push_paren( _parens )
+        , pop_paren( _parens )
+        , right_paren( _parens )
       {
         statements
           =  *statement
@@ -101,35 +108,44 @@ namespace smart
           =  lexeme_d
              [
                 eps_p('$')
-                >> (  str_p("$(")//no_node_d[ str_p("$(") ]  //!< $(...)
-                      >> +(  token_node_d[ +(graph_p - chset_p("$:)")) ]
+                >> (  (  str_p("$(")
+                      |  str_p("${")
+                      )[ push_paren ]
+                      >> +(  token_node_d
+                             [
+                                +( graph_p - (  chset_p("$:")
+                                             |  f_ch_p(right_paren)
+                                             )
+                                 )
+                             ]
                           |  macro_ref
                           )
                       >> !( ( no_node_d[ space_p ] >> macro_ref_args )
                           | ( eps_p(':') >> macro_ref_pattern )
                           )
-                      >> ch_p(')')//no_node_d[ ch_p(')') ]
+                      //>> ch_p(')')
+                      >> f_ch_p(right_paren)[ pop_paren ]
 
-                      //!<<<<<<<<<<<<<<<<< @{
-                   |  no_node_d[ str_p("${") ]  // ${...}
-                      >> +(  token_node_d[ +(graph_p - chset_p("$:}")) ]
-                          |  macro_ref
-                          )
-                      >> no_node_d[ ch_p('}') ]
-		   |  no_node_d[ str_p("${") ]
-                      >> +(  token_node_d[ +(graph_p - chset_p("$:}")) ]
-                          |  macro_ref
-                          )
-		      >> ( space_p | ':' )
-                      >> +(  token_node_d[ +(anychar_p - chset_p("$=}")) ]
-                          |  macro_ref
-                          )
-		      >> '='
-                      >> +(  token_node_d[ +(anychar_p - chset_p("$}")) ]
-                          |  macro_ref
-                          )
-                      >> no_node_d[ ch_p('}') ]
-                      //!<<<<<<<<<<<<<<<<< @}
+//                       //!<<<<<<<<<<<<<<<<< @{
+//                    |  no_node_d[ str_p("${") ]  // ${...}
+//                       >> +(  token_node_d[ +(graph_p - chset_p("$:}")) ]
+//                           |  macro_ref
+//                           )
+//                       >> no_node_d[ ch_p('}') ]
+// 		   |  no_node_d[ str_p("${") ]
+//                       >> +(  token_node_d[ +(graph_p - chset_p("$:}")) ]
+//                           |  macro_ref
+//                           )
+// 		      >> ( space_p | ':' )
+//                       >> +(  token_node_d[ +(anychar_p - chset_p("$=}")) ]
+//                           |  macro_ref
+//                           )
+// 		      >> '='
+//                       >> +(  token_node_d[ +(anychar_p - chset_p("$}")) ]
+//                           |  macro_ref
+//                           )
+//                       >> no_node_d[ ch_p('}') ]
+//                       //!<<<<<<<<<<<<<<<<< @}
 
                    |  no_node_d[ str_p("$()") ]
                    |  no_node_d[ str_p("${}") ]
@@ -273,6 +289,43 @@ namespace smart
       {
         return statements;
       }
+
+    protected:
+      std::vector<char> _parens;
+      struct push_paren_t
+      {
+        std::vector<char> & parens;
+        explicit push_paren_t( std::vector<char> & ref ) : parens(ref) {}
+        template<typename TIter> void operator()( TIter beg, TIter end ) const
+        {
+          std::string s( beg, end );
+          if ( s == "$(" ) parens.push_back( ')' );
+          else if ( s == "${" ) parens.push_back( '}' );
+          else throw std::runtime_error("unknown paren: " + s);
+        }
+      } push_paren;
+      struct pop_paren_t
+      {
+        std::vector<char> & parens;
+        explicit pop_paren_t( std::vector<char> & ref ) : parens(ref) {}
+        template<typename TChar> void operator()( TChar ch ) const
+        {
+          if ( parens.empty() ) throw std::runtime_error("empty parens");
+          else if ( parens.back() != ch )
+            throw std::runtime_error(std::string("paren not match: ")+ch);
+          parens.pop_back();
+        }
+      } pop_paren;
+      struct right_paren_t
+      {
+        std::vector<char> & parens;
+        explicit right_paren_t( std::vector<char> & ref ) : parens(ref) {}
+        char operator()() const
+        {
+          if ( parens.empty() ) return '\0';
+          return parens.back();
+        }
+      } right_paren;
     };//struct definition
   };//struct grammar
 

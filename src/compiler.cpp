@@ -427,3 +427,4 @@ namespace smart
     detail::compile_tree( _context, pt.trees );
   }
 }//namespace smart
+
