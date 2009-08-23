@@ -3,6 +3,7 @@
 #include "macro_table.hpp"
 #include "function_table.hpp"
 #include "vm_types.hpp"
+#include <sstream>
 namespace smart
 {
 
@@ -43,6 +44,21 @@ namespace smart
   builtin::macro context::macro( const std::string & name )
   {
     return _macro_table->get( vm::type_string(name) );
+  }
+
+  void context::setup_macro_args( const std::vector<vm::type_string> & args )
+  {
+    //std::vector<vm::type_string>::const_iterator it( args.begin() );
+    for (int n=0; n < args.size(); ++n) {
+      std::ostringstream oss; oss<<n+1;
+      builtin::macro m( _macro_table->map(oss.str()) );
+      m.set_value( args[n] );
+    }//for
+  }
+
+  void context::clear_macro_args()
+  {
+    //TODO
   }
 
   function_table *context::ftable() const

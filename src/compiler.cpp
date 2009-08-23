@@ -319,6 +319,8 @@ namespace smart
     typedef classic::node_iter_data_factory<> factory_t;
     typedef classic::tree_parse_info<iter_t, factory_t> parse_tree_info_t;
 
+    const_cast<context&>(ctx).setup_macro_args( args );
+
     grammar g;
     const std::string & code( str );
     iter_t beg(code.begin(), code.end()), end;
@@ -332,7 +334,12 @@ namespace smart
       throw std::runtime_error( err.str() );
     }
 
-    return detail::expanded_macro_value( const_cast<context&>(ctx), pt.trees.begin() );
+    vm::type_string v;
+    v = detail::expanded_macro_value( const_cast<context&>(ctx), pt.trees.begin() );
+
+    const_cast<context&>(ctx).clear_macro_args();
+
+    return v;
   }//expand()
 
   //======================================================================

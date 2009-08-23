@@ -28,6 +28,12 @@ namespace smart
     builtin::macro macro( const vm::type_string & v );
     builtin::macro macro( const std::string & v );
 
+    /**
+     * setup $1, $2, $3, $4, ....
+     */
+    void setup_macro_args( const std::vector<vm::type_string> & args );
+    void clear_macro_args();
+
     function_table *ftable() const;
 
   private:
