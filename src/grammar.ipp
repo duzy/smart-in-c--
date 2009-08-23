@@ -61,7 +61,7 @@ namespace smart
       definition( const smart::grammar & self )
         : push_paren( _parens )
         , pop_paren( _parens )
-        , right_paren( _parens )
+        , rparen( _parens )
       {
         statements
           =  *statement
@@ -113,39 +113,14 @@ namespace smart
                       )[ push_paren ]
                       >> +(  token_node_d
                              [
-                                +( graph_p - (  chset_p("$:")
-                                             |  f_ch_p(right_paren)
-                                             )
-                                 )
+                              +( graph_p - (chset_p("$:") | f_ch_p(rparen)) )
                              ]
                           |  macro_ref
                           )
                       >> !( ( no_node_d[ space_p ] >> macro_ref_args )
                           | ( eps_p(':') >> macro_ref_pattern )
                           )
-                      //>> ch_p(')')
-                      >> f_ch_p(right_paren)[ pop_paren ]
-
-//                       //!<<<<<<<<<<<<<<<<< @{
-//                    |  no_node_d[ str_p("${") ]  // ${...}
-//                       >> +(  token_node_d[ +(graph_p - chset_p("$:}")) ]
-//                           |  macro_ref
-//                           )
-//                       >> no_node_d[ ch_p('}') ]
-// 		   |  no_node_d[ str_p("${") ]
-//                       >> +(  token_node_d[ +(graph_p - chset_p("$:}")) ]
-//                           |  macro_ref
-//                           )
-// 		      >> ( space_p | ':' )
-//                       >> +(  token_node_d[ +(anychar_p - chset_p("$=}")) ]
-//                           |  macro_ref
-//                           )
-// 		      >> '='
-//                       >> +(  token_node_d[ +(anychar_p - chset_p("$}")) ]
-//                           |  macro_ref
-//                           )
-//                       >> no_node_d[ ch_p('}') ]
-//                       //!<<<<<<<<<<<<<<<<< @}
+                      >> f_ch_p(rparen)[ pop_paren ]
 
                    |  no_node_d[ str_p("$()") ]
                    |  no_node_d[ str_p("${}") ]
@@ -157,11 +132,13 @@ namespace smart
         macro_ref_args
           =  lexeme_d
              [
-                +(  token_node_d[ +(anychar_p - chset_p("$,)")) ]
+                +(  token_node_d
+                    [ +( anychar_p - (chset_p("$,")|f_ch_p(rparen)) ) ]
                     |  macro_ref
                     )
                 >> *(  no_node_d[ ch_p(',') ]
-                       >> +(  token_node_d[ +(anychar_p - chset_p("$,)")) ]
+                       >> +(  token_node_d
+                              [ +(anychar_p - (chset_p("$,") | f_ch_p(rparen) )) ]
                            |  macro_ref
                            )
                     )
@@ -172,11 +149,11 @@ namespace smart
           =  lexeme_d
              [
                 no_node_d[ ch_p(':') ]
-                >> +(  token_node_d[ +(anychar_p - chset_p("$=)")) ]
+                >> +(  token_node_d[ +(anychar_p - (chset_p("$=")|f_ch_p(rparen))) ]
                     |  macro_ref
                     )
                 >> root_node_d[ ch_p('=') ]
-                >> +(  token_node_d[ +(anychar_p - chset_p("$)")) ]
+                >> +(  token_node_d[ +(anychar_p - (chset_p("$")|f_ch_p(rparen))) ]
                     |  macro_ref
                     )
              ]
@@ -325,7 +302,7 @@ namespace smart
           if ( parens.empty() ) return '\0';
           return parens.back();
         }
-      } right_paren;
+      } rparen;
     };//struct definition
   };//struct grammar
 
