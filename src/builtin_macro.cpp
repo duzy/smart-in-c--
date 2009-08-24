@@ -56,6 +56,20 @@ namespace smart
     {
       return smart::expand( ctx, _i->value, args );
     }
+
+    vm::type_string macro::subst( const std::vector<vm::type_string> & pats ) const
+    {
+      vm::type_string v;
+      return v;
+    }
+
+    vm::type_string macro::patsubst( const std::vector<vm::type_string> & pats ) const
+    {
+      vm::type_string v;
+      if ( pats.size() < 2 ) return v;
+      v = _i->value;
+      return v;
+    }
       
     void macro::assign( const vm::type_string & s )
     {

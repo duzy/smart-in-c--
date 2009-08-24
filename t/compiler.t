@@ -134,7 +134,7 @@ void test_assignments()
     std::string code
       ( "##############\n"
 	"fun = $1;$2\n"
-	"CALL := $(fun abc,def)\n"
+	"CALL := $(call fun,abc,def)\n"
 	"PATT := $(V:%=%.o)\n"
 	"" );
     smart::compiler sm( ctx );

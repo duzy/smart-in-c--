@@ -99,6 +99,17 @@ namespace smart
 	case grammar::id_macro_ref_pattern:
 	  {
 	    ref.type = macro_ref_type_pattern;
+	    TTreeIter arg( child->children.begin() );
+	    for(; arg != child->children.end(); ++arg) {
+	      switch( arg->value.id().to_long() ) {
+	      default:
+		{
+		  std::string s(arg->value.begin(),arg->value.end());
+		  ref.args.push_back( ctx.const_string(s) );
+		}
+		break;
+	      }//switch( arg-type )
+	    }//for( args )
 	  }//case macro_ref_pattern
 	  child = end; //!< ends the iteration
 	  break;
@@ -149,25 +160,34 @@ namespace smart
 
       if ( iter->value.id() == grammar::id_macro_ref ) {
 	parsed_macro_ref ref( parse_macro_ref(ctx, iter) );
-        builtin::macro m( ctx.mtable()->get( ref.name ) );
-        assert( ref.name == m.name() );
-        //std::clog<<"ref: "<<m.name()<<" = "<<m.value()
-	//	 <<"; "<<m.expand( ctx, ref.args )<<std::endl;
-        //return m.value();
 	switch( ref.type ) {
 	case macro_ref_type_normal:
-	  return m.expand( ctx );
-	case macro_ref_type_funcall:
-	  return m.expand( ctx, ref.args );
+	  {
+	    builtin::macro m( ctx.mtable()->get( ref.name ) );
+	    assert( ref.name == m.name() );
+	    return m.expand( ctx );
+	  }
 	case macro_ref_type_pattern:
-	  return m.value(); //TODO
+	  {
+	    builtin::macro m( ctx.mtable()->get( ref.name ) );
+	    assert( ref.name == m.name() );
+	    assert( ref.args.size() == 2 ); //!< e.g. [%.cpp,%.o]
+	    return m.patsubst( ref.args );
+	  }
+	case macro_ref_type_funcall:
+	  {
+	    //return m.expand( ctx, ref.args );
+	    return ctx.invoke( ref.name, ref.args );
+	  }
 	default:
 	  {
 	    std::ostringstream err;
 	    err<<"invalid macro ref type: "<<ref.type;
 	    throw std::runtime_error( err.str() );
 	  }
-	}//switch
+	}//switch( ref-type )
+	
+	return vm::type_string();
       }//if( macro-ref )
 
       if ( iter->children.empty() ) {

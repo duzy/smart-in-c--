@@ -4,6 +4,7 @@
 #	include <string>
 #	include <istream>
 #	include <ostream>
+#	include <typeinfo>
 
 namespace smart
 {
@@ -11,11 +12,17 @@ namespace smart
 
   namespace vm
   {
+    struct type
+    {
+      virtual ~type() {}
+
+      //virtual std::typeinfo typeinfo() const = 0;
+    };//struct type
 
     template<typename Concrete, typename T = void*>
-    struct type_base
+    struct type_base : type
     {
-      virtual ~type_base() {}
+      
 
     protected:
       //T ptr;
@@ -48,8 +55,8 @@ namespace smart
 
       bool operator==( const type_string & o ) const;
       bool operator==( const std::string & o ) const;
-      bool operator!=( const type_string & o ) const { return !(*this == o);}
-      bool operator!=( const std::string & o ) const { return !(*this == o);}
+      bool operator!=( const type_string & o ) const { return !(*this == o); }
+      bool operator!=( const std::string & o ) const { return !(*this == o); }
       type_string & operator+=( const type_string & o );
       type_string & operator+=( const std::string & s );
 
@@ -68,9 +75,9 @@ namespace smart
 
     //--------------------------------------------------
 
-    struct type_object : type_base<type_object>
+    struct type_ext : type_base<type_ext>
     {
-      virtual ~type_object() {}
+      virtual ~type_ext() {}
     };//struct type_object
 
     //--------------------------------------------------

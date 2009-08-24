@@ -29,12 +29,14 @@ namespace smart
 
       static long inref( imp * p )
       {
+	//if ( !p ) return 0;
 	if ( p->_usage == -1 ) return p->_usage;
 	return ++p->_usage;
       }
 
       static long deref( imp * & p )
       {
+	//if ( !p ) return 0;
 	if ( p->_usage == -1 ) return p->_usage;
 	if ( --p->_usage == 0 ) {
 	  delete p;

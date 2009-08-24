@@ -75,6 +75,7 @@ namespace smart
 
     bool type_string::operator==( const std::string & o ) const
     {
+      //return _i && *_i->_cstr == o;
       return *_i->_cstr == o;
     }
 

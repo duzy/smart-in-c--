@@ -48,21 +48,56 @@ namespace smart
 
   void context::setup_macro_args( const std::vector<vm::type_string> & args )
   {
-    //std::vector<vm::type_string>::const_iterator it( args.begin() );
+    argsStack.push_back( args );
     for (int n=0; n < args.size(); ++n) {
       std::ostringstream oss; oss<<n+1;
       builtin::macro m( _macro_table->map(oss.str()) );
+      m.set_origin( builtin::macro::origin_automatic );
       m.set_value( args[n] );
     }//for
   }
 
   void context::clear_macro_args()
   {
-    //TODO
+    if ( argsStack.empty() ) return;
+    vm::type_string empty;
+    for (int n=0; n < argsStack.back().size(); ++n) {
+      std::ostringstream oss; oss<<n+1;
+      builtin::macro m( _macro_table->map(oss.str()) );
+      m.set_value( empty );
+    }
+    argsStack.pop_back();
   }
 
   function_table *context::ftable() const
   {
     return _function_table;
+  }
+
+  vm::type_string context::invoke( const vm::type_string & name,
+				   const std::vector<vm::type_string> & args )
+  {
+    function_table::function_t fun(_function_table->get(name));
+    if ( !fun ) return vm::type_string();
+
+    _frames.push_back( frame() );
+
+    frame & f( _frames.back() );
+    f.resize( args.size() + 1 );
+    for( int n=0; n < args.size(); ++n ) f[n+1] = args[n];
+
+    fun( *this );
+
+    vm::type_string result( f[0] );
+
+    _frames.pop_back();
+
+    return result;
+  }
+
+  frame & context::current_frame()
+  {
+    if ( _frames.empty() ) _frames.push_back( frame() );
+    return _frames.front();
   }
 }//namespace smart

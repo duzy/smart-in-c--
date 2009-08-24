@@ -5,10 +5,22 @@ namespace smart
   static struct {
     const char * name;
     function_table::function_t fun;
-  } s_builtin_functions[3] = {
-    { "noop", &builtins::noop },
-    { "assign_macro", builtins::assign_macro },
-    { "expand_macro", builtins::expand_macro },
+  } s_builtin_functions[] = {
+    { "noop", builtin::noop },
+    { "subst", builtin::subst },
+    { "patsubst", builtin::patsubst },
+    { "strip", builtin::strip },
+    { "findstring", builtin::findstring },
+    { "filter", builtin::filter },
+    { "filter_out", builtin::filter_out },
+    { "sort", builtin::sort },
+    { "word", builtin::word },
+    { "wordlist", builtin::wordlist },
+    { "firstword", builtin::firstword },
+    { "lastword", builtin::lastword },
+    { "call", builtin::call },
+    { "assign_macro", builtin::assign_macro },
+    { "expand_macro", builtin::expand_macro },
   };
 
   function_table::function_table()

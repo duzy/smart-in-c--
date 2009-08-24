@@ -10,7 +10,7 @@ namespace smart
   namespace builtin
   {
 
-    struct macro : vm::type_object
+    struct macro : vm::type_ext
     {
       macro();
       explicit macro( const vm::type_string & name,
@@ -31,6 +31,43 @@ namespace smart
 
       vm::type_string expand( const context & ) const;
       vm::type_string expand( const context &, const std::vector<vm::type_string> & args ) const;
+
+      /**
+       *  $(subst FROM,TO,$(M))
+       */
+      vm::type_string subst( const std::vector<vm::type_string> & pats ) const;
+
+      /**
+       *  $(patsubst %.cpp,%.o,$(M))
+       *  $(M:%.cpp=%.o)
+       */
+      vm::type_string patsubst( const std::vector<vm::type_string> & pats ) const;
+
+      /**
+       *  @brief Removes leading and trailing whitespaces from the expanded
+       *         value of the macro and returns the result.
+       */
+      vm::type_string strip() const;
+
+      /**
+       *  $(findstring FIND,$(M))
+       */
+      vm::type_string findstring( const vm::type_string & s ) const;
+
+      /**
+       *  
+       */
+      vm::type_string filter() const;
+      vm::type_string filter_out() const;
+
+      vm::type_string sort() const;
+
+      vm::type_string word( int n ) const;
+      vm::type_string wordlist( int s, int e ) const;
+      vm::type_string words() const;
+
+      vm::type_string firstword() const;
+      vm::type_string lastword() const;
 
       void assign( const vm::type_string & );
       void append( const vm::type_string & );

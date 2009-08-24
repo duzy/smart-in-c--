@@ -2,6 +2,7 @@
 #define __SMART_CONTEXT__HPP____by_Duzy_Chan__ 1
 #	include "vm_fwd.hpp"
 #	include "builtin_macro.hpp"
+#	include "frame.hpp"
 #	include <string>
 
 namespace smart
@@ -35,6 +36,9 @@ namespace smart
     void clear_macro_args();
 
     function_table *ftable() const;
+    vm::type_string invoke( const vm::type_string&, const std::vector<vm::type_string>& );
+
+    frame & current_frame();
 
   private:
     string_table *_string_table; //!< for string constants
@@ -42,6 +46,11 @@ namespace smart
     macro_table *_macro_table;
     rule_table *_rule_table;
     function_table *_function_table;
+
+    typedef std::vector<vm::type_string> args_t;
+    std::vector<args_t> argsStack;
+
+    std::vector<frame> _frames;
   };//struct context
 
 }//namespace smart
