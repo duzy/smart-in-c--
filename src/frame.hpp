@@ -10,6 +10,10 @@ namespace smart
 
     void resize( std::size_t sz ) { _vars.resize(sz); }
 
+    vm::type_string & front() { return _vars.front(); }
+
+    vm::type_string & back() { return _vars.back(); }
+
     vm::type_string & operator[]( int n )
     {
     # if 0

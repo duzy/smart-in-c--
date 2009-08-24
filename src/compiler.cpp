@@ -276,6 +276,18 @@ namespace smart
     }//compile_make_rule()
 
     template<typename TTreeIter>
+    static void compile_macro_ref( context & ctx, const TTreeIter & iter )
+    {
+      assert( iter->value.id() == grammar::id_macro_ref );
+
+      parsed_macro_ref ref( parse_macro_ref(ctx, iter) );
+      if ( ref.type == macro_ref_type_funcall ) {
+	//vm::type_string res( ctx.invoke( ref.name, ref.args ) );
+	ctx.invoke( ref.name, ref.args );
+      }
+    }//compile_macro_ref()
+
+    template<typename TTreeIter>
     static void compile_statements( context & ctx, const TTreeIter & iter )
     {
       assert( iter->value.id() == grammar::id_statements );
@@ -293,6 +305,10 @@ namespace smart
         case grammar::id_make_rule:
           compile_make_rule( ctx, child );
           break;
+
+	case grammar::id_macro_ref:
+	  compile_macro_ref( ctx, child );
+	  break;
 
         default:
           {

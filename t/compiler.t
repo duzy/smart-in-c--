@@ -161,7 +161,34 @@ void test_assignments()
 
 void test_function_call()
 {
-}
+  smart::context ctx;
+  {
+    std::string code
+      ( "##############\n"
+	"$(info information text)\n"
+	"$(warning warning text)\n"
+	"$(error error text)\n"
+	"" );
+    smart::compiler sm( ctx );
+    sm.compile( code );
+  }
+  {// foreach
+    std::string code
+      ( "##############\n"
+	"VV = a b c	d 	 e    f\n"
+	"RES := $(foreach v,$(VV),$v.o)\n"
+	"" );
+    smart::compiler sm( ctx );
+    sm.compile( code );
+    {
+      smart::builtin::macro m0( ctx.macro("VV") );
+      smart::builtin::macro m1( ctx.macro("RES") );
+      std::clog<<"m1: "<<m1.value()<<std::endl;
+      assert( m1.flavor() == smart::builtin::macro::flavor_simple );
+      assert( m1.value() == "a.o b.o c.o d.o e.o f.o" );
+    }
+  }
+}//test_function_call()
 
 int main( int argc, const char** argv )
 {
@@ -173,5 +200,6 @@ int main( int argc, const char** argv )
 //   }
 
   test_assignments();
+  test_function_call();
   return 0;
 }

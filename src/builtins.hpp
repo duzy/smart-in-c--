@@ -28,7 +28,26 @@ namespace smart
     void lastword( context & ctx );
     /** @} */
 
+    void if_f( context & ctx );
+    void or_f( context & ctx );
+    void and_f( context & ctx );
+    
+    void foreach_f( context & ctx );
+
     void call( context & ctx );
+
+    void value( context & ctx );
+    void origin( context & ctx );
+    void flavor( context & ctx );
+
+    /**
+     *  @brief Functions That Controls Make
+     *  @{ 
+     */
+    void info( context & ctx );
+    void warning( context & ctx );
+    void error( context & ctx );
+    /** @} */
 
     void assign_macro( context & ctx );
     void expand_macro( context & ctx );

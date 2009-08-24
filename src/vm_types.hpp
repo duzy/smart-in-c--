@@ -64,6 +64,11 @@ namespace smart
 
       bool empty() const;
 
+      /**
+       *  @brief Strip heading and tailing whitespaces.
+       */
+      void trim();
+
     private:
       struct imp;
       imp * _i;

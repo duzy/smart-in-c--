@@ -1,6 +1,7 @@
 #include "string_table.hpp"
 #include "vm_types.hpp"
 #include "vm_string_imp.hpp"
+#include <boost/algorithm/string/trim.hpp>
 #include <sstream>
 
 namespace smart
@@ -130,6 +131,12 @@ namespace smart
     bool type_string::empty() const
     {
       return _i->_cstr->empty();
+    }
+
+    void type_string::trim()
+    {
+      imp::copy_if_refs( _i );
+      boost::trim( *_i->_str );
     }
   }//namespace vm
 }//namespace smart
