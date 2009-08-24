@@ -79,26 +79,15 @@ namespace smart
           break;
 
 	case grammar::id_macro_ref_args:
-	  {
-	    ref.type = macro_ref_type_funcall;
-	    TTreeIter arg( child->children.begin() );
-	    for(; arg != child->children.end(); ++arg) {
-	      switch( arg->value.id().to_long() ) {
-	      default:
-		{
-		  std::string s(arg->value.begin(),arg->value.end());
-		  ref.args.push_back( ctx.const_string(s) );
-		}
-		break;
-	      }//switch( arg-type )
-	    }//for( args )
-	  }//case macro_ref_args
-	  child = end; //!< ends the iteration
-	  break;
+	  ref.type = macro_ref_type_funcall;
+	  goto pack_args;
 
 	case grammar::id_macro_ref_pattern:
+	  ref.type = macro_ref_type_pattern;
+	  goto pack_args;
+
+	pack_args:
 	  {
-	    ref.type = macro_ref_type_pattern;
 	    TTreeIter arg( child->children.begin() );
 	    for(; arg != child->children.end(); ++arg) {
 	      switch( arg->value.id().to_long() ) {

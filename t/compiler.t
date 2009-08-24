@@ -133,9 +133,10 @@ void test_assignments()
   {
     std::string code
       ( "##############\n"
+	"VV = a b c	d 	 e    f\n"
 	"fun = $1;$2\n"
 	"CALL := $(call fun,abc,def)\n"
-	"PATT := $(V:%=%.o)\n"
+	"PATT := $(VV:%=%.o)\n"
 	"" );
     smart::compiler sm( ctx );
     sm.compile( code );
@@ -149,7 +150,7 @@ void test_assignments()
       assert( m1.flavor() == smart::builtin::macro::flavor_simple );
       assert( m1.value() == "abc;def" );
       assert( m2.flavor() == smart::builtin::macro::flavor_simple );
-      assert( m2.value() == "v.o" );
+      assert( m2.value() == "a.o b.o c.o d.o e.o f.o" );
     }
   }
 }//test_assignments()

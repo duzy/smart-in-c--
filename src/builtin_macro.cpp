@@ -1,6 +1,11 @@
 #include "builtin_macro.hpp"
 #include "builtin_macro_imp.hpp"
 #include "expand.hpp"
+#include <boost/algorithm/string/find_iterator.hpp>
+#include <boost/algorithm/string/finder.hpp>
+//#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <iostream>
 namespace smart
 {
   namespace builtin
@@ -17,6 +22,43 @@ namespace smart
     const vm::type_string macro::flavor_undefined       = vm::type_string("undefined");
     const vm::type_string macro::flavor_recursive       = vm::type_string("recursive");
     const vm::type_string macro::flavor_simple          = vm::type_string("simple");
+
+    //======================================================================
+
+    /**
+     * head%tail
+     */
+    struct pattern
+    {
+      explicit pattern( const std::string & pat )
+	: head()
+	, tail()
+	, is_valid( false )
+      {
+	std::size_t pos( pat.find( '%' ) );
+	if ( pos != std::string::npos ) {
+	  head = pat.substr( 0, pos );
+	  tail = pat.substr( pos + 1, std::string::npos );
+	  is_valid = true;
+	}
+      }
+
+      std::string match( const std::string & s )
+      {
+	std::string stem;
+	if ( s.size() < head.size() + tail.size() ) return stem;
+	if ( head != s.substr( 0, head.size() ) ) return stem;
+	if ( tail != s.substr( s.size()-tail.size(), tail.size() ) ) return stem;
+	stem = s.substr( head.size(), s.size()-head.size()-tail.size() );
+	return stem;
+      }
+
+      std::string head;
+      std::string tail;
+      bool is_valid;
+    };//struct pattern
+
+    //======================================================================
 
     macro::macro()
       : _i( new imp( origin_undefined, flavor_undefined, vm::type_string(), vm::type_string() ) )
@@ -67,7 +109,25 @@ namespace smart
     {
       vm::type_string v;
       if ( pats.size() < 2 ) return v;
-      v = _i->value;
+
+      pattern pat0( pats[0] );
+      pattern pat1( pats[1] );
+      //std::clog<<"patterns: "<<pats[0]<<", "<<pats[1]<<std::endl;
+
+      const std::string & str( _i->value );
+      typedef boost::split_iterator<std::string::const_iterator> iter_t;
+      iter_t it( boost::make_split_iterator(str, boost::token_finder(boost::is_any_of(" \t"))) );
+      iter_t const end;
+      for(; it != end; ++it) {
+	if ( it->empty() ) continue;
+	std::string stem( pat0.match(boost::copy_range<std::string>( *it )) );
+	std::string s( pat1.head + stem + pat1.tail );
+	if ( !v.empty() ) v += " ";
+	v += s;
+	//std::clog<<_i->name<<": "<<boost::copy_range<std::string>( *it )<<std::endl;
+	//std::clog<<"stem "<<stem<<" of "<<boost::copy_range<std::string>( *it )<<std::endl;
+      }
+      //std::clog<<v<<std::endl;
       return v;
     }
       
