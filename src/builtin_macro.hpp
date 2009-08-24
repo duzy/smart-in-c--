@@ -114,6 +114,22 @@ namespace smart
       struct imp;
       imp *_i;
     };//struct macro
+
+    //======================================================================
+
+    /**
+     *  @brief Patterns in the form of 'head%tail'
+     */
+    struct pattern
+    {
+      explicit pattern( const std::string & pat );
+      std::string match( const std::string & s );
+      vm::type_string convert( const pattern & pat1, const std::string & str );
+
+      std::string head;
+      std::string tail;
+      bool is_valid;
+    };//struct pattern
   
   }//namespace builtin
 }//namespace smart

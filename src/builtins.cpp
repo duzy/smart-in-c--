@@ -2,6 +2,7 @@
 #include "context.hpp"
 #include "macro_table.hpp"
 #include "frame.hpp"
+#include "expand.hpp"
 #include <iostream>
 namespace smart
 {
@@ -18,6 +19,15 @@ namespace smart
 
     void patsubst( context & ctx )
     {
+      frame & f ( ctx.current_frame() );
+      if ( f.size() < 4 ) {
+	f[0] = vm::type_string();
+	return;
+      }
+
+      builtin::pattern pat0( expand(ctx, f[1]) );
+      builtin::pattern pat1( expand(ctx, f[2]) );
+      f[0] = pat0.convert( pat1, expand(ctx, f[3]) );
     }
 
     void strip( context & ctx )

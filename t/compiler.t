@@ -136,21 +136,25 @@ void test_assignments()
 	"VV = a b c	d 	 e    f\n"
 	"fun = $1;$2\n"
 	"CALL := $(call fun,abc,def)\n"
-	"PATT := $(VV:%=%.o)\n"
+	"PAT1 := $(VV:%=%.o)\n"
+	"PAT2 := $(patsubst %,%.o,$(VV))\n"
 	"" );
     smart::compiler sm( ctx );
     sm.compile( code );
     {
       smart::builtin::macro m0( ctx.macro("fun") );
       smart::builtin::macro m1( ctx.macro("CALL") );
-      smart::builtin::macro m2( ctx.macro("PATT") );
-      //std::clog<<"CALL: "<<m1.value()<<std::endl;
+      smart::builtin::macro m2( ctx.macro("PAT1") );
+      smart::builtin::macro m3( ctx.macro("PAT2") );
+      //std::clog<<"m3: "<<m3.value()<<std::endl;
       assert( m0.flavor() == smart::builtin::macro::flavor_recursive );
       assert( m0.value() == "$1;$2" );
       assert( m1.flavor() == smart::builtin::macro::flavor_simple );
       assert( m1.value() == "abc;def" );
       assert( m2.flavor() == smart::builtin::macro::flavor_simple );
       assert( m2.value() == "a.o b.o c.o d.o e.o f.o" );
+      assert( m3.flavor() == smart::builtin::macro::flavor_simple );
+      assert( m3.value() == "a.o b.o c.o d.o e.o f.o" );
     }
   }
 }//test_assignments()

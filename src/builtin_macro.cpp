@@ -25,38 +25,45 @@ namespace smart
 
     //======================================================================
 
-    /**
-     * head%tail
-     */
-    struct pattern
+    pattern::pattern( const std::string & pat )
+      : head()
+      , tail()
+      , is_valid( false )
     {
-      explicit pattern( const std::string & pat )
-	: head()
-	, tail()
-	, is_valid( false )
-      {
-	std::size_t pos( pat.find( '%' ) );
-	if ( pos != std::string::npos ) {
-	  head = pat.substr( 0, pos );
-	  tail = pat.substr( pos + 1, std::string::npos );
-	  is_valid = true;
-	}
+      std::size_t pos( pat.find( '%' ) );
+      if ( pos != std::string::npos ) {
+	head = pat.substr( 0, pos );
+	tail = pat.substr( pos + 1, std::string::npos );
+	is_valid = true;
       }
+    }
 
-      std::string match( const std::string & s )
-      {
-	std::string stem;
-	if ( s.size() < head.size() + tail.size() ) return stem;
-	if ( head != s.substr( 0, head.size() ) ) return stem;
-	if ( tail != s.substr( s.size()-tail.size(), tail.size() ) ) return stem;
-	stem = s.substr( head.size(), s.size()-head.size()-tail.size() );
-	return stem;
+    std::string pattern::match( const std::string & s )
+    {
+      std::string stem;
+      if ( s.size() < head.size() + tail.size() ) return stem;
+      if ( head != s.substr( 0, head.size() ) ) return stem;
+      if ( tail != s.substr( s.size()-tail.size(), tail.size() ) ) return stem;
+      stem = s.substr( head.size(), s.size()-head.size()-tail.size() );
+      return stem;
+    }
+
+    vm::type_string pattern::convert( const pattern & pat1, const std::string & str )
+    {
+      vm::type_string v;
+
+      typedef boost::split_iterator<std::string::const_iterator> iter_t;
+      iter_t it( boost::make_split_iterator(str, boost::token_finder(boost::is_any_of(" \t"))) );
+      iter_t const end;
+      for(; it != end; ++it) {
+	if ( it->empty() ) continue;
+	std::string stem( this->match(boost::copy_range<std::string>( *it )) );
+	std::string s( pat1.head + stem + pat1.tail );
+	if ( !v.empty() ) v += " ";
+	v += s;
       }
-
-      std::string head;
-      std::string tail;
-      bool is_valid;
-    };//struct pattern
+      return v;
+    }
 
     //======================================================================
 
@@ -107,28 +114,11 @@ namespace smart
 
     vm::type_string macro::patsubst( const std::vector<vm::type_string> & pats ) const
     {
-      vm::type_string v;
-      if ( pats.size() < 2 ) return v;
+      if ( pats.size() < 2 ) return vm::type_string();
 
       pattern pat0( pats[0] );
       pattern pat1( pats[1] );
-      //std::clog<<"patterns: "<<pats[0]<<", "<<pats[1]<<std::endl;
-
-      const std::string & str( _i->value );
-      typedef boost::split_iterator<std::string::const_iterator> iter_t;
-      iter_t it( boost::make_split_iterator(str, boost::token_finder(boost::is_any_of(" \t"))) );
-      iter_t const end;
-      for(; it != end; ++it) {
-	if ( it->empty() ) continue;
-	std::string stem( pat0.match(boost::copy_range<std::string>( *it )) );
-	std::string s( pat1.head + stem + pat1.tail );
-	if ( !v.empty() ) v += " ";
-	v += s;
-	//std::clog<<_i->name<<": "<<boost::copy_range<std::string>( *it )<<std::endl;
-	//std::clog<<"stem "<<stem<<" of "<<boost::copy_range<std::string>( *it )<<std::endl;
-      }
-      //std::clog<<v<<std::endl;
-      return v;
+      return pat0.convert( pat1, _i->value );
     }
       
     void macro::assign( const vm::type_string & s )
