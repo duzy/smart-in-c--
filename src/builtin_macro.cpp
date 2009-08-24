@@ -51,6 +51,7 @@ namespace smart
     vm::type_string pattern::convert( const pattern & pat1, const std::string & str )
     {
       vm::type_string v;
+      if ( !is_valid || !pat1.is_valid ) return v;
 
       typedef boost::split_iterator<std::string::const_iterator> iter_t;
       iter_t it( boost::make_split_iterator(str, boost::token_finder(boost::is_any_of(" \t"))) );

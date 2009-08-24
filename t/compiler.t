@@ -146,7 +146,7 @@ void test_assignments()
       smart::builtin::macro m1( ctx.macro("CALL") );
       smart::builtin::macro m2( ctx.macro("PAT1") );
       smart::builtin::macro m3( ctx.macro("PAT2") );
-      //std::clog<<"m3: "<<m3.value()<<std::endl;
+      //std::clog<<"m2: "<<m2.value()<<std::endl;
       assert( m0.flavor() == smart::builtin::macro::flavor_recursive );
       assert( m0.value() == "$1;$2" );
       assert( m1.flavor() == smart::builtin::macro::flavor_simple );
