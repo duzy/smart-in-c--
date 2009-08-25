@@ -53,6 +53,10 @@ namespace smart
     std::vector<frame> _frames;
   };//struct context
 
+  void info( const vm::type_string & );
+  void warning( const vm::type_string & );
+  void error( const vm::type_string & );
+
 }//namespace smart
 
 /**

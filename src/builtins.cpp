@@ -23,7 +23,7 @@ namespace smart
     void patsubst( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 4 ) {
+      if ( f.args_size() < 3 ) {
 	f[0] = vm::type_string();
 	return;
       }
@@ -69,16 +69,56 @@ namespace smart
     {
     }
 
+    void dir( context & ctx )
+    {
+    }
+
+    void notdir( context & ctx )
+    {
+    }
+
+    void suffix( context & ctx )
+    {
+    }
+
+    void basename( context & ctx )
+    {
+    }
+
+    void addsuffix( context & ctx )
+    {
+    }
+
+    void addprefix( context & ctx )
+    {
+    }
+
+    void join( context & ctx )
+    {
+    }
+
+    void wildcard( context & ctx )
+    {
+    }
+
+    void realpath( context & ctx )
+    {
+    }
+
+    void abspath( context & ctx )
+    {
+    }
+
     void if_f( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 2 ) return;
+      if ( f.args_size() < 1 ) return;
     }
 
     void or_f( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 2 ) return;
+      if ( f.args_size() < 1 ) return;
       f[0] = vm::type_string();
       for( int n=1; n < f.size(); ++n ) {
         vm::type_string s( expand(ctx, f[n]) );
@@ -93,7 +133,7 @@ namespace smart
     void and_f( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 2 ) return;
+      if ( f.args_size() < 1 ) return;
       f[0] = vm::type_string();
       for( int n=1; n < f.size(); ++n ) {
         vm::type_string s( expand(ctx, f[n]) );
@@ -108,12 +148,13 @@ namespace smart
       frame & f ( ctx.current_frame() );
       f[0] = vm::type_string();
 
-      if ( f.size() < 4 ) return;
+      if ( f.args_size() < 3 ) return;
+
       vm::type_string var( expand(ctx, f[1]) );
       vm::type_string lst( expand(ctx, f[2]) );
       const std::string & str( lst );
 
-      std::clog<<"text: "<<f[3]<<std::endl;
+      //std::clog<<"text: "<<f[3]<<std::endl;
 
       macro m( ctx.mtable()->map(var) );
       if ( m.origin() == macro::origin_undefined )
@@ -146,7 +187,7 @@ namespace smart
     void call( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 2 ) {
+      if ( f.args_size() < 1 ) {
 	f[0] = vm::type_string();
 	return;
       }
@@ -165,7 +206,7 @@ namespace smart
     void value( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 2 ) {
+      if ( f.args_size() < 1 ) {
 	f[0] = vm::type_string();
 	return;
       }
@@ -178,7 +219,7 @@ namespace smart
     void origin( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 2 ) {
+      if ( f.args_size() < 1 ) {
 	f[0] = vm::type_string();
 	return;
       }
@@ -191,7 +232,7 @@ namespace smart
     void flavor( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 2 ) {
+      if ( f.args_size() < 1 ) {
 	f[0] = vm::type_string();
 	return;
       }
@@ -204,20 +245,37 @@ namespace smart
     void info( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 2 ) return;
-      
+      if ( f.args_size() < 1 ) return;
+      vm::type_string str;
+      for(int n=1; n < f.size(); ++n) {
+        if ( !str.empty() ) str += " ";
+        str += f[n];
+      }
+      smart::info( str );
     }
 
     void warning( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 2 ) return;
+      if ( f.args_size() < 1 ) return;
+      vm::type_string str;
+      for(int n=1; n < f.size(); ++n) {
+        if ( !str.empty() ) str += " ";
+        str += f[n];
+      }
+      smart::warning( str );
     }
 
     void error( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.size() < 2 ) return;
+      if ( f.args_size() < 1 ) return;
+      vm::type_string str;
+      for(int n=1; n < f.size(); ++n) {
+        if ( !str.empty() ) str += " ";
+        str += f[n];
+      }
+      smart::error( str );
     }
 
     void assign_macro( context & ctx )

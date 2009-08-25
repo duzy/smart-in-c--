@@ -165,7 +165,8 @@ void test_function_call()
   {
     std::string code
       ( "##############\n"
-	"$(info information text)\n"
+	"$(info informative text)\n"
+	"$(info informative text	 2,)\n"
 	"$(warning warning text)\n"
 	"$(error error text)\n"
 	"" );
@@ -183,7 +184,7 @@ void test_function_call()
     {
       smart::builtin::macro m0( ctx.macro("VV") );
       smart::builtin::macro m1( ctx.macro("RES") );
-      std::clog<<"m1: "<<m1.value()<<std::endl;
+      //std::clog<<"m1: "<<m1.value()<<std::endl;
       assert( m1.flavor() == smart::builtin::macro::flavor_simple );
       assert( m1.value() == "a.o b.o c.o d.o e.o f.o" );
     }

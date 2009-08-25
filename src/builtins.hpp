@@ -28,6 +28,21 @@ namespace smart
     void lastword( context & ctx );
     /** @} */
 
+    /**
+     *  @brief File Name Functions
+     */
+    void dir( context & ctx );
+    void notdir( context & ctx );
+    void suffix( context & ctx );
+    void basename( context & ctx );
+    void addsuffix( context & ctx );
+    void addprefix( context & ctx );
+    void join( context & ctx ); //!< concates word by word
+    void wildcard( context & ctx );
+    void realpath( context & ctx );
+    void abspath( context & ctx );
+    /** @} */
+
     void if_f( context & ctx );
     void or_f( context & ctx );
     void and_f( context & ctx );

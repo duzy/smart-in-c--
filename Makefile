@@ -8,8 +8,8 @@ include Makefile.conf
 
 INCLUDES = -I$(BOOST_DIR)
 
-CXXFLAGS = -std=gnu++0x -g -ggdb -DBOOST_SPIRIT_DEBUG_XML $(INCLUDES)
-#CXXFLAGS = -std=gnu++0x -g -ggdb $(INCLUDES)
+#CXXFLAGS = -std=gnu++0x -g -ggdb -DBOOST_SPIRIT_DEBUG_XML $(INCLUDES)
+CXXFLAGS = -std=gnu++0x -g -ggdb $(INCLUDES)
 #CXXFLAGS = $(INCLUDES)
 #CXXFLAGS = -ftemplate-depth-128 -O3 -finline-functions -DNDEBUG
 

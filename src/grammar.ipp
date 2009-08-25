@@ -140,7 +140,7 @@ namespace smart
                     //|  macro_ref
                     )
                 >> *(  no_node_d[ ch_p(',') ]
-                       >> +(  token_node_d
+                       >> *(  token_node_d
                               [ +(  (anychar_p - (chset_p("$,") | f_ch_p(rparen) ))
                                  |  macro_ref
                                  )

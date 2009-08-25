@@ -4,8 +4,26 @@
 #include "function_table.hpp"
 #include "vm_types.hpp"
 #include <sstream>
+#include <iostream>
 namespace smart
 {
+
+  void info( const vm::type_string & s )
+  {
+    std::clog<<"info: "<<s<<std::endl;
+  }
+
+  void warning( const vm::type_string & s )
+  {
+    std::clog<<"warning: "<<s<<std::endl;
+  }
+
+  void error( const vm::type_string & s )
+  {
+    std::cerr<<"error: "<<s<<std::endl;
+  }
+
+  //======================================================================
 
   context::context()
     : _string_table( new string_table )

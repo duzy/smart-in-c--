@@ -80,7 +80,12 @@ namespace smart
 
 	case grammar::id_macro_ref_args:
 	  ref.type = macro_ref_type_funcall;
-	  goto pack_args;
+	  if ( child->children.empty() ) {
+	    std::string s(child->value.begin(), child->value.end());
+	    ref.args.push_back( ctx.const_string(s) );
+	    break;
+	  }
+	  else goto pack_args;
 
 	case grammar::id_macro_ref_pattern:
 	  ref.type = macro_ref_type_pattern;
