@@ -132,24 +132,22 @@ namespace smart
         macro_ref_args
           =  lexeme_d
              [
-             #if 1
                 +(  token_node_d
-                    [ +( anychar_p - (chset_p("$,")|f_ch_p(rparen)) ) ]
-                    |  macro_ref
+                    [ +(  ( anychar_p - (chset_p("$,")|f_ch_p(rparen)) )
+                       |  macro_ref
+                       )
+                    ]
+                    //|  macro_ref
                     )
                 >> *(  no_node_d[ ch_p(',') ]
                        >> +(  token_node_d
-                              [ +(anychar_p - (chset_p("$,") | f_ch_p(rparen) )) ]
-                           |  macro_ref
+                              [ +(  (anychar_p - (chset_p("$,") | f_ch_p(rparen) ))
+                                 |  macro_ref
+                                 )
+                              ]
+                              //|  macro_ref
                            )
                     )
-             #else
-                +token_node_d[ +( anychar_p - (chset_p(",")|f_ch_p(rparen)) ) ]
-                >> *(  no_node_d[ ch_p(',') ]
-                       >> token_node_d
-                          [ +(anychar_p - (chset_p(",") | f_ch_p(rparen))) ]
-                    )
-             #endif
              ]
           ;
 
