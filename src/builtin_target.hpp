@@ -11,6 +11,7 @@
 #define __SMART_BUILTIN_TARGET__HPP____by_Duzy_Chan__ 1
 #	include "vm_types.hpp"
 #	include <boost/intrusive_ptr.hpp>
+#	include <vector>
 
 namespace smart
 {
@@ -18,6 +19,7 @@ namespace smart
 
   namespace builtin
   {
+    struct make_rule;
 
     struct target : vm::type_ext
     {
@@ -33,7 +35,7 @@ namespace smart
 
       bool is_phony() const;
 
-      //std::vector<rule*> rules() const;
+      std::vector<make_rule*> rules() const;
 
       struct imp;
 

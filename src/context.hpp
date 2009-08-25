@@ -39,6 +39,8 @@ namespace smart
     builtin::macro macro( const vm::type_string & v );
     builtin::macro macro( const std::string & v );
 
+    builtin::target target( const vm::type_string & v );
+
     /**
      * setup $1, $2, $3, $4, ....
      */
@@ -57,7 +59,10 @@ namespace smart
     rule_table *_rule_table;
     function_table *_function_table;
 
-    //target_table 
+    typedef std::vector<builtin::make_rule> rules_t;
+    rules_t _rules;
+
+    //target_table
 
     typedef std::vector<vm::type_string> args_t;
     std::vector<args_t> argsStack;

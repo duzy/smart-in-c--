@@ -19,6 +19,7 @@ namespace smart
     {
       long _usage;
       vm::type_string _object;
+      std::vector<make_rule*> _rules;
 
       imp( const vm::type_string & obj = vm::type_string() )
 	: _usage( 0 )

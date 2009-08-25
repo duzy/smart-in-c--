@@ -32,12 +32,12 @@ namespace smart
       {
       }
 
-      static void inref( imp * p )
+      static inline void inref( imp * p )
       {
 	++p->usage;
       }
 
-      static void deref( imp * & p )
+      static inline void deref( imp * & p )
       {
 	if ( 0 == --p->usage ) {
 	  delete p;

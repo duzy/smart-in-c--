@@ -31,12 +31,14 @@ namespace smart
        */
       int update_prerequisites( context & ) const;
 
+      struct imp;
+
     private:
-      //std::vector<vm::type_string> _targets;
-      std::vector<target> _prerequisites;
-      std::vector<vm::type_string> _orderonly; //!< order-only prerequisites
-      std::vector<vm::type_string> _commands;
+      boost::intrusive_ptr<imp> _i;
     };//struct make_rule
+
+    void intrusive_ptr_add_ref( make_rule::imp * p );
+    void intrusive_ptr_release( make_rule::imp * & p );
     
   }//namespace builtin
 }//namespace smart

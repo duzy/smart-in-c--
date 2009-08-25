@@ -9,6 +9,9 @@
 
 #include "builtin_target.hpp"
 #include "builtin_target_imp.hpp"
+#include "builtin_make_rule.hpp"
+#include <boost/ref.hpp>
+#include <algorithm>
 
 namespace smart
 {
@@ -40,6 +43,23 @@ namespace smart
     vm::type_string target::object() const
     {
       return _i->_object;
+    }
+
+    struct get_rule_ptr {
+      std::vector<make_rule*> vec;
+      void operator()( make_rule & r ) { vec.push_back( &r ); }
+    };
+    std::vector<make_rule*> target::rules() const
+    {
+      #if 1
+      return _i->_rules;
+      #else
+      get_rule_ptr g;
+      //std::for_each( _i->_rules.begin(), _i->_rules.end(), boost::ref(g) );
+      get_rule_ptr & rg( g );
+      std::for_each( _i->_rules.begin(), _i->_rules.end(), rg );
+      return g.vec;
+      #endif
     }
     
   }//namespace builtin
