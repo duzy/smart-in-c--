@@ -24,7 +24,7 @@ namespace smart
 
       imp( const vm::type_string & ori, const vm::type_string & fla,
 	   const vm::type_string & nam, const vm::type_string & val )
-	: usage( 1 )
+	: usage( 0 )
 	, origin( ori )
 	, flavor( fla )
 	, name( nam )

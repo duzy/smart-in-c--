@@ -7,6 +7,8 @@
  *
  **/
 
+#include "builtin_make_rule.hpp"
+
 namespace smart
 {
   namespace builtin
@@ -15,6 +17,8 @@ namespace smart
     make_rule::make_rule()
     {
     }
+
     
+
   }//namespace builtin
 }//namespace smart

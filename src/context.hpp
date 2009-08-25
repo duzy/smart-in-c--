@@ -11,6 +11,7 @@
 #define __SMART_CONTEXT__HPP____by_Duzy_Chan__ 1
 #	include "vm_fwd.hpp"
 #	include "builtin_macro.hpp"
+#	include "builtin_make_rule.hpp"
 #	include "frame.hpp"
 #	include <string>
 
@@ -55,6 +56,8 @@ namespace smart
     macro_table *_macro_table;
     rule_table *_rule_table;
     function_table *_function_table;
+
+    //target_table 
 
     typedef std::vector<vm::type_string> args_t;
     std::vector<args_t> argsStack;

@@ -80,11 +80,13 @@ namespace smart
     macro::macro()
       : _i( new imp( origin_undefined, flavor_undefined, vm::type_string(), vm::type_string() ) )
     {
+      imp::inref( _i );
     }
 
     macro::macro( const vm::type_string & name, const vm::type_string & value )
       : _i( new imp( origin_undefined, flavor_undefined, name, value ) )
     {
+      imp::inref( _i );
     }
 
     macro::~macro()
