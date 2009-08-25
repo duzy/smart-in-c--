@@ -176,21 +176,31 @@ void test_function_call()
   {// if, or, and
     std::string code
       ( "##############\n"
-	"VV := \n"
-	"RES1 := $(if $(VV),vv,empty)\n"
-	"VV := xx\n"
-	"RES2 := $(if $(VV),vv,empty)\n"
+	"VV1 := \n"
+	"RES1 := $(if $(VV1),vv,empty)\n"
+	"VV2 := vv\n"
+	"RES2 := $(if $(VV2),vv,empty)\n"
+	"RES3 := $(or $(VV1),$(VV2),xx)\n"
+	"RES4 := $(and $(VV1),$(VV2),xx)\n"
+	"RES5 := $(and $(VV2),xx,yy)\n"
 	"" );
     smart::compiler sm( ctx );
     sm.compile( code );
     {
       smart::builtin::macro m1( ctx.macro("RES1") );
       smart::builtin::macro m2( ctx.macro("RES2") );
+      smart::builtin::macro m3( ctx.macro("RES3") );
+      smart::builtin::macro m4( ctx.macro("RES4") );
+      smart::builtin::macro m5( ctx.macro("RES5") );
       //std::clog<<"m1: "<<m1.value()<<std::endl;
       //std::clog<<"m2: "<<m2.value()<<std::endl;
+      //std::clog<<"m5: "<<m5.value()<<std::endl;
       assert( m1.flavor() == smart::builtin::macro::flavor_simple );
       assert( m1.value() == "empty" );
       assert( m2.value() == "vv" );
+      assert( m3.value() == "vv" );
+      assert( m4.value() == "" );
+      assert( m5.value() == "yy" );
     }
   }
   {// foreach
