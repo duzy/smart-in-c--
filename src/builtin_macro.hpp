@@ -10,6 +10,7 @@
 #ifndef __SMART_BUILTIN_MACRO__HPP____by_Duzy_Chan__
 #define __SMART_BUILTIN_MACRO__HPP____by_Duzy_Chan__ 1
 #	include "vm_types.hpp"
+#       include <boost/intrusive_ptr.hpp>
 #	include <vector>
 
 namespace smart
@@ -24,9 +25,6 @@ namespace smart
       macro();
       explicit macro( const vm::type_string & name,
                       const vm::type_string & value = vm::type_string() );
-
-      macro( const macro & o );
-      macro & operator=( const macro & o );
 
       virtual ~macro();
 
@@ -119,10 +117,14 @@ namespace smart
       vm::type_string flavor() const;
       void set_flavor( const vm::type_string & );
 
-    private:
       struct imp;
-      imp *_i;
+
+    private:
+      boost::intrusive_ptr<imp> _i;
     };//struct macro
+
+    void intrusive_ptr_add_ref( macro::imp * p );
+    void intrusive_ptr_release( macro::imp * & p );
 
     //======================================================================
 

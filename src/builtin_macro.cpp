@@ -15,6 +15,7 @@
 //#include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <iostream>
+
 namespace smart
 {
   namespace builtin
@@ -77,35 +78,28 @@ namespace smart
 
     //======================================================================
 
+    void intrusive_ptr_add_ref( macro::imp * p )
+    {
+      macro::imp::inref( p );
+    }
+
+    void intrusive_ptr_release( macro::imp * & p )
+    {
+      macro::imp::deref( p );
+    }
+
     macro::macro()
       : _i( new imp( origin_undefined, flavor_undefined, vm::type_string(), vm::type_string() ) )
     {
-      imp::inref( _i );
     }
 
     macro::macro( const vm::type_string & name, const vm::type_string & value )
       : _i( new imp( origin_undefined, flavor_undefined, name, value ) )
     {
-      imp::inref( _i );
     }
 
     macro::~macro()
     {
-      imp::deref( _i );
-    }
-
-    macro::macro( const macro & o )
-      : _i( o._i )
-    {
-      imp::inref( _i );
-    }
-
-    macro & macro::operator=( const macro & o )
-    {
-      imp::deref( _i );
-      _i = o._i;
-      imp::inref( _i );
-      return *this;
     }
 
     vm::type_string macro::expand( const context & ctx ) const
