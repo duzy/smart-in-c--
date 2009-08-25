@@ -16,6 +16,8 @@ namespace smart
 
     void resize( std::size_t sz ) { _vars.resize(sz); }
 
+    vm::type_string & result() { return _vars[0]; }
+
     vm::type_string & front() { return _vars.front(); }
 
     vm::type_string & back() { return _vars.back(); }

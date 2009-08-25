@@ -173,6 +173,26 @@ void test_function_call()
     smart::compiler sm( ctx );
     sm.compile( code );
   }
+  {// if, or, and
+    std::string code
+      ( "##############\n"
+	"VV := \n"
+	"RES1 := $(if $(VV),vv,empty)\n"
+	"VV := xx\n"
+	"RES2 := $(if $(VV),vv,empty)\n"
+	"" );
+    smart::compiler sm( ctx );
+    sm.compile( code );
+    {
+      smart::builtin::macro m1( ctx.macro("RES1") );
+      smart::builtin::macro m2( ctx.macro("RES2") );
+      //std::clog<<"m1: "<<m1.value()<<std::endl;
+      //std::clog<<"m2: "<<m2.value()<<std::endl;
+      assert( m1.flavor() == smart::builtin::macro::flavor_simple );
+      assert( m1.value() == "empty" );
+      assert( m2.value() == "vv" );
+    }
+  }
   {// foreach
     std::string code
       ( "##############\n"

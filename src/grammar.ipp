@@ -108,22 +108,22 @@ namespace smart
           =  lexeme_d
              [
                 eps_p('$')
-                >> (  (  str_p("$(")
-                      |  str_p("${")
-                      )[ push_paren ]
+                >> (  no_node_d[ str_p("$()") ]
+                   |  no_node_d[ str_p("${}") ]
+                   |  ( str_p("$(") | str_p("${") )[ push_paren ]
                       >> +(  token_node_d
                              [
-                              +( graph_p - (chset_p("$:") | f_ch_p(rparen)) )
+                              +( ( graph_p - (chset_p("$:") | f_ch_p(rparen)) )
+                                 //| ~eps_p( space_p ) >> macro_ref
+                               )
                              ]
-                          |  macro_ref
+                          |  ~eps_p( space_p ) >> macro_ref
                           )
                       >> !( ( no_node_d[ space_p ] >> macro_ref_args )
                           | ( eps_p(':') >> macro_ref_pattern )
                           )
                       >> f_ch_p(rparen)[ pop_paren ]
 
-                   |  no_node_d[ str_p("$()") ]
-                   |  no_node_d[ str_p("${}") ]
                    |  ch_p('$') >> graph_p
                    )
              ]

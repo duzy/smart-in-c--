@@ -112,7 +112,16 @@ namespace smart
     void if_f( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) return;
+      if ( f.args_size() < 2 ) return;
+      vm::type_string s( expand(ctx, f[1]) );
+      s.trim();
+      if ( !s.empty() ) {
+        f[0] = f[2];
+      }
+      else {
+        if ( 3 <= f.args_size() ) f[0] = f[3];
+        else f[0] = vm::type_string();
+      }
     }
 
     void or_f( context & ctx )
