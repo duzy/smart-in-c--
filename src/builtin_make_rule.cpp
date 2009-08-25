@@ -7,7 +7,14 @@
  *
  **/
 
-int main(int argc, const char** argv)
+namespace smart
 {
-  return 0;
-}
+  namespace builtin
+  {
+
+    make_rule::make_rule()
+    {
+    }
+    
+  }//namespace builtin
+}//namespace smart

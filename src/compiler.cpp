@@ -1,3 +1,12 @@
+/**
+ *    Copyright 2009-08-25 DuzySoft.com, by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    All rights reserved by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    Email: <duzy@duzy.info, duzy.chan@gmail.com>
+ *
+ *    $Id$
+ *
+ **/
+
 #include "compiler.hpp"
 #include "context.hpp"
 #include "string_table.hpp"
@@ -50,7 +59,7 @@ namespace smart
       }
     };//struct parsed_macro_ref
 
-    //--------------------------------------------------
+    //======================================================================
 
     template<typename TTreeIter>
     static vm::type_string expanded_macro_value( context & ctx, const TTreeIter & iter );
@@ -62,7 +71,7 @@ namespace smart
       assert( iter->children.empty() || 2 <= iter->children.size() ); //!< '$(' ... ')'
 
       parsed_macro_ref ref;
-      if ( iter->children.empty() ) return ref;//return vm::type_string();
+      if ( iter->children.empty() ) return ref;
       if ( iter->children.size() == 2 || iter->children.size() == 3 ) {
         //!< $X, $(X), ${X}
         TTreeIter nodeName( iter->children.begin() + 1 );
@@ -125,8 +134,6 @@ namespace smart
     {
       vm::type_string value;
       if ( iter->children.empty() || iter->value.id() == grammar::id_macro_ref ) {
-        //value = std::string( iter->value.begin(), iter->value.end() );
-        //return value;
         return ctx.const_string( std::string(iter->value.begin(), iter->value.end()) );
       }
 
@@ -333,13 +340,13 @@ namespace smart
     }//compile_tree()
   }//namespace detail
 
-  //============================================================
+  //======================================================================
 
   vm::type_string expand( const context & ctx, const vm::type_string & str )
   {
     std::vector<vm::type_string> args;
     return expand( ctx, str, args );
-  }
+  }//expand()
 
   vm::type_string expand( const context & ctx, const vm::type_string & str,
                           const std::vector<vm::type_string> & args )

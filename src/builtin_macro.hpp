@@ -1,3 +1,12 @@
+/**
+ *    Copyright 2009-08-25 DuzySoft.com, by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    All rights reserved by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    Email: <duzy@duzy.info, duzy.chan@gmail.com>
+ *
+ *    $Id$
+ *
+ **/
+
 #ifndef __SMART_BUILTIN_MACRO__HPP____by_Duzy_Chan__
 #define __SMART_BUILTIN_MACRO__HPP____by_Duzy_Chan__ 1
 #	include "vm_types.hpp"
@@ -124,6 +133,10 @@ namespace smart
     {
       explicit pattern( const std::string & pat );
       std::string match( const std::string & s );
+
+      /**
+       *  $(V:%.cpp=%.o)
+       */
       vm::type_string convert( const pattern & pat1, const std::string & str );
 
       std::string head;

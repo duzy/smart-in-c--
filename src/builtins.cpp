@@ -1,3 +1,12 @@
+/**
+ *    Copyright 2009-08-25 DuzySoft.com, by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    All rights reserved by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    Email: <duzy@duzy.info, duzy.chan@gmail.com>
+ *
+ *    $Id$
+ *
+ **/
+
 #include "builtins.hpp"
 #include "context.hpp"
 #include "macro_table.hpp"
@@ -155,15 +164,14 @@ namespace smart
     void foreach_f( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      f[0] = vm::type_string();
-
-      if ( f.args_size() < 3 ) return;
+      if ( f.args_size() < 3 ) {
+        f[0] = vm::type_string();
+        return;
+      }
 
       vm::type_string var( expand(ctx, f[1]) );
       vm::type_string lst( expand(ctx, f[2]) );
       const std::string & str( lst );
-
-      //std::clog<<"text: "<<f[3]<<std::endl;
 
       macro m( ctx.mtable()->map(var) );
       if ( m.origin() == macro::origin_undefined )

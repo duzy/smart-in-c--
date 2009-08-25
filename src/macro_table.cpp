@@ -1,3 +1,12 @@
+/**
+ *    Copyright 2009-08-25 DuzySoft.com, by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    All rights reserved by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    Email: <duzy@duzy.info, duzy.chan@gmail.com>
+ *
+ *    $Id$
+ *
+ **/
+
 #include "macro_table.hpp"
 namespace smart
 {
