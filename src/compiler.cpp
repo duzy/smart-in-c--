@@ -335,11 +335,11 @@ namespace smart
 
       if ( iter->children.size() < 3 ) return;
       TTreeIter cmds( iter->children.begin() + 2 );
-      if ( cmds->value.id().to_long() == grammar::id_make_rule_commands ) {
+      if ( cmds->value.id() == grammar::id_make_rule_commands ) {
         TTreeIter it( cmds->children.begin() );
         for(; it != cmds->children.end(); ++it) {
           std::string s;
-          if ( it->value.id().to_long() == grammar::id_make_rule_command ) {
+          if ( it->value.id() == grammar::id_make_rule_command ) {
             TTreeIter i( it->children.begin() );
             for(; i != it->children.end(); ++i) {
               s += std::string(i->value.begin(), i->value.end());
@@ -370,34 +370,58 @@ namespace smart
     template<typename TTreeIter>
     static void compile_statements( context & ctx, const TTreeIter & iter )
     {
-      assert( iter->value.id() == grammar::id_statements );
-      
-      TTreeIter child( iter->children.begin() );
-      TTreeIter const end( iter->children.end() );
+      assert( iter->value.id() == grammar::id_statements ||
+              iter->value.id() == grammar::id_statement ||
+              iter->value.id() == grammar::id_make_rule ||
+              iter->value.id() == grammar::id_macro_ref ||
+              iter->value.id() == grammar::id_assignment
+              );
 
-      for(; child != end; ++child) {
-        switch( child->value.id().to_long() ) {
+      switch( iter->value.id().to_long() ) {
+      case grammar::id_statements:
+        {
+          TTreeIter child( iter->children.begin() );
+          TTreeIter const end( iter->children.end() );
+          for(; child != end; ++child) {
+            switch( child->value.id().to_long() ) {
 
-        case grammar::id_assignment:
-          compile_assignment( ctx, child );
+            case grammar::id_assignment:
+              compile_assignment( ctx, child );
+              break;
+
+            case grammar::id_make_rule:
+              compile_make_rule( ctx, child );
+              break;
+
+            case grammar::id_macro_ref:
+              compile_macro_ref( ctx, child );
+              break;
+
+            default:
+              {
+                std::ostringstream err;
+                err<<"Unimplemented statement: "<<iter->value.id().to_long();
+                throw std::runtime_error( err.str() );
+              }
+            }//switch( statement-type )
+          }//for( each-statement )
           break;
+        }//case statements
 
-        case grammar::id_make_rule:
-          compile_make_rule( ctx, child );
+      case grammar::id_make_rule:
+        {
+          compile_make_rule( ctx, iter );
           break;
+        }
 
-	case grammar::id_macro_ref:
-	  compile_macro_ref( ctx, child );
-	  break;
-
-        default:
-          {
-            std::ostringstream err;
-            err<<"Unimplemented statement: "<<iter->value.id().to_long();
-            throw std::runtime_error( err.str() );
-          }
-        }//switch
-      }//for
+      default:
+        {
+          std::ostringstream err;
+          err<<"Unimplemented statement: "<<iter->value.id().to_long();
+          throw std::runtime_error( err.str() );
+        }
+        
+      }//switch( type )
     }//compile_statements()
 
     template<typename TTree>
@@ -434,8 +458,8 @@ namespace smart
     if ( !pt.full ) {
       std::ostringstream err;
       err<<"parse error at column "<<pt.stop.get_position().column
-	 <<" on line "<<pt.stop.get_position().line
-	;
+         <<" on line "<<pt.stop.get_position().line
+        ;
       throw std::runtime_error( err.str() );
     }
 
@@ -481,7 +505,7 @@ namespace smart
   }
 
   void compiler::compile( const std::string::const_iterator & codeBeg,
-			  const std::string::const_iterator & codeEnd )
+                          const std::string::const_iterator & codeEnd )
   {
     grammar g;
     grammar_skip s;
@@ -502,8 +526,8 @@ namespace smart
     if ( !pt.full ) {
       std::ostringstream err;
       err<<"parse error at column "<<pt.stop.get_position().column
-	 <<" on line "<<pt.stop.get_position().line
-	;
+         <<" on line "<<pt.stop.get_position().line
+        ;
       throw std::runtime_error( err.str() );
     }
 

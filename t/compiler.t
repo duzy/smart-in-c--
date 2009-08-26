@@ -222,3 +222,23 @@ BOOST_AUTO_TEST_CASE( function_call )
   }
 }//test_function_call()
 
+BOOST_AUTO_TEST_CASE( make_rules )
+{
+  smart::context ctx;
+  smart::compiler sm( ctx );
+
+  std::string code
+    ( "##############\n"
+      "foobar: foo bar\n"
+      "\tcommand line 1\n"
+      "\tcommand line 2\n"
+      "" );
+  sm.compile( code );
+
+  smart::vm::type_string name( "foobar" );
+  smart::builtin::target tar( ctx.target(name) );
+  //std::clog<<tar.rules().size()<<std::endl;
+  BOOST_CHECK( tar.refcount() == 2 );
+  BOOST_CHECK( tar.rules().size() == 1 );
+}
+

@@ -26,6 +26,8 @@ namespace smart
       target();
       explicit target( const vm::type_string & );
 
+      long refcount() const;
+
       vm::type_string object() const;
 
       bool exists() const;
@@ -35,7 +37,7 @@ namespace smart
 
       bool is_phony() const;
 
-      std::vector<make_rule> rules() const;
+      const std::vector<make_rule> & rules() const;
 
       void bind( const make_rule & );
 
