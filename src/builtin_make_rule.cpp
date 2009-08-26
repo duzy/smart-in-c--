@@ -51,5 +51,15 @@ namespace smart
     {
     }
 
+    void make_rule::add_prerequisite( const target & t )
+    {
+      _i->_prerequisites.push_back( t );
+    }
+
+    void make_rule::add_command( const vm::type_string & s )
+    {
+      _i->_commands.push_back( s );
+    }
+
   }//namespace builtin
 }//namespace smart

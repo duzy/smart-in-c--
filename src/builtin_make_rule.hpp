@@ -31,6 +31,9 @@ namespace smart
        */
       int update_prerequisites( context & ) const;
 
+      void add_prerequisite( const target & );
+      void add_command( const vm::type_string & );
+
       struct imp;
 
     private:

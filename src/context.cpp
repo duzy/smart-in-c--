@@ -39,6 +39,10 @@ namespace smart
     , _macro_table( new macro_table )
     , _rule_table()
     , _function_table( new function_table )
+    , _targets()
+    , _rules()
+    , _macroArgs()
+    , _frames()
   {
   }
 
@@ -75,7 +79,7 @@ namespace smart
 
   void context::setup_macro_args( const std::vector<vm::type_string> & args )
   {
-    argsStack.push_back( args );
+    _macroArgs.push_back( args );
     for (int n=0; n < args.size(); ++n) {
       std::ostringstream oss; oss<<n+1;
       builtin::macro m( _macro_table->map(oss.str()) );
@@ -86,14 +90,25 @@ namespace smart
 
   void context::clear_macro_args()
   {
-    if ( argsStack.empty() ) return;
+    if ( _macroArgs.empty() ) return;
     vm::type_string empty;
-    for (int n=0; n < argsStack.back().size(); ++n) {
+    for (int n=0; n < _macroArgs.back().size(); ++n) {
       std::ostringstream oss; oss<<n+1;
       builtin::macro m( _macro_table->map(oss.str()) );
       m.set_value( empty );
     }
-    argsStack.pop_back();
+    _macroArgs.pop_back();
+  }
+
+  builtin::target context::target( vm::type_string const& name )
+  {
+    target_table::iterator it( _targets.find(name) );
+    if ( it == _targets.end() ) {
+      builtin::target t( name );
+      _targets.insert(std::make_pair(name, t));
+      return t;
+    }
+    return it->second;
   }
 
   function_table *context::ftable() const

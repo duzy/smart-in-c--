@@ -287,35 +287,35 @@ namespace smart
 
       builtin::make_rule r;
       {//!< bind targets
-	TTreeIter tgs( iter->children.begin() );
-	switch( tgs->value.id().to_long() ) {
+	TTreeIter ts( iter->children.begin() );
+	switch( ts->value.id().to_long() ) {
 	case grammar::id_make_rule_targets:
 	  {
-	    TTreeIter it( tgs->children.begin() );
-	    for(; it != tgs->children.end(); ++it) {
+	    TTreeIter it( ts->children.begin() );
+	    for(; it != ts->children.end(); ++it) {
 	      vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
 	      builtin::target target( ctx.target(str) );
-	      target->bind( r );
+	      target.bind( r );
 	    }
 	    break;
 	  }
 	default:
 	  {
-	    vm::type_string str(ctx.const_string(std::string(tgs->value.begin(), tgs->value.end())));
+	    vm::type_string str(ctx.const_string(std::string(ts->value.begin(), ts->value.end())));
 	    builtin::target target( ctx.target(str) );
-	    target->bind( r );
+	    target.bind( r );
 	    break;
 	  }
 	}//switch( tagets-type )
       }//bind targets
 
       if ( 2 <= iter->children.size() ) {
-	TTreeIter pqs( iter->children.begin() + 1 );
-	switch( pqs->value.id().to_long() ) {
+	TTreeIter ps( iter->children.begin() + 1 );
+	switch( ps->value.id().to_long() ) {
 	case grammar::id_make_rule_prereqs:
 	  {
-	    TTreeIter it( pqs->children.begin() );
-	    for(; it != pqs->children.end(); ++it) {
+	    TTreeIter it( ps->children.begin() );
+	    for(; it != ps->children.end(); ++it) {
 	      vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
 	      builtin::target target( ctx.target(str) );
 	      r.add_prerequisite( target );
@@ -324,7 +324,7 @@ namespace smart
 	  }
 	default:
 	  {
-	    vm::type_string str(ctx.const_string(std::string(pqs->value.begin(), pqs->value.end())));
+	    vm::type_string str(ctx.const_string(std::string(ps->value.begin(), ps->value.end())));
 	    builtin::target target( ctx.target(str) );
 	    r.add_prerequisite( target );
 	    break;

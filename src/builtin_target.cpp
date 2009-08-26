@@ -49,7 +49,7 @@ namespace smart
       std::vector<make_rule*> vec;
       void operator()( make_rule & r ) { vec.push_back( &r ); }
     };
-    std::vector<make_rule*> target::rules() const
+    std::vector<make_rule> target::rules() const
     {
       #if 1
       return _i->_rules;
@@ -60,6 +60,11 @@ namespace smart
       std::for_each( _i->_rules.begin(), _i->_rules.end(), rg );
       return g.vec;
       #endif
+    }
+
+    void target::bind( const make_rule & r )
+    {
+      _i->_rules.push_back( r );
     }
     
   }//namespace builtin

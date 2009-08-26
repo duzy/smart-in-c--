@@ -14,6 +14,7 @@
 #	include "builtin_make_rule.hpp"
 #	include "frame.hpp"
 #	include <string>
+#	include <boost/unordered_map.hpp>
 
 namespace smart
 {
@@ -59,13 +60,15 @@ namespace smart
     rule_table *_rule_table;
     function_table *_function_table;
 
+    typedef boost::unordered_map<vm::type_string, builtin::target> target_table;
+    target_table _targets;
+
     typedef std::vector<builtin::make_rule> rules_t;
     rules_t _rules;
 
-    //target_table
 
     typedef std::vector<vm::type_string> args_t;
-    std::vector<args_t> argsStack;
+    std::vector<args_t> _macroArgs;
 
     std::vector<frame> _frames;
   };//struct context
