@@ -285,7 +285,74 @@ namespace smart
     {
       assert( iter->value.id() == grammar::id_make_rule );
 
-      
+      builtin::make_rule r;
+      {//!< bind targets
+	TTreeIter tgs( iter->children.begin() );
+	switch( tgs->value.id().to_long() ) {
+	case grammar::id_make_rule_targets:
+	  {
+	    TTreeIter it( tgs->children.begin() );
+	    for(; it != tgs->children.end(); ++it) {
+	      vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
+	      builtin::target target( ctx.target(str) );
+	      target->bind( r );
+	    }
+	    break;
+	  }
+	default:
+	  {
+	    vm::type_string str(ctx.const_string(std::string(tgs->value.begin(), tgs->value.end())));
+	    builtin::target target( ctx.target(str) );
+	    target->bind( r );
+	    break;
+	  }
+	}//switch( tagets-type )
+      }//bind targets
+
+      if ( 2 <= iter->children.size() ) {
+	TTreeIter pqs( iter->children.begin() + 1 );
+	switch( pqs->value.id().to_long() ) {
+	case grammar::id_make_rule_prereqs:
+	  {
+	    TTreeIter it( pqs->children.begin() );
+	    for(; it != pqs->children.end(); ++it) {
+	      vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
+	      builtin::target target( ctx.target(str) );
+	      r.add_prerequisite( target );
+	    }
+	    break;
+	  }
+	default:
+	  {
+	    vm::type_string str(ctx.const_string(std::string(pqs->value.begin(), pqs->value.end())));
+	    builtin::target target( ctx.target(str) );
+	    r.add_prerequisite( target );
+	    break;
+	  }
+	}//switch( prereqsites-type )
+      }
+      else return;
+
+      if ( iter->children.size() < 3 ) return;
+      TTreeIter cmds( iter->children.begin() + 2 );
+      if ( cmds->value.id().to_long() == grammar::id_make_rule_commands ) {
+        TTreeIter it( cmds->children.begin() );
+        for(; it != cmds->children.end(); ++it) {
+          std::string s;
+          if ( it->value.id().to_long() == grammar::id_make_rule_command ) {
+            TTreeIter i( it->children.begin() );
+            for(; i != it->children.end(); ++i) {
+              s += std::string(i->value.begin(), i->value.end());
+            }
+          }//if( make_rule_command )
+          else s = std::string(it->value.begin(), it->value.end());
+	  r.add_command( ctx.const_string(s) );
+	}//for( commands )
+      }//if( make_rule_commands )
+      else {
+        std::string s(cmds->value.begin(), cmds->value.end());
+        r.add_command( ctx.const_string(s) );
+      }
     }//compile_make_rule()
 
     template<typename TTreeIter>

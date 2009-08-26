@@ -195,7 +195,7 @@ namespace smart
              [
                 make_rule_targets
                 >> no_node_d[ *(space_p - eol_p) ] //!< spirit can't eat these spaces
-                >> no_node_d[ ch_p(':') ]
+                >> root_node_d[ ch_p(':') ]
                 >> no_node_d[ *(space_p - eol_p) ] //!< spirit can't eat these spaces
                 >> make_rule_prereqs
                 >> no_node_d[ eol_p | end_p ]
