@@ -12,6 +12,7 @@
 //#define BOOST_SPIRIT_DEBUG_FLAGS BOOST_SPIRIT_DEBUG_FLAGS_NODES
 #include "../src/grammar.ipp"
 #include <boost/spirit/include/classic_tree_to_xml.hpp>
+#include <boost/test/unit_test.hpp>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -136,7 +137,8 @@ void dump_parse_tree( const TTree & tree )
   dump( beg, end );
 }
 
-int main(int argc, const char** argv)
+//int main(int argc, const char** argv)
+BOOST_AUTO_TEST_CASE( main )
 {
   smart::grammar g;
   smart::grammar_skip s;
@@ -202,5 +204,5 @@ int main(int argc, const char** argv)
     throw std::runtime_error(err.str());
   }
   
-  return 0;
+  //return 0;
 }

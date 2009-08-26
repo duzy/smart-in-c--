@@ -46,7 +46,8 @@ all: $(SMART)
 
 PHONY += test
 test: $(TESTS)
-	@for T in $(TESTS); do echo "unit: $$T"; $$T; done
+	@#for T in $(TESTS); do echo "unit: $$T"; $$T; done
+	@for T in $(TESTS); do $$T; done
 
 $(TESTS): $(SMART.LIB)
 test-%: $(OUT_DIR)/t/%.test
@@ -67,7 +68,7 @@ $(DEPENDS):$(DEPEND_PAT):%.cpp
 $(UNIT_OBJECTS):$(UNIT_PAT):%.t
 	$(PREPARE_OUTPUT_DIR)
 	$(COMPILE.cc) -xc++ -o $@ $<
-$(TESTS):$(TEST_PAT):$(OUT_DIR)/objs/%.o
+$(TESTS):$(TEST_PAT):$(OUT_DIR)/objs/%.o t/boost_test_stuff.o
 	$(PREPARE_OUTPUT_DIR)
 	$(LINK.cc) -o $@ $^ $(LOADLIBRES) $(LDLIBS) -lsmart
 $(TEST_DEPENDS):$(TEST_DEPEND_PAT):%.t
