@@ -34,6 +34,12 @@ namespace smart
       void add_prerequisite( const target & );
       void add_command( const vm::type_string & );
 
+      const std::vector<builtin::target> & prerequisites() const;
+      const std::vector<vm::type_string> & commands() const;
+      void set_commands( const std::vector<vm::type_string> &  );
+
+      bool empty() const;
+
       struct imp;
 
     private:

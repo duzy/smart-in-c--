@@ -51,6 +51,16 @@ namespace smart
     {
     }
 
+    const std::vector<builtin::target> & make_rule::prerequisites() const
+    {
+      return _i->_prerequisites;
+    }
+
+    const std::vector<vm::type_string> & make_rule::commands() const
+    {
+      return _i->_commands;
+    }
+
     void make_rule::add_prerequisite( const target & t )
     {
       _i->_prerequisites.push_back( t );
@@ -59,6 +69,19 @@ namespace smart
     void make_rule::add_command( const vm::type_string & s )
     {
       _i->_commands.push_back( s );
+    }
+
+    void make_rule::set_commands( const std::vector<vm::type_string> & cmds )
+    {
+      _i->_commands = cmds;
+    }
+
+    bool make_rule::empty() const
+    {
+      return _i->_prerequisites.empty()
+	&& _i->_orderonly.empty()
+	&& _i->_commands.empty()
+	;
     }
 
   }//namespace builtin

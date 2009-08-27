@@ -241,20 +241,24 @@ BOOST_AUTO_TEST_CASE( make_rules )
   //std::clog<<tar.rules().size()<<std::endl;
   BOOST_CHECK( tar.object() == "foobar" );
   BOOST_CHECK( tar.refcount() == 2 );
-  BOOST_CHECK( tar.rules().size() == 1 );
+  BOOST_CHECK( tar.rule().prerequisites().size() == 2 );
+  BOOST_CHECK( tar.rule().commands().size() == 2 );
 
   name = "foo";
   smart::builtin::target preq1( ctx.target(name) );
   //std::clog<<preq1.refcount()<<std::endl;
   BOOST_CHECK( preq1.object() == "foo" );
   BOOST_CHECK( preq1.refcount() == 3 );
-  BOOST_CHECK( preq1.rules().size() == 0 );
+  BOOST_CHECK( preq1.rule().prerequisites().size() == 0 );
+  BOOST_CHECK( preq1.rule().commands().size() == 0 );
+  BOOST_CHECK( preq1.rule().empty() );
 
   name = "bar";
   smart::builtin::target preq2( ctx.target(name) );
   //std::clog<<preq2.refcount()<<std::endl;
   BOOST_CHECK( preq2.object() == "bar" );
   BOOST_CHECK( preq2.refcount() == 3 );
-  BOOST_CHECK( preq2.rules().size() == 0 );
+  BOOST_CHECK( preq2.rule().prerequisites().size() == 0 );
+  BOOST_CHECK( preq2.rule().empty() );
 }
 

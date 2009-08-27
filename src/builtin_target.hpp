@@ -39,7 +39,8 @@ namespace smart
 
       bool is_phony() const;
 
-      const std::vector<make_rule> & rules() const;
+      //const std::vector<make_rule> & rules() const;
+      const make_rule & rule() const;
 
       void bind( const make_rule & );
 
