@@ -61,6 +61,13 @@ namespace smart
 
     //======================================================================
 
+    typedef boost::spirit::classic::file_position_base<std::string> position_t;
+    template<typename TTreeIter>
+    static inline const position_t & get_position( const TTreeIter & iter )
+    {
+      return iter->value.begin().get_position();
+    }
+
     template<typename TTreeIter>
     static vm::type_string expanded_macro_value( context & ctx, const TTreeIter & iter );
 
@@ -183,7 +190,9 @@ namespace smart
 	default:
 	  {
 	    std::ostringstream err;
-	    err<<"invalid macro ref type: "<<ref.type;
+	    err<<"invalid macro ref type: "<<ref.type
+               <<", in line "<<get_position(iter).line
+               <<" at "<<get_position(iter).column;
 	    throw std::runtime_error( err.str() );
 	  }
 	}//switch( ref-type )
@@ -272,7 +281,7 @@ namespace smart
       default:
         {
           std::ostringstream err;
-          err<<"invalid assignment";
+          err<<"invalid assignment, in line "<<get_position(iter).line<<" at "<<get_position(iter).column;
           throw std::runtime_error( err.str() );
         }
         break;
@@ -421,7 +430,9 @@ namespace smart
             default:
               {
                 std::ostringstream err;
-                err<<"Unimplemented statement: "<<iter->value.id().to_long();
+                err<<"Unimplemented statement: "<<iter->value.id().to_long()
+                   <<", in line "<<get_position(iter).line
+                   <<" at "<<get_position(iter).column;
                 throw std::runtime_error( err.str() );
               }
             }//switch( statement-type )
@@ -438,7 +449,9 @@ namespace smart
       default:
         {
           std::ostringstream err;
-          err<<"Unimplemented statement: "<<iter->value.id().to_long();
+          err<<"Unimplemented statement: "<<iter->value.id().to_long()
+             <<", in line "<<get_position(iter).line
+             <<" at "<<get_position(iter).column;
           throw std::runtime_error( err.str() );
         }
         

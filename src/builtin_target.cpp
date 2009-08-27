@@ -55,6 +55,11 @@ namespace smart
       return _i->_rules;
     }
 
+    /**
+     *  * Each target binds to one make-rule
+     *  * New binding will overrides the previous commands
+     *  * New binding combines prerequisites with the previous binding
+     */
     void target::bind( const make_rule & r )
     {
       _i->_rules.push_back( r );
