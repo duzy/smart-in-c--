@@ -291,24 +291,33 @@ namespace smart
 	switch( ts->value.id().to_long() ) {
 	case grammar::id_make_rule_targets:
 	  {
-	    TTreeIter it( ts->children.begin() );
-	    for(; it != ts->children.end(); ++it) {
-	      vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
-	      builtin::target target( ctx.target(str) );
-	      target.bind( r );
-	    }
+            if ( ts->children.empty() ) goto bind_simple_target;
+            else {
+              TTreeIter it( ts->children.begin() );
+              for(; it != ts->children.end(); ++it) {
+                vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
+                builtin::target target( ctx.map_target(str) );
+                assert( 2 <= target.refcount() );
+                target.bind( r );
+                //std::clog<<"target: "<<target<<std::endl;
+              }
+            }
 	    break;
 	  }
 	default:
-	  {
+        bind_simple_target:
+          {
 	    vm::type_string str(ctx.const_string(std::string(ts->value.begin(), ts->value.end())));
-	    builtin::target target( ctx.target(str) );
+	    builtin::target target( ctx.map_target(str) );
+            assert( 2 <= target.refcount() );
 	    target.bind( r );
+            //std::clog<<"target: "<<target<<std::endl;
 	    break;
 	  }
 	}//switch( tagets-type )
       }//bind targets
 
+      //!< prerequisites
       if ( 2 <= iter->children.size() ) {
 	TTreeIter ps( iter->children.begin() + 1 );
 	switch( ps->value.id().to_long() ) {
@@ -317,41 +326,53 @@ namespace smart
 	    TTreeIter it( ps->children.begin() );
 	    for(; it != ps->children.end(); ++it) {
 	      vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
-	      builtin::target target( ctx.target(str) );
+	      builtin::target target( ctx.map_target(str) );
+              assert( 2 <= target.refcount() );
 	      r.add_prerequisite( target );
+              //std::clog<<"prerequsite: "<<target<<std::endl;
 	    }
 	    break;
 	  }
 	default:
 	  {
 	    vm::type_string str(ctx.const_string(std::string(ps->value.begin(), ps->value.end())));
-	    builtin::target target( ctx.target(str) );
+	    builtin::target target( ctx.map_target(str) );
+            assert( 2 <= target.refcount() );
 	    r.add_prerequisite( target );
+            //std::clog<<"prerequisite: "<<target<<std::endl;
 	    break;
 	  }
 	}//switch( prereqsites-type )
       }
       else return;
 
+      //!< commands
       if ( iter->children.size() < 3 ) return;
       TTreeIter cmds( iter->children.begin() + 2 );
       if ( cmds->value.id() == grammar::id_make_rule_commands ) {
+        std::string s;
         TTreeIter it( cmds->children.begin() );
         for(; it != cmds->children.end(); ++it) {
-          std::string s;
+          s.clear();
           if ( it->value.id() == grammar::id_make_rule_command ) {
-            TTreeIter i( it->children.begin() );
-            for(; i != it->children.end(); ++i) {
-              s += std::string(i->value.begin(), i->value.end());
+            if ( it->children.empty() )
+              s.assign(it->value.begin(), it->value.end());
+            else {
+              TTreeIter i( it->children.begin() );
+              for(; i != it->children.end(); ++i) {
+                s += std::string(i->value.begin(), i->value.end());
+              }//for
             }
           }//if( make_rule_command )
           else s = std::string(it->value.begin(), it->value.end());
 	  r.add_command( ctx.const_string(s) );
+          //std::clog<<"command: "<<s<<std::endl;
 	}//for( commands )
       }//if( make_rule_commands )
       else {
         std::string s(cmds->value.begin(), cmds->value.end());
         r.add_command( ctx.const_string(s) );
+        //std::clog<<"command: "<<s<<std::endl;
       }
     }//compile_make_rule()
 

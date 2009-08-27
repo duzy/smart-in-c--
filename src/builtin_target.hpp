@@ -12,6 +12,8 @@
 #	include "vm_types.hpp"
 #	include <boost/intrusive_ptr.hpp>
 #	include <vector>
+#	include <ostream>
+#	include <istream>
 
 namespace smart
 {
@@ -49,6 +51,18 @@ namespace smart
 
     void intrusive_ptr_add_ref( target::imp *p );
     void intrusive_ptr_release( target::imp * & p );
+
+    inline std::ostream & operator<<( std::ostream & os, const target & t )
+    {
+      return (os << t.object());
+    }
+
+    inline std::istream & operator>>( std::istream & is, target & t )
+    {
+      vm::type_string temp; is>>temp;
+      t = target(temp);
+      return is;
+    }
     
   }//namespace builtin
 }//namespace smart

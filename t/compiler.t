@@ -237,8 +237,24 @@ BOOST_AUTO_TEST_CASE( make_rules )
 
   smart::vm::type_string name( "foobar" );
   smart::builtin::target tar( ctx.target(name) );
+  //std::clog<<tar<<std::endl;
   //std::clog<<tar.rules().size()<<std::endl;
+  BOOST_CHECK( tar.object() == "foobar" );
   BOOST_CHECK( tar.refcount() == 2 );
   BOOST_CHECK( tar.rules().size() == 1 );
+
+  name = "foo";
+  smart::builtin::target preq1( ctx.target(name) );
+  //std::clog<<preq1.refcount()<<std::endl;
+  BOOST_CHECK( preq1.object() == "foo" );
+  BOOST_CHECK( preq1.refcount() == 3 );
+  BOOST_CHECK( preq1.rules().size() == 0 );
+
+  name = "bar";
+  smart::builtin::target preq2( ctx.target(name) );
+  //std::clog<<preq2.refcount()<<std::endl;
+  BOOST_CHECK( preq2.object() == "bar" );
+  BOOST_CHECK( preq2.refcount() == 3 );
+  BOOST_CHECK( preq2.rules().size() == 0 );
 }
 

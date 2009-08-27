@@ -100,14 +100,25 @@ namespace smart
     _macroArgs.pop_back();
   }
 
-  builtin::target context::target( vm::type_string const& name )
+  builtin::target context::target( vm::type_string const& object )
   {
-    target_table::iterator it( _targets.find(name) );
+    target_table::iterator it( _targets.find(object) );
+    if ( it == _targets.end() ) return builtin::target();
+    assert( 1 <= it->second.refcount() );
+    return it->second;
+  }
+
+  builtin::target context::map_target( const vm::type_string & object )
+  {
+    target_table::iterator it( _targets.find(object) );
     if ( it == _targets.end() ) {
-      builtin::target t( name );
-      _targets.insert(std::make_pair(name, t));
+      builtin::target t( object );
+      assert( t.refcount() == 1 );
+      _targets.insert(std::make_pair(object, t));
+      assert( t.refcount() == 2 );
       return t;
     }
+    assert( 1 <= it->second.refcount() );
     return it->second;
   }
 

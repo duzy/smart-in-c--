@@ -41,6 +41,7 @@ namespace smart
     builtin::macro macro( const std::string & v );
 
     builtin::target target( const vm::type_string & v );
+    builtin::target map_target( const vm::type_string & v );
 
     /**
      * setup $1, $2, $3, $4, ....
