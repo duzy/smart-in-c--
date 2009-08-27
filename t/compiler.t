@@ -232,6 +232,11 @@ BOOST_AUTO_TEST_CASE( make_rules )
       "foobar: foo bar\n"
       "\tcommand line 1\n"
       "\tcommand line 2\n"
+      "xx: x\n"
+      "\tcommand 1\n"
+      "\tcommand 2\n"
+      "xx:\n"
+      "\tcommand 3\n"
       "" );
   sm.compile( code );
 
@@ -260,5 +265,14 @@ BOOST_AUTO_TEST_CASE( make_rules )
   BOOST_CHECK( preq2.refcount() == 3 );
   BOOST_CHECK( preq2.rule().prerequisites().size() == 0 );
   BOOST_CHECK( preq2.rule().empty() );
+
+  name = "xx";
+  smart::builtin::target xx( ctx.target(name) );
+  //std::clog<<xx.rule().commands().size()<<std::endl;
+  BOOST_CHECK( xx.object() == "xx" );
+  BOOST_CHECK( xx.refcount() == 2 );
+  BOOST_CHECK( xx.rule().prerequisites().size() == 1 );
+  BOOST_CHECK( xx.rule().commands().size() == 1 );
+  BOOST_CHECK( xx.rule().empty() == false );
 }
 
