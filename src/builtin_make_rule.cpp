@@ -8,8 +8,9 @@
  **/
 
 #include "builtin_make_rule.hpp"
-#include <algorithm>
 #include <boost/ref.hpp>
+#include <algorithm>
+//#include <iostream>
 
 namespace smart
 {
@@ -70,9 +71,9 @@ namespace smart
 
     struct do_update_target
     {
-      long _uc;
+      long & _uc;
       context & _ctx;
-      do_update_target( context & ctx ) : _uc(0), _ctx(ctx) {}
+      do_update_target( context & ctx, long & uc ) : _uc(uc), _ctx(ctx) {}
       void operator()( const target & tar ) //const
       {
 	//const_cast<long&>(_uc) += tar.update( _ctx );
@@ -81,10 +82,12 @@ namespace smart
     };//struct do_update_target
     long make_rule::update_prerequisites( context & ctx ) const
     {
-      do_update_target doUpdate( ctx );
+      long uc( 0 );
+      do_update_target doUpdate( ctx, uc );
       do_update_target & dr( doUpdate );
       std::for_each( _i->_prerequisites.begin(), _i->_prerequisites.end(), dr );
-      return doUpdate._uc;
+      //std::clog<<uc<<std::endl;
+      return uc;//doUpdate._uc;
     }
 
     void make_rule::add_command( const vm::type_string & s )

@@ -14,6 +14,7 @@
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <algorithm>
+//#include <iostream>
 
 namespace smart
 {
@@ -91,6 +92,7 @@ namespace smart
       if ( _i->_rule.empty() ) return 0;
       bool isPhony( ctx.is_phony( *this ) );
       long uc( _i->_rule.update_prerequisites( ctx ) );
+      //std::clog<<_i->_object<<":"<<uc<<std::endl;
       if ( isPhony || 0 < uc || !this->exists() ) {
 	_i->_rule.execute_commands( ctx );
 	return uc + 1; //!< TODO: only add 1 if the object is really updated
