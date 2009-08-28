@@ -315,7 +315,8 @@ namespace smart
 	default:
 	  {
             std::string s(ps->value.begin(), ps->value.end());
-            if ( s.size() == 1 && s[0] == '\n' ) break;
+            //if ( s.size() == 1 && s[0] == '\n' ) break;
+            if ( s == "\n" ) break;
 	    vm::type_string str(ctx.const_string(s));
 	    builtin::target target( ctx.map_target(str) );
             assert( 2 <= target.refcount() );
