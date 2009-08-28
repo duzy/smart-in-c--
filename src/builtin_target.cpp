@@ -13,8 +13,11 @@
 #include "context.hpp"
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <algorithm>
 //#include <iostream>
+
+namespace fs = boost::filesystem;
 
 namespace smart
 {
@@ -55,7 +58,9 @@ namespace smart
 
     bool target::exists() const
     {
-      return false;
+      //return false;
+      const std::string & s( _i->_object );
+      return fs::exists( s );
     }
 
     const make_rule & target::rule() const
@@ -87,17 +92,24 @@ namespace smart
       }
     }
 
-    long target::update( context & ctx ) const
+    target::update_result target::update( context & ctx ) const
     {
-      if ( _i->_rule.empty() ) return 0;
+      update_result uc = {0, 0};
+      if ( _i->_rule.empty() ) return uc;
+
       bool isPhony( ctx.is_phony( *this ) );
-      long uc( _i->_rule.update_prerequisites( ctx ) );
+      uc = _i->_rule.update_prerequisites( ctx );
+
       //std::clog<<_i->_object<<":"<<uc<<std::endl;
-      if ( isPhony || 0 < uc || !this->exists() ) {
+      if ( isPhony || 0 < uc.count_updated || !this->exists() ) {
 	_i->_rule.execute_commands( ctx );
-	return uc + 1; //!< TODO: only add 1 if the object is really updated
+
+	//!< TODO: only add 1 if the object is really updated(check filetime)
+	if ( this->exists() ) ++uc.count_updated;
+	++uc.count_executed;
+	return uc;
       }
-      return 0;
+      return uc;
     }
 
     bool target::operator<( const target & o ) const

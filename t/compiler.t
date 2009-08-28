@@ -311,8 +311,8 @@ BOOST_AUTO_TEST_CASE( make_rules )
   BOOST_CHECK( foo.rule().commands().size() == 2 );
   BOOST_CHECK( bar.rule().commands().size() == 3 );
 
-  int uc( foobar.update( ctx ) );
+  smart::builtin::target::update_result uc( foobar.update( ctx ) );
   //std::clog<<"updated: "<<uc<<std::endl;
-  BOOST_CHECK( uc == 3 );
+  BOOST_CHECK( uc.count_executed == 3 );
 }
 

@@ -8,6 +8,7 @@
  **/
 
 #include "builtin_make_rule.hpp"
+#include "expand.hpp"
 #include <boost/ref.hpp>
 #include <algorithm>
 //#include <iostream>
@@ -71,23 +72,25 @@ namespace smart
 
     struct do_update_target
     {
-      long & _uc;
+      target::update_result & _uc;
       context & _ctx;
-      do_update_target( context & ctx, long & uc ) : _uc(uc), _ctx(ctx) {}
+      do_update_target( context & ctx, target::update_result & uc )
+	: _uc(uc), _ctx(ctx) {}
       void operator()( const target & tar ) //const
       {
 	//const_cast<long&>(_uc) += tar.update( _ctx );
-	_uc += tar.update( _ctx );
+	target::update_result t( tar.update( _ctx ) );
+	_uc.count_updated += t.count_updated;
+	_uc.count_executed += t.count_executed;
       }
     };//struct do_update_target
-    long make_rule::update_prerequisites( context & ctx ) const
+    target::update_result make_rule::update_prerequisites( context & ctx ) const
     {
-      long uc( 0 );
+      target::update_result uc = {0, 0};
       do_update_target doUpdate( ctx, uc );
       do_update_target & dr( doUpdate );
       std::for_each( _i->_prerequisites.begin(), _i->_prerequisites.end(), dr );
-      //std::clog<<uc<<std::endl;
-      return uc;//doUpdate._uc;
+      return uc;
     }
 
     void make_rule::add_command( const vm::type_string & s )
@@ -106,7 +109,8 @@ namespace smart
       do_execute_command( context & ctx ) : _ctx(ctx) {}
       void operator()( const vm::type_string & cmd ) const
       {
-	const std::string & s( cmd );
+	vm::type_string ecmd( smart::expand(_ctx, cmd) );
+	const std::string & s( ecmd );
 	system(s.c_str());
       }
     };//struct do_execute_command

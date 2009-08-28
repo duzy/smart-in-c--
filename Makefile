@@ -8,15 +8,18 @@ include Makefile.conf
 
 INCLUDES = -I$(BOOST_DIR)
 
+BOOST_LIB = $1
+
 CXXFLAGS = -std=gnu++0x -g -ggdb -DBOOST_SPIRIT_DEBUG_XML $(INCLUDES)
 #CXXFLAGS = -std=gnu++0x -g -ggdb $(INCLUDES)
 #CXXFLAGS = $(INCLUDES)
 #CXXFLAGS = -ftemplate-depth-128 -O3 -finline-functions -DNDEBUG
 
-#LOADLIBRES = -L$(BOOST_DIR)/stage/lib
-LOADLIBRES = -L$(OUT_DIR)/lib
+LOADLIBRES = -L$(OUT_DIR)/lib -L$(BOOST_DIR)/stage/lib
 #LDLIBS = -lsmart
-LDLIBS = -lpthread
+LDLIBS = -lpthread \
+  -l$(call BOOST_LIB,boost_filesystem) \
+  -l$(call BOOST_LIB,boost_system)
 ##################################################
 
 SOURCES = $(wildcard src/*.cpp)

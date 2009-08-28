@@ -38,7 +38,12 @@ namespace smart
 
       void bind( const make_rule & );
 
-      long update( context & ) const;
+      struct update_result
+      {
+	long count_updated;
+	long count_executed;
+      };//struct update_result
+      update_result update( context & ) const;
       bool updated() const;
 
       bool operator<( const target & ) const;
