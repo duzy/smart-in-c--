@@ -8,6 +8,8 @@
  **/
 
 #include "builtin_make_rule.hpp"
+#include <algorithm>
+#include <boost/ref.hpp>
 
 namespace smart
 {
@@ -66,6 +68,25 @@ namespace smart
       _i->_prerequisites.push_back( t );
     }
 
+    struct do_update_target
+    {
+      long _uc;
+      context & _ctx;
+      do_update_target( context & ctx ) : _uc(0), _ctx(ctx) {}
+      void operator()( const target & tar ) //const
+      {
+	//const_cast<long&>(_uc) += tar.update( _ctx );
+	_uc += tar.update( _ctx );
+      }
+    };//struct do_update_target
+    long make_rule::update_prerequisites( context & ctx ) const
+    {
+      do_update_target doUpdate( ctx );
+      do_update_target & dr( doUpdate );
+      std::for_each( _i->_prerequisites.begin(), _i->_prerequisites.end(), dr );
+      return doUpdate._uc;
+    }
+
     void make_rule::add_command( const vm::type_string & s )
     {
       _i->_commands.push_back( s );
@@ -74,6 +95,23 @@ namespace smart
     void make_rule::set_commands( const std::vector<vm::type_string> & cmds )
     {
       _i->_commands = cmds;
+    }
+
+    struct do_execute_command
+    {
+      context & _ctx;
+      do_execute_command( context & ctx ) : _ctx(ctx) {}
+      void operator()( const vm::type_string & cmd ) const
+      {
+	const std::string & s( cmd );
+	system(s.c_str());
+      }
+    };//struct do_execute_command
+    int make_rule::execute_commands( context & ctx ) const
+    {
+      do_execute_command exec( ctx );
+      std::for_each( _i->_commands.begin(), _i->_commands.end(), exec );
+      return 0;
     }
 
     bool make_rule::empty() const

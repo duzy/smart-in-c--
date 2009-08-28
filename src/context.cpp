@@ -40,6 +40,7 @@ namespace smart
     , _rule_table()
     , _function_table( new function_table )
     , _targets()
+    , _phony_targets()
     , _rules()
     , _macroArgs()
     , _frames()
@@ -163,5 +164,11 @@ namespace smart
   {
     if ( _files.empty() ) return std::string();
     return _files.back();
+  }
+
+  bool context::is_phony( const builtin::target & tar ) const
+  {
+    if ( _phony_targets.empty() ) return false;
+    return _phony_targets.find( tar ) != _phony_targets.end();
   }
 }//namespace smart

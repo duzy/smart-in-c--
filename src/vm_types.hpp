@@ -62,10 +62,13 @@ namespace smart
 
       operator const std::string&() const;
 
+      bool operator<( const type_string & o ) const;
+
       bool operator==( const type_string & o ) const;
       bool operator==( const std::string & o ) const;
       bool operator!=( const type_string & o ) const { return !(*this == o); }
       bool operator!=( const std::string & o ) const { return !(*this == o); }
+      
       type_string & operator+=( const type_string & o );
       type_string & operator+=( const std::string & s );
 

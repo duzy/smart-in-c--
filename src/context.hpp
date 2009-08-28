@@ -13,8 +13,9 @@
 #	include "builtin_macro.hpp"
 #	include "builtin_make_rule.hpp"
 #	include "frame.hpp"
-#	include <string>
 #	include <boost/unordered_map.hpp>
+#	include <string>
+#	include <set>
 
 namespace smart
 {
@@ -57,6 +58,8 @@ namespace smart
 
     frame & current_frame();
 
+    bool is_phony( const builtin::target & ) const;
+
   private:
     string_table *_string_table; //!< for string constants
     //real_table *_number_table; //!< for real number constants
@@ -66,6 +69,7 @@ namespace smart
 
     typedef boost::unordered_map<vm::type_string, builtin::target> target_table;
     target_table _targets;
+    std::set< builtin::target > _phony_targets;
 
     typedef std::vector<builtin::make_rule> rules_t;
     rules_t _rules;

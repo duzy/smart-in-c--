@@ -34,15 +34,14 @@ namespace smart
 
       bool exists() const;
 
-      bool update( context & ) const;
-      bool updated() const;
-
-      bool is_phony() const;
-
-      //const std::vector<make_rule> & rules() const;
       const make_rule & rule() const;
 
       void bind( const make_rule & );
+
+      long update( context & ) const;
+      bool updated() const;
+
+      bool operator<( const target & ) const;
 
       struct imp;
 
@@ -64,7 +63,7 @@ namespace smart
       t = target(temp);
       return is;
     }
-    
+
   }//namespace builtin
 }//namespace smart
 

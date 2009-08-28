@@ -77,6 +77,11 @@ namespace smart
       return is;
     }
 
+    bool type_string::operator<( const type_string & o ) const
+    {
+      return *_i->_cstr < *o._i->_cstr;
+    }
+
     bool type_string::operator==( const type_string & o ) const
     {
       if ( _i == o._i ) return true;

@@ -34,11 +34,13 @@ namespace smart
       /**
        *  @brief Update prerequisites that needs updating.
        */
-      int update_prerequisites( context & ) const;
+      long update_prerequisites( context & ) const;
 
       const std::vector<vm::type_string> & commands() const;
       void set_commands( const std::vector<vm::type_string> & );
       void add_command( const vm::type_string & );
+
+      int execute_commands( context & ) const;
 
       bool empty() const;
 

@@ -230,46 +230,46 @@ BOOST_AUTO_TEST_CASE( make_rules )
   std::string code
     ( "##############\n"
       "foobar: foo bar\n"
-      "\tcommand line 1\n"
-      "\tcommand line 2\n"
+      "\techo command line 1\n"
+      "\techo command line 2\n"
       "xx yy: x\n"
-      "\tcommand 1\n"
-      "\tcommand 2\n"
+      "\techo command 1\n"
+      "\techo command 2\n"
       "xx: y\n"
       "xx:\r"
-      "\tcommand 3\n"
+      "\techo command 3\n"
       "" );
   sm.compile( code );
 
   smart::vm::type_string name( "foobar" );
-  smart::builtin::target tar( ctx.target(name) );
-  //std::clog<<tar<<std::endl;
-  //std::clog<<tar.rules().size()<<std::endl;
-  BOOST_CHECK( tar.object() == "foobar" );
-  BOOST_CHECK( tar.refcount() == 2 );
-  BOOST_CHECK( tar.rule().prerequisites().size() == 2 );
-  BOOST_CHECK( tar.rule().prerequisites()[0].object() == "foo" );
-  BOOST_CHECK( tar.rule().prerequisites()[1].object() == "bar" );
-  BOOST_CHECK( tar.rule().commands().size() == 2 );
-  BOOST_CHECK( tar.rule().commands()[0] == "command line 1" );
-  BOOST_CHECK( tar.rule().commands()[1] == "command line 2" );
+  smart::builtin::target foobar( ctx.target(name) );
+  //std::clog<<foobar<<std::endl;
+  //std::clog<<foobar.rules().size()<<std::endl;
+  BOOST_CHECK( foobar.object() == "foobar" );
+  BOOST_CHECK( foobar.refcount() == 2 );
+  BOOST_CHECK( foobar.rule().prerequisites().size() == 2 );
+  BOOST_CHECK( foobar.rule().prerequisites()[0].object() == "foo" );
+  BOOST_CHECK( foobar.rule().prerequisites()[1].object() == "bar" );
+  BOOST_CHECK( foobar.rule().commands().size() == 2 );
+  BOOST_CHECK( foobar.rule().commands()[0] == "echo command line 1" );
+  BOOST_CHECK( foobar.rule().commands()[1] == "echo command line 2" );
 
   name = "foo";
-  smart::builtin::target preq1( ctx.target(name) );
-  //std::clog<<preq1.refcount()<<std::endl;
-  BOOST_CHECK( preq1.object() == "foo" );
-  BOOST_CHECK( preq1.refcount() == 3 );
-  BOOST_CHECK( preq1.rule().prerequisites().size() == 0 );
-  BOOST_CHECK( preq1.rule().commands().size() == 0 );
-  BOOST_CHECK( preq1.rule().empty() );
+  smart::builtin::target foo( ctx.target(name) );
+  //std::clog<<foo.refcount()<<std::endl;
+  BOOST_CHECK( foo.object() == "foo" );
+  BOOST_CHECK( foo.refcount() == 3 );
+  BOOST_CHECK( foo.rule().prerequisites().size() == 0 );
+  BOOST_CHECK( foo.rule().commands().size() == 0 );
+  BOOST_CHECK( foo.rule().empty() );
 
   name = "bar";
-  smart::builtin::target preq2( ctx.target(name) );
-  //std::clog<<preq2.refcount()<<std::endl;
-  BOOST_CHECK( preq2.object() == "bar" );
-  BOOST_CHECK( preq2.refcount() == 3 );
-  BOOST_CHECK( preq2.rule().prerequisites().size() == 0 );
-  BOOST_CHECK( preq2.rule().empty() );
+  smart::builtin::target bar( ctx.target(name) );
+  //std::clog<<bar.refcount()<<std::endl;
+  BOOST_CHECK( bar.object() == "bar" );
+  BOOST_CHECK( bar.refcount() == 3 );
+  BOOST_CHECK( bar.rule().prerequisites().size() == 0 );
+  BOOST_CHECK( bar.rule().empty() );
 
   name = "xx";
   smart::builtin::target xx( ctx.target(name) );
@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE( make_rules )
   BOOST_CHECK( xx.rule().prerequisites()[0].object() == "x" );
   BOOST_CHECK( xx.rule().prerequisites()[1].object() == "y" );
   BOOST_CHECK( xx.rule().commands().size() == 1 );
-  BOOST_CHECK( xx.rule().commands()[0] == "command 3" );
+  BOOST_CHECK( xx.rule().commands()[0] == "echo command 3" );
   BOOST_CHECK( xx.rule().empty() == false );
 
   name = "yy";
@@ -293,8 +293,26 @@ BOOST_AUTO_TEST_CASE( make_rules )
   BOOST_CHECK( yy.rule().prerequisites().size() == 1 );
   BOOST_CHECK( yy.rule().prerequisites()[0].object() == "x" );
   BOOST_CHECK( yy.rule().commands().size() == 2 );
-  BOOST_CHECK( yy.rule().commands()[0] == "command 1" );
-  BOOST_CHECK( yy.rule().commands()[1] == "command 2" );
+  BOOST_CHECK( yy.rule().commands()[0] == "echo command 1" );
+  BOOST_CHECK( yy.rule().commands()[1] == "echo command 2" );
   BOOST_CHECK( yy.rule().empty() == false );
+
+  code =
+    "##############\n"
+    "foo: \n"
+    "\techo command 1\n"
+    "\techo command 2\n"
+    "bar: x\n"
+    "\techo command 1\n"
+    "\techo command 2\n"
+    "\techo command 3\n"
+    "";
+  sm.compile( code );
+  BOOST_CHECK( foo.rule().commands().size() == 2 );
+  BOOST_CHECK( bar.rule().commands().size() == 3 );
+
+  int uc( foobar.update( ctx ) );
+  //std::clog<<"updated: "<<uc<<std::endl;
+  BOOST_CHECK( uc == 3 );
 }
 

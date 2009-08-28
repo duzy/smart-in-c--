@@ -10,6 +10,7 @@
 #include "builtin_target.hpp"
 #include "builtin_make_rule.hpp"
 #include "builtin_target_imp.hpp"
+#include "context.hpp"
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <algorithm>
@@ -51,6 +52,11 @@ namespace smart
       return _i->_object;
     }
 
+    bool target::exists() const
+    {
+      return false;
+    }
+
     const make_rule & target::rule() const
     {
       return _i->_rule;
@@ -78,6 +84,23 @@ namespace smart
         std::for_each( ps.begin(), ps.end(), boost::bind(&make_rule::add_prerequisite, &_i->_rule, _1) );
         if ( !r.commands().empty() ) _i->_rule.set_commands( r.commands() );
       }
+    }
+
+    long target::update( context & ctx ) const
+    {
+      if ( _i->_rule.empty() ) return 0;
+      bool isPhony( ctx.is_phony( *this ) );
+      long uc( _i->_rule.update_prerequisites( ctx ) );
+      if ( isPhony || 0 < uc || !this->exists() ) {
+	_i->_rule.execute_commands( ctx );
+	return uc + 1; //!< TODO: only add 1 if the object is really updated
+      }
+      return 0;
+    }
+
+    bool target::operator<( const target & o ) const
+    {
+      return _i->_object < o._i->_object;
     }
     
   }//namespace builtin
