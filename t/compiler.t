@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE( make_rules )
       "foobar: foo bar\n"
       "\tcommand line 1\n"
       "\tcommand line 2\n"
-      "xx: x\n"
+      "xx yy: x\n"
       "\tcommand 1\n"
       "\tcommand 2\n"
       "xx: y\n"
@@ -283,5 +283,18 @@ BOOST_AUTO_TEST_CASE( make_rules )
   BOOST_CHECK( xx.rule().commands().size() == 1 );
   BOOST_CHECK( xx.rule().commands()[0] == "command 3" );
   BOOST_CHECK( xx.rule().empty() == false );
+
+  name = "yy";
+  smart::builtin::target yy( ctx.target(name) );
+  //std::clog<<yy.rule().commands().size()<<std::endl;
+  //std::clog<<yy.rule().prerequisites().size()<<std::endl;
+  BOOST_CHECK( yy.object() == "yy" );
+  BOOST_CHECK( yy.refcount() == 2 );
+  BOOST_CHECK( yy.rule().prerequisites().size() == 1 );
+  BOOST_CHECK( yy.rule().prerequisites()[0].object() == "x" );
+  BOOST_CHECK( yy.rule().commands().size() == 2 );
+  BOOST_CHECK( yy.rule().commands()[0] == "command 1" );
+  BOOST_CHECK( yy.rule().commands()[1] == "command 2" );
+  BOOST_CHECK( yy.rule().empty() == false );
 }
 

@@ -33,6 +33,9 @@ namespace smart
 
     string_table * stable() const;
 
+    const std::vector<std::string> files(); //!< files compiling
+    std::string file() const; //!< current compiling file
+
     vm::type_string const_string( const std::string & c );
     //vm::type_real const_number( double c );
 
@@ -72,6 +75,9 @@ namespace smart
     std::vector<args_t> _macroArgs;
 
     std::vector<frame> _frames;
+
+    friend struct compiler;
+    std::vector<std::string> _files;
   };//struct context
 
   void info( const vm::type_string & );

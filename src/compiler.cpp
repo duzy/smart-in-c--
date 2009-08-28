@@ -193,6 +193,8 @@ namespace smart
 	    err<<"invalid macro ref type: "<<ref.type
                <<", in line "<<get_position(iter).line
                <<" at "<<get_position(iter).column;
+            //err<<ctx.file()<<":"<<get_position(iter).line
+            //   <<":"get_position(iter).column<<": error";
 	    throw std::runtime_error( err.str() );
 	  }
 	}//switch( ref-type )
@@ -572,7 +574,9 @@ namespace smart
       ifs.seekg( 0, ifs.beg );
       ifs.read( &code[0], sz );
 
+      _context._files.push_back( filename );
       compile( code.begin(), code.end() );
+      _context._files.pop_back();
     }
   }
 

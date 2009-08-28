@@ -26,19 +26,23 @@ namespace smart
     {
       make_rule();
 
+      long refcount() const;
+
+      const std::vector<builtin::target> & prerequisites() const;
+      void add_prerequisite( const target & );
+
       /**
        *  @brief Update prerequisites that needs updating.
        */
       int update_prerequisites( context & ) const;
 
-      void add_prerequisite( const target & );
+      const std::vector<vm::type_string> & commands() const;
+      void set_commands( const std::vector<vm::type_string> & );
       void add_command( const vm::type_string & );
 
-      const std::vector<builtin::target> & prerequisites() const;
-      const std::vector<vm::type_string> & commands() const;
-      void set_commands( const std::vector<vm::type_string> &  );
-
       bool empty() const;
+
+      make_rule clone() const;
 
       struct imp;
 

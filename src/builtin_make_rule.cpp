@@ -84,5 +84,22 @@ namespace smart
 	;
     }
 
+    long make_rule::refcount() const
+    {
+      return _i->_usage;
+    }
+
+    make_rule make_rule::clone() const
+    {
+      make_rule r;
+      if ( !_i->_prerequisites.empty() )
+	r._i->_prerequisites = _i->_prerequisites;
+      if ( !_i->_orderonly.empty() )
+	r._i->_orderonly = _i->_orderonly;
+      if ( !_i->_commands.empty() )
+	r._i->_commands = _i->_commands;
+      return r;
+    }
+
   }//namespace builtin
 }//namespace smart

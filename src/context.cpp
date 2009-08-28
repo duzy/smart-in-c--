@@ -153,4 +153,15 @@ namespace smart
     if ( _frames.empty() ) _frames.push_back( frame() );
     return _frames.front();
   }
+
+  const std::vector<std::string> context::files()
+  {
+    return _files;
+  }
+
+  std::string context::file() const
+  {
+    if ( _files.empty() ) return std::string();
+    return _files.back();
+  }
 }//namespace smart

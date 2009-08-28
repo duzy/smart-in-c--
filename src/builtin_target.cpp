@@ -68,6 +68,12 @@ namespace smart
         return;
       }
       else {
+	//!< If some other targets are referenced to the rule, we should make
+	//!< a cloning of it.
+	if ( 1 < _i->_rule.refcount() ) {
+	  _i->_rule = _i->_rule.clone();
+	}
+
         const std::vector<builtin::target> & ps( r.prerequisites() );
         std::for_each( ps.begin(), ps.end(), boost::bind(&make_rule::add_prerequisite, &_i->_rule, _1) );
         if ( !r.commands().empty() ) _i->_rule.set_commands( r.commands() );
