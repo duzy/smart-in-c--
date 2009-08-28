@@ -235,7 +235,8 @@ BOOST_AUTO_TEST_CASE( make_rules )
       "xx: x\n"
       "\tcommand 1\n"
       "\tcommand 2\n"
-      "xx:\n"
+      "xx: y\n"
+      "xx:\r"
       "\tcommand 3\n"
       "" );
   sm.compile( code );
@@ -247,7 +248,11 @@ BOOST_AUTO_TEST_CASE( make_rules )
   BOOST_CHECK( tar.object() == "foobar" );
   BOOST_CHECK( tar.refcount() == 2 );
   BOOST_CHECK( tar.rule().prerequisites().size() == 2 );
+  BOOST_CHECK( tar.rule().prerequisites()[0].object() == "foo" );
+  BOOST_CHECK( tar.rule().prerequisites()[1].object() == "bar" );
   BOOST_CHECK( tar.rule().commands().size() == 2 );
+  BOOST_CHECK( tar.rule().commands()[0] == "command line 1" );
+  BOOST_CHECK( tar.rule().commands()[1] == "command line 2" );
 
   name = "foo";
   smart::builtin::target preq1( ctx.target(name) );
@@ -269,10 +274,14 @@ BOOST_AUTO_TEST_CASE( make_rules )
   name = "xx";
   smart::builtin::target xx( ctx.target(name) );
   //std::clog<<xx.rule().commands().size()<<std::endl;
+  //std::clog<<xx.rule().prerequisites().size()<<std::endl;
   BOOST_CHECK( xx.object() == "xx" );
   BOOST_CHECK( xx.refcount() == 2 );
-  BOOST_CHECK( xx.rule().prerequisites().size() == 1 );
+  BOOST_CHECK( xx.rule().prerequisites().size() == 2 );
+  BOOST_CHECK( xx.rule().prerequisites()[0].object() == "x" );
+  BOOST_CHECK( xx.rule().prerequisites()[1].object() == "y" );
   BOOST_CHECK( xx.rule().commands().size() == 1 );
+  BOOST_CHECK( xx.rule().commands()[0] == "command 3" );
   BOOST_CHECK( xx.rule().empty() == false );
 }
 

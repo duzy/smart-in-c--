@@ -195,11 +195,11 @@ namespace smart
              [
                 make_rule_targets
                 >> no_node_d[ *(space_p - eol_p) ] //!< spirit can't eat these spaces
-                >> root_node_d[ ch_p(':') ]
+                >> token_node_d[ ch_p(':') ]
                 >> no_node_d[ *(space_p - eol_p) ] //!< spirit can't eat these spaces
-                >> ( eol_p
+                >> ( token_node_d[ eol_p ]
                    | make_rule_prereqs
-                     >> no_node_d[ eol_p | end_p ]
+                     >> token_node_d[ eol_p | end_p ]
                    )
                 //>> !(eps_p('\t') >> make_rule_commands)
                 >> !(no_node_d[ ch_p('\t') ] >> make_rule_commands)

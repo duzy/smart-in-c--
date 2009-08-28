@@ -293,47 +293,62 @@ namespace smart
     static void compile_make_rule( context & ctx, const TTreeIter & iter )
     {
       assert( iter->value.id() == grammar::id_make_rule );
+      assert( 2 <= iter->children.size() );
 
       builtin::make_rule r;
 
-      //!< prerequisites
-      if ( 2 <= iter->children.size() ) {
-	TTreeIter ps( iter->children.begin() + 1 );
-	switch( ps->value.id().to_long() ) {
-	case grammar::id_make_rule_prereqs:
-	  {
-	    TTreeIter it( ps->children.begin() );
-	    for(; it != ps->children.end(); ++it) {
-	      vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
-	      builtin::target target( ctx.map_target(str) );
-              assert( 2 <= target.refcount() );
-	      r.add_prerequisite( target );
-              //std::clog<<"prerequsite: "<<target<<std::endl;
-	    }
-	    break;
-	  }
-	default:
-	  {
-            std::string s(ps->value.begin(), ps->value.end());
-            //if ( s.size() == 1 && s[0] == '\n' ) break;
-            if ( s == "\n" ) break;
-	    vm::type_string str(ctx.const_string(s));
-	    builtin::target target( ctx.map_target(str) );
-            assert( 2 <= target.refcount() );
-	    r.add_prerequisite( target );
-            //std::clog<<"prerequisite: "<<target<<std::endl;
-	    break;
-	  }
-	}//switch( prereqsites-type )
-      }//if ( has-commands )
+      TTreeIter child( iter->children.begin() );
+      TTreeIter targets, prereqs, commands;
+      targets = prereqs = commands = iter->children.end();
 
-      //!< commands
-      if ( 3 <= iter->children.size() ) {
-        TTreeIter cmds( iter->children.begin() + 2 );
-        if ( cmds->value.id() == grammar::id_make_rule_commands ) {
+      if ( *child->value.begin() == ':' ) (void)false;
+      else targets = child++;
+      ++child;
+
+      if ( *child->value.begin() == '\r' || *child->value.begin() == '\n' )
+        (void)false;
+      else prereqs = child++;
+      ++child;
+
+      if ( child != iter->children.end() ) commands = child;
+
+      if ( prereqs != iter->children.end() ) {
+        switch( prereqs->value.id().to_long() ) {
+        case grammar::id_make_rule_prereqs:
+          {
+            if ( prereqs->children.empty() ) goto bind_simple_prereqs;
+            else {
+              TTreeIter it( prereqs->children.begin() );
+              for(; it != prereqs->children.end(); ++it) {
+                vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
+                builtin::target target( ctx.map_target(str) );
+                assert( 2 <= target.refcount() );
+                r.add_prerequisite( target );
+                //std::clog<<"prerequsite: "<<target<<std::endl;
+              }//for(each-prerequisites)
+            }//
+            break;
+          }
+        default:
+        bind_simple_prereqs:
+          {
+            std::string s(prereqs->value.begin(), prereqs->value.end());
+	  
+            vm::type_string str(ctx.const_string(s));
+            builtin::target target( ctx.map_target(str) );
+            assert( 2 <= target.refcount() );
+            r.add_prerequisite( target );
+            //std::clog<<"prerequisite: "<<target<<std::endl;
+            break;
+          }
+        }//switch( prereqsites-type )
+      }//if(has-prerequisites)
+
+      if ( commands != iter->children.end() ) {
+        if ( commands->value.id() == grammar::id_make_rule_commands ) {
           std::string s;
-          TTreeIter it( cmds->children.begin() );
-          for(; it != cmds->children.end(); ++it) {
+          TTreeIter it( commands->children.begin() );
+          for(; it != commands->children.end(); ++it) {
             s.clear();
             if ( it->value.id() == grammar::id_make_rule_command ) {
               if ( it->children.empty() )
@@ -351,21 +366,20 @@ namespace smart
           }//for( commands )
         }//if( make_rule_commands )
         else {
-          std::string s(cmds->value.begin(), cmds->value.end());
+          std::string s(commands->value.begin(), commands->value.end());
           r.add_command( ctx.const_string(s) );
           //std::clog<<"command: "<<s<<std::endl;
         }//not( make_rule_commands )
-      }//if( has-commands )
+      }//if(has-commands)
 
-      {//!< bind targets
-	TTreeIter ts( iter->children.begin() );
-	switch( ts->value.id().to_long() ) {
+      if ( targets != iter->children.end() ) {
+	switch( targets->value.id().to_long() ) {
 	case grammar::id_make_rule_targets:
 	  {
-            if ( ts->children.empty() ) goto bind_simple_target;
+            if ( targets->children.empty() ) goto bind_simple_target;
             else {
-              TTreeIter it( ts->children.begin() );
-              for(; it != ts->children.end(); ++it) {
+              TTreeIter it( targets->children.begin() );
+              for(; it != targets->children.end(); ++it) {
                 vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
                 builtin::target target( ctx.map_target(str) );
                 assert( 2 <= target.refcount() );
@@ -381,14 +395,17 @@ namespace smart
               }
             }
 	    break;
-	  }
+	  }//case grammar::id_make_rule_targets
+
 	default:
         bind_simple_target:
           {
-	    vm::type_string str(ctx.const_string(std::string(ts->value.begin(), ts->value.end())));
+	    std::string s(targets->value.begin(), targets->value.end());
+
+	    vm::type_string str(ctx.const_string(s));
 	    builtin::target target( ctx.map_target(str) );
             assert( 2 <= target.refcount() );
-            if ( !target.rule().commands().empty() ) {
+            if ( !target.rule().commands().empty() && !r.commands().empty() ) {
               std::clog//<<iter->value.begin().file
                 <<":"<<get_position(iter).line
                 <<":"<<get_position(iter).column
@@ -398,9 +415,11 @@ namespace smart
 	    target.bind( r );
             //std::clog<<"target: "<<target<<std::endl;
 	    break;
-	  }
-	}//switch( tagets-type )
-      }//bind targets
+	  }//bind-simple-target
+	}//switch( child-type )
+      }//if(has-targets)
+
+      return;
     }//compile_make_rule()
 
     template<typename TTreeIter>
@@ -410,8 +429,8 @@ namespace smart
 
       parsed_macro_ref ref( parse_macro_ref(ctx, iter) );
       if ( ref.type == macro_ref_type_funcall ) {
-	//vm::type_string res( ctx.invoke( ref.name, ref.args ) );
-	ctx.invoke( ref.name, ref.args );
+        //vm::type_string res( ctx.invoke( ref.name, ref.args ) );
+        ctx.invoke( ref.name, ref.args );
       }
     }//compile_macro_ref()
 
@@ -458,11 +477,17 @@ namespace smart
           break;
         }//case statements
 
+      case grammar::id_assignment:
+        compile_assignment( ctx, iter );
+        break;
+
       case grammar::id_make_rule:
-        {
-          compile_make_rule( ctx, iter );
-          break;
-        }
+        compile_make_rule( ctx, iter );
+        break;
+
+      case grammar::id_macro_ref:
+        compile_macro_ref( ctx, iter );
+        break;
 
       default:
         {
