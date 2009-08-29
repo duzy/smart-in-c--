@@ -10,6 +10,7 @@
 #include "builtin_target.hpp"
 #include "builtin_make_rule.hpp"
 #include "builtin_target_imp.hpp"
+#include "macro_table.hpp"
 #include "context.hpp"
 #include "exceptions.hpp"
 #include <boost/ref.hpp>
@@ -128,7 +129,63 @@ namespace smart
       if ( isPhony || 0 < uc.count_updated || 0 < uc.count_newer || lastWriteTime == 0 /*|| !this->exists()*/ ) {
 	bool b( lastWriteTime == 0 || 0 < uc.count_newer );
 
-	r.execute_commands( ctx );
+	{
+	  builtin::macro m0( ctx.mtable()->map("@") );
+	  builtin::macro m1( ctx.mtable()->map("%") );
+	  builtin::macro m2( ctx.mtable()->map("<") );
+	  builtin::macro m3( ctx.mtable()->map("?") );
+	  builtin::macro m4( ctx.mtable()->map("^") );
+	  builtin::macro m5( ctx.mtable()->map("+") );
+	  builtin::macro m6( ctx.mtable()->map("|") );
+	  builtin::macro m7( ctx.mtable()->map("*") );
+	  m0.set_value( _i->_object );
+
+	  builtin::macro m01( ctx.mtable()->map("@F") );
+	  builtin::macro m11( ctx.mtable()->map("%F") );
+	  builtin::macro m21( ctx.mtable()->map("<F") );
+	  builtin::macro m31( ctx.mtable()->map("?F") );
+	  builtin::macro m41( ctx.mtable()->map("^F") );
+	  builtin::macro m51( ctx.mtable()->map("+F") );
+	  builtin::macro m61( ctx.mtable()->map("|F") );
+	  builtin::macro m71( ctx.mtable()->map("*F") );
+
+	  builtin::macro m02( ctx.mtable()->map("@D") );
+	  builtin::macro m12( ctx.mtable()->map("%D") );
+	  builtin::macro m22( ctx.mtable()->map("<D") );
+	  builtin::macro m32( ctx.mtable()->map("?D") );
+	  builtin::macro m42( ctx.mtable()->map("^D") );
+	  builtin::macro m52( ctx.mtable()->map("+D") );
+	  builtin::macro m62( ctx.mtable()->map("|D") );
+	  builtin::macro m72( ctx.mtable()->map("*D") );
+	  
+	  r.execute_commands( ctx );
+
+	  vm::type_string empty;
+	  m0.set_value(empty);
+	  m1.set_value(empty);
+	  m2.set_value(empty);
+	  m3.set_value(empty);
+	  m4.set_value(empty);
+	  m5.set_value(empty);
+	  m6.set_value(empty);
+	  m7.set_value(empty);
+	  m01.set_value(empty);
+	  m11.set_value(empty);
+	  m21.set_value(empty);
+	  m31.set_value(empty);
+	  m41.set_value(empty);
+	  m51.set_value(empty);
+	  m61.set_value(empty);
+	  m71.set_value(empty);
+	  m02.set_value(empty);
+	  m12.set_value(empty);
+	  m22.set_value(empty);
+	  m32.set_value(empty);
+	  m42.set_value(empty);
+	  m52.set_value(empty);
+	  m62.set_value(empty);
+	  m72.set_value(empty);
+	}
 
 	if ( b /*&& this->exists()*/ ) {
 	  if ( lastWriteTime < this->last_write_time() )

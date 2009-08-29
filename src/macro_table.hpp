@@ -19,6 +19,9 @@ namespace smart
   {
     macro_table();
 
+    builtin::macro map( const std::string & name )
+    { map(vm::type_string(name)); }
+
     builtin::macro map( const vm::type_string & name );
     builtin::macro get( const vm::type_string & name );
 

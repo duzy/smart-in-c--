@@ -147,6 +147,12 @@ namespace smart
       return _i->_cstr->empty();
     }
 
+    void type_string::clear()
+    {
+      imp::copy_if_refs( _i );
+      _i->_str->clear();
+    }
+
     void type_string::trim()
     {
       imp::copy_if_refs( _i );

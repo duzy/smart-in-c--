@@ -75,6 +75,7 @@ namespace smart
       long refcount() const;
 
       bool empty() const;
+      void clear();
 
       /**
        *  @brief Strip heading and tailing whitespaces.
