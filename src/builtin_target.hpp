@@ -14,6 +14,7 @@
 #	include <vector>
 #	include <ostream>
 #	include <istream>
+#	include <ctime>
 
 namespace smart
 {
@@ -33,6 +34,7 @@ namespace smart
       vm::type_string object() const;
 
       bool exists() const;
+      std::time_t last_write_time() const;
 
       const make_rule & rule() const;
 
@@ -42,6 +44,7 @@ namespace smart
       {
 	long count_updated;
 	long count_executed;
+	long count_newer;
       };//struct update_result
       update_result update( context & ) const;
       bool updated() const;

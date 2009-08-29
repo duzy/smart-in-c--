@@ -63,6 +63,13 @@ namespace smart
       return fs::exists( s );
     }
 
+    std::time_t target::last_write_time() const
+    {
+      const std::string & s( _i->_object );
+      if ( !fs::exists( s ) ) return std::time_t(0);
+      return fs::last_write_time( s );
+    }
+
     const make_rule & target::rule() const
     {
       return _i->_rule;
@@ -94,21 +101,29 @@ namespace smart
 
     target::update_result target::update( context & ctx ) const
     {
-      update_result uc = {0, 0};
+      update_result uc = {0, 0, 0};
       if ( _i->_rule.empty() ) return uc;
 
       bool isPhony( ctx.is_phony( *this ) );
-      uc = _i->_rule.update_prerequisites( ctx );
+      std::time_t lastWriteTime( this->last_write_time() );
+      
+      uc = _i->_rule.update_prerequisites( ctx, lastWriteTime );
 
       //std::clog<<_i->_object<<":"<<uc<<std::endl;
-      if ( isPhony || 0 < uc.count_updated || !this->exists() ) {
+      if ( isPhony || 0 < uc.count_updated || 0 < uc.count_newer || lastWriteTime == 0 /*|| !this->exists()*/ ) {
+	bool b( lastWriteTime == 0 || 0 < uc.count_newer );
+
 	_i->_rule.execute_commands( ctx );
 
 	//!< TODO: only add 1 if the object is really updated(check filetime)
-	if ( this->exists() ) ++uc.count_updated;
+	if ( b && this->exists() ) {
+	  if ( lastWriteTime < this->last_write_time() )
+	    ++uc.count_updated;
+	}
 	++uc.count_executed;
 	return uc;
       }
+
       return uc;
     }
 

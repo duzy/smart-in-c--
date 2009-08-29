@@ -8,8 +8,12 @@
 #include "../src/compiler.hpp"
 #include "../src/string_table.hpp"
 #include <boost/test/unit_test.hpp>
+#include <boost/filesystem/operations.hpp>
 
+#include <fstream>
 #include <iostream>
+
+namespace fs = boost::filesystem;
 
 BOOST_AUTO_TEST_CASE( assignments )
 {
@@ -313,6 +317,76 @@ BOOST_AUTO_TEST_CASE( make_rules )
 
   smart::builtin::target::update_result uc( foobar.update( ctx ) );
   //std::clog<<"updated: "<<uc<<std::endl;
+  BOOST_CHECK( uc.count_updated == 0 );
   BOOST_CHECK( uc.count_executed == 3 );
+  BOOST_CHECK( uc.count_newer == 0 );
+}
+
+BOOST_AUTO_TEST_CASE( update_targets )
+{
+  smart::context ctx;
+  smart::compiler sm( ctx );
+
+  std::string code
+    ( "##############\n"
+      "foobar: foo bar\n"
+      "\tcat foo > foobar\n"
+      "\tcat bar >> foobar\n"
+      "foo: \t\n"
+      "\techo foo > foo\n"
+      "bar:\n"
+      "\techo bar > bar\n"
+      "" );
+  sm.compile( code );
+
+  if ( fs::exists("foobar") ) fs::remove("foobar");
+  if ( fs::exists("foo") ) fs::remove("foo");
+  if ( fs::exists("bar") ) fs::remove("bar");
+  BOOST_CHECK( !fs::exists("foobar") );
+  BOOST_CHECK( !fs::exists("foo") );
+  BOOST_CHECK( !fs::exists("bar") );
+
+  smart::vm::type_string name( "foobar" );
+  smart::builtin::target foobar( ctx.target(name) );
+  smart::builtin::target::update_result uc( foobar.update( ctx ) );
+  BOOST_CHECK( uc.count_updated == 3 );
+  BOOST_CHECK( uc.count_executed == 3 );
+  BOOST_CHECK( uc.count_newer == 2 );
+
+  name = "foo"; smart::builtin::target foo( ctx.target(name) );
+  name = "bar"; smart::builtin::target bar( ctx.target(name) );
+  BOOST_CHECK( foobar.last_write_time() != 0 );
+  BOOST_CHECK( foo.last_write_time() != 0 );
+  BOOST_CHECK( bar.last_write_time() != 0 );
+  
+  BOOST_CHECK( fs::exists("foobar") );
+  BOOST_CHECK( fs::exists("foo") );
+  BOOST_CHECK( fs::exists("bar") );
+
+  {
+    std::string s;
+    std::ifstream ifs("foobar");
+    std::istream_iterator<std::string::value_type> it( ifs ), end;
+    std::copy( it, end, std::back_inserter(s) );
+    BOOST_CHECK( s == "foobar" );
+  }
+  {
+    std::string s;
+    std::ifstream ifs("foo");
+    std::istream_iterator<std::string::value_type> it( ifs ), end;
+    std::copy( it, end, std::back_inserter(s) );
+    BOOST_CHECK( s == "foo" );
+  }
+  {
+    std::string s;
+    std::ifstream ifs("bar");
+    std::istream_iterator<std::string::value_type> it( ifs ), end;
+    std::copy( it, end, std::back_inserter(s) );
+    BOOST_CHECK( s == "bar" );
+  }
+
+  //fs::remove("foobar");
+  //fs::remove("foo");
+  //fs::remove("bar");
 }
 

@@ -12,6 +12,7 @@
 #	include "vm_types.hpp"
 #	include "builtin_target.hpp"
 #	include <vector>
+#	include <ctime>
 
 namespace smart
 {
@@ -34,7 +35,7 @@ namespace smart
       /**
        *  @brief Update prerequisites that needs updating.
        */
-      target::update_result update_prerequisites( context & ) const;
+      target::update_result update_prerequisites( context &, std::time_t=0 ) const;
 
       const std::vector<vm::type_string> & commands() const;
       void set_commands( const std::vector<vm::type_string> & );
