@@ -34,6 +34,10 @@ namespace smart
       : exception(w), _file(f), _line(get_line(it)), _column(get_column(it))
     {}
 
+    const std::string & file() const throw();
+    long line() const throw();
+    long column() const throw();
+
   private:
     template<typename TIter> static inline long get_line( const TIter & it ) { return it->value.begin().get_position().line; }
     template<typename TIter> static inline long get_column( const TIter & it ) { return it->value.begin().get_position().column; }

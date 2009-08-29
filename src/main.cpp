@@ -7,10 +7,11 @@
  *
  **/
 
-#include <exception>
 #include "context.hpp"
 #include "compiler.hpp"
+#include "exceptions.hpp"
 #include <boost/filesystem/operations.hpp>
+#include <iostream>
 
 namespace fs = boost::filesystem;
 
@@ -23,22 +24,37 @@ int main(int argc, const char** argv)
     NULL,
   };
 
-  smart::context ctx;
-  smart::compiler sm( ctx );
+  try {
+    smart::context ctx;
+    smart::compiler sm( ctx );
 
-  for( int n=0; files[n] != NULL; ++n ) {
-    std::string f( files[n] );
-    if ( fs::exists( f ) ) {
-      sm.compile_file( f );
-      break;
+    for( int n=0; files[n] != NULL; ++n ) {
+      std::string f( files[n] );
+      if ( fs::exists( f ) ) {
+	sm.compile_file( f );
+	break;
+      }
     }
-  }
 
-  {
-    smart::builtin::target tar( ctx.default_goal() );
-    if ( tar.is_null() ) return 0;
-    tar.update( ctx );
-  }
+    {
+      smart::builtin::target tar( ctx.default_goal() );
+      if ( tar.is_null() ) return 0;
+      tar.update( ctx );
+    }
+  }//try
+
+  catch( const smart::compile_error & e ) {
+    std::clog<<e.file()<<":"<<e.line()<<":"<<e.column()<<":"
+	     <<e.what()<<std::endl;
+  }//catch( compile-error )
+
+  catch( const smart::make_error & e ) {
+    std::clog<<e.what()<<std::endl;
+  }//catch( make-error )
+
+  catch( const std::runtime_error & e ) {
+    std::clog<<e.what()<<std::endl;
+  }//catch( runtime-error )
   
   return 0;
 }

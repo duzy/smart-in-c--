@@ -310,6 +310,8 @@ BOOST_AUTO_TEST_CASE( make_rules )
     "\techo command 1\n"
     "\techo command 2\n"
     "\techo command 3\n"
+    //"x: \n"
+    //"\techo $@\n"
     "";
   sm.compile( code );
   BOOST_CHECK( foo.rule().commands().size() == 2 );

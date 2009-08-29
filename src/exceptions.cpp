@@ -37,6 +37,21 @@ namespace smart
   {
   }
 
+  const std::string & compile_error::file() const throw()
+  {
+    return _file;
+  }
+
+  long compile_error::line() const throw()
+  {
+    return _line;
+  }
+
+  long compile_error::column() const throw()
+  {
+    return _column;
+  }
+
   //======================================================================
 
   make_error::make_error( const std::string & err ) throw()
