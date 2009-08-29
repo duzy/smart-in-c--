@@ -51,6 +51,11 @@ namespace smart
     {
       return _i->_usage;
     }
+
+    bool target::is_null() const
+    {
+      return _i->_object.empty();
+    }
     
     vm::type_string target::object() const
     {

@@ -390,6 +390,7 @@ namespace smart
                     <<std::endl;
                 }
                 target.bind( r );
+                ctx.set_default_goal_if_null( target );
                 //std::clog<<"target: "<<target<<std::endl;
               }
             }
@@ -412,6 +413,7 @@ namespace smart
                 <<std::endl;
             }
 	    target.bind( r );
+            ctx.set_default_goal_if_null( target );
             //std::clog<<"target: "<<target<<std::endl;
 	    break;
 	  }//bind-simple-target

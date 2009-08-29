@@ -11,7 +11,9 @@
 #include "expand.hpp"
 #include <boost/ref.hpp>
 #include <algorithm>
-//#include <iostream>
+#include <stdexcept>
+#include <iostream>
+#include <sstream>
 
 namespace smart
 {
@@ -113,7 +115,29 @@ namespace smart
       {
 	vm::type_string ecmd( smart::expand(_ctx, cmd) );
 	const std::string & s( ecmd );
-	system(s.c_str());
+	bool hasAt( false ), hasDash( false );
+	for( int n=0; n < s.size(); ++n ) {
+	  switch ( s[n] ) {
+	  case '@': hasAt = true; break;
+	  case '-': hasDash = true; break;
+	  default:
+	    {
+	      std::string t( s.substr(n, s.size()) );
+	      if ( !hasAt ) std::clog<<t<<std::endl;
+	      int n( system( t.c_str() ) );
+	      if ( n != 0 && !hasDash ) {
+		std::ostringstream err;
+		err<<"smart: Command error with exit code "<<n;
+		throw std::runtime_error( err.str() );
+	      }
+	      return;
+	    }
+	  }//switch
+	}//for
+
+	#if 0
+	throw std::runtime_error("unexpected execution point");
+	#endif
       }
     };//struct do_execute_command
     int make_rule::execute_commands( context & ctx ) const

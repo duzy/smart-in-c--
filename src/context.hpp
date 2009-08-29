@@ -62,6 +62,9 @@ namespace smart
 
     bool is_phony( const builtin::target & ) const;
 
+    builtin::target default_goal() const;
+    void set_default_goal_if_null( const builtin::target & tar );
+
   private:
     string_table *_string_table; //!< for string constants
     //real_table *_number_table; //!< for real number constants
@@ -72,10 +75,10 @@ namespace smart
     typedef boost::unordered_map<vm::type_string, builtin::target> target_table;
     target_table _targets;
     std::set< builtin::target > _phony_targets;
+    builtin::target _default_goal;
 
     typedef std::vector<builtin::make_rule> rules_t;
     rules_t _rules;
-
 
     typedef std::vector<vm::type_string> args_t;
     std::vector<args_t> _macroArgs;

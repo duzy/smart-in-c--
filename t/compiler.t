@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE( make_rules )
   //std::clog<<foobar<<std::endl;
   //std::clog<<foobar.rules().size()<<std::endl;
   BOOST_CHECK( foobar.object() == "foobar" );
-  BOOST_CHECK( foobar.refcount() == 2 );
+  BOOST_CHECK( foobar.refcount() == 3/*2*/ ); //!< default goal
   BOOST_CHECK( foobar.rule().prerequisites().size() == 2 );
   BOOST_CHECK( foobar.rule().prerequisites()[0].object() == "foo" );
   BOOST_CHECK( foobar.rule().prerequisites()[1].object() == "bar" );

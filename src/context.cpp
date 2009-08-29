@@ -177,4 +177,15 @@ namespace smart
     if ( _phony_targets.empty() ) return false;
     return _phony_targets.find( tar ) != _phony_targets.end();
   }
+
+  builtin::target context::default_goal() const
+  {
+    return _default_goal;
+  }
+
+  void context::set_default_goal_if_null( const builtin::target & tar )
+  {
+    if ( _default_goal.is_null() ) _default_goal = tar;
+  }
+  
 }//namespace smart

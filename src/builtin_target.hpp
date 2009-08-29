@@ -31,6 +31,8 @@ namespace smart
 
       long refcount() const;
 
+      bool is_null() const;
+
       vm::type_string object() const;
 
       bool exists() const;
