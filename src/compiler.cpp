@@ -289,6 +289,37 @@ namespace smart
     }//compile_assignment()
 
     template<typename TTreeIter>
+    static std::vector<vm::type_string> parse_targets( context & ctx, const TTreeIter & iter )
+    {
+      std::vector<vm::type_string> vec;
+      switch( iter->value.id().to_long() ) {
+      case grammar::id_make_rule_targets:
+      case grammar::id_make_rule_prereqs:
+	{
+	  if ( iter->children.empty() ) goto bind_simple_targets;
+	  else {
+	    TTreeIter it( iter->children.begin() );
+	    for(; it != iter->children.end(); ++it) {
+	      vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
+	      vec.push_back( str );
+	    }//for(each-prerequisites)
+	  }//
+	  break;
+	}
+
+      default:
+      bind_simple_targets:
+	{
+	  std::string s(iter->value.begin(), iter->value.end());
+	  vm::type_string str(ctx.const_string(s));
+	  vec.push_back( str );
+	  break;
+	}
+      }//switch
+      return vec;
+    }//parse_targets()
+
+    template<typename TTreeIter>
     static void compile_make_rule( context & ctx, const TTreeIter & iter )
     {
       assert( iter->value.id() == grammar::id_make_rule );
@@ -312,35 +343,14 @@ namespace smart
       if ( child != iter->children.end() ) commands = child;
 
       if ( prereqs != iter->children.end() ) {
-        switch( prereqs->value.id().to_long() ) {
-        case grammar::id_make_rule_prereqs:
-          {
-            if ( prereqs->children.empty() ) goto bind_simple_prereqs;
-            else {
-              TTreeIter it( prereqs->children.begin() );
-              for(; it != prereqs->children.end(); ++it) {
-                vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
-                builtin::target target( ctx.map_target(str) );
-                assert( 2 <= target.refcount() );
-                r.add_prerequisite( target );
-                //std::clog<<"prerequsite: "<<target<<std::endl;
-              }//for(each-prerequisites)
-            }//
-            break;
-          }
-        default:
-        bind_simple_prereqs:
-          {
-            std::string s(prereqs->value.begin(), prereqs->value.end());
-	  
-            vm::type_string str(ctx.const_string(s));
-            builtin::target target( ctx.map_target(str) );
-            assert( 2 <= target.refcount() );
-            r.add_prerequisite( target );
-            //std::clog<<"prerequisite: "<<target<<std::endl;
-            break;
-          }
-        }//switch( prereqsites-type )
+        std::vector<vm::type_string> vec( parse_targets(ctx, prereqs) );
+        std::vector<vm::type_string>::iterator it( vec.begin() );
+        for(; it != vec.end(); ++it) {
+          builtin::target target( ctx.map_target(*it) );
+          assert( 2 <= target.refcount() );
+          r.add_prerequisite( target );
+          //std::clog<<"prerequisite: "<<target<<std::endl;
+        }//for(each-prerequisite)
       }//if(has-prerequisites)
 
       if ( commands != iter->children.end() ) {
@@ -372,52 +382,22 @@ namespace smart
       }//if(has-commands)
 
       if ( targets != iter->children.end() ) {
-	switch( targets->value.id().to_long() ) {
-	case grammar::id_make_rule_targets:
-	  {
-            if ( targets->children.empty() ) goto bind_simple_target;
-            else {
-              TTreeIter it( targets->children.begin() );
-              for(; it != targets->children.end(); ++it) {
-                vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
-                builtin::target target( ctx.map_target(str) );
-                assert( 2 <= target.refcount() );
-                if ( !target.rule().commands().empty() ) {
-                  std::clog//<<iter->value.begin().file
-                    <<":"<<get_position(iter).line
-                    <<":"<<get_position(iter).column
-                    <<":warning: overriding commands for target '"<<str<<"'"
-                    <<std::endl;
-                }
-                target.bind( r );
-                ctx.set_default_goal_if_null( target );
-                //std::clog<<"target: "<<target<<std::endl;
-              }
-            }
-	    break;
-	  }//case grammar::id_make_rule_targets
-
-	default:
-        bind_simple_target:
-          {
-	    std::string s(targets->value.begin(), targets->value.end());
-
-	    vm::type_string str(ctx.const_string(s));
-	    builtin::target target( ctx.map_target(str) );
-            assert( 2 <= target.refcount() );
-            if ( !target.rule().commands().empty() && !r.commands().empty() ) {
-              std::clog//<<iter->value.begin().file
-                <<":"<<get_position(iter).line
-                <<":"<<get_position(iter).column
-                <<":warning: overriding commands for target '"<<str<<"'"
-                <<std::endl;
-            }
-	    target.bind( r );
-            ctx.set_default_goal_if_null( target );
-            //std::clog<<"target: "<<target<<std::endl;
-	    break;
-	  }//bind-simple-target
-	}//switch( child-type )
+        std::vector<vm::type_string> vec( parse_targets(ctx, targets) );
+        std::vector<vm::type_string>::iterator it( vec.begin() );
+        for(; it != vec.end(); ++it) {
+          builtin::target target( ctx.map_target(*it) );
+          assert( 2 <= target.refcount() );
+          if ( !target.rule().commands().empty() && !r.commands().empty() ) {
+            std::clog<<ctx.file()//iter->value.begin().file
+              <<":"<<get_position(iter).line
+              <<":"<<get_position(iter).column
+              <<":warning: overriding commands for target '"<<*it<<"'"
+              <<std::endl;
+          }//if
+          target.bind( r );
+          ctx.set_default_goal_if_null( target );
+          //std::clog<<"prerequisite: "<<target<<std::endl;
+        }//for(each-target)
       }//if(has-targets)
 
       return;
