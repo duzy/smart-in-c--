@@ -37,4 +37,15 @@ namespace smart
   {
   }
 
+  //======================================================================
+
+  make_error::make_error( const std::string & err ) throw()
+    : exception( err )
+  {
+  }
+
+  make_error::~make_error() throw()
+  {
+  }
+
 }//namespace smart

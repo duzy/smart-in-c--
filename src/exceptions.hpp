@@ -43,4 +43,10 @@ namespace smart
     long _line;
     long _column;
   };//struct compile_error
+
+  struct make_error : exception
+  {
+    explicit make_error( const std::string & ) throw();
+    virtual ~make_error() throw();
+  };//struct make_error
 }//namespace smart

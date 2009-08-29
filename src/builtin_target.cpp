@@ -11,11 +11,12 @@
 #include "builtin_make_rule.hpp"
 #include "builtin_target_imp.hpp"
 #include "context.hpp"
+#include "exceptions.hpp"
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <algorithm>
-//#include <iostream>
+#include <sstream>
 
 namespace fs = boost::filesystem;
 
@@ -106,8 +107,10 @@ namespace smart
       if ( r.empty() ) {
 	r = ctx.find_rule( *this );
 	if ( r.empty() ) {
-	  
-	  return uc;
+	  //return uc;
+	  std::ostringstream err;
+	  err<<"no rule to make target '"<<_i->_object<<"'";
+	  throw make_error( err.str() );
 	}
       }
 
