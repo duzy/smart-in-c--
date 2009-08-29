@@ -63,4 +63,15 @@ namespace smart
   {
   }
 
+  //======================================================================
+
+  runtime_error::runtime_error( const std::string & err ) throw()
+    : exception( err )
+  {
+  }
+
+  runtime_error::~runtime_error() throw()
+  {
+  }
+
 }//namespace smart

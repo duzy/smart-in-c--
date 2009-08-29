@@ -52,7 +52,7 @@ int main(int argc, const char** argv)
     std::clog<<e.what()<<std::endl;
   }//catch( make-error )
 
-  catch( const std::runtime_error & e ) {
+  catch( const smart::runtime_error & e ) {
     std::clog<<e.what()<<std::endl;
   }//catch( runtime-error )
   

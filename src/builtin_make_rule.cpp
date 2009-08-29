@@ -8,10 +8,11 @@
  **/
 
 #include "builtin_make_rule.hpp"
+#include "exceptions.hpp"
 #include "expand.hpp"
 #include <boost/ref.hpp>
 #include <algorithm>
-#include <stdexcept>
+//#include <stdexcept>
 #include <iostream>
 #include <sstream>
 
@@ -128,7 +129,7 @@ namespace smart
 	      if ( n != 0 && !hasDash ) {
 		std::ostringstream err;
 		err<<"smart: Command error with exit code "<<n;
-		throw std::runtime_error( err.str() );
+		throw smart::runtime_error( err.str() );
 	      }
 	      return;
 	    }
@@ -136,7 +137,7 @@ namespace smart
 	}//for
 
 	#if 0
-	throw std::runtime_error("unexpected execution point");
+	throw smart::runtime_error("unexpected execution point");
 	#endif
       }
     };//struct do_execute_command
