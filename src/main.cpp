@@ -7,7 +7,10 @@
  *
  **/
 
+#include <exception>
+
 int main(int argc, const char** argv)
 {
+  std::set_terminate(__gnu_cxx::__verbose_terminate_handler);
   return 0;
 }

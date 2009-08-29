@@ -102,21 +102,27 @@ namespace smart
     target::update_result target::update( context & ctx ) const
     {
       update_result uc = {0, 0, 0};
-      if ( _i->_rule.empty() ) return uc;
+      make_rule r( _i->_rule );
+      if ( r.empty() ) {
+	r = ctx.find_rule( *this );
+	if ( r.empty() ) {
+	  
+	  return uc;
+	}
+      }
 
       bool isPhony( ctx.is_phony( *this ) );
       std::time_t lastWriteTime( this->last_write_time() );
       
-      uc = _i->_rule.update_prerequisites( ctx, lastWriteTime );
+      uc = r.update_prerequisites( ctx, lastWriteTime );
 
       //std::clog<<_i->_object<<":"<<uc<<std::endl;
       if ( isPhony || 0 < uc.count_updated || 0 < uc.count_newer || lastWriteTime == 0 /*|| !this->exists()*/ ) {
 	bool b( lastWriteTime == 0 || 0 < uc.count_newer );
 
-	_i->_rule.execute_commands( ctx );
+	r.execute_commands( ctx );
 
-	//!< TODO: only add 1 if the object is really updated(check filetime)
-	if ( b && this->exists() ) {
+	if ( b /*&& this->exists()*/ ) {
 	  if ( lastWriteTime < this->last_write_time() )
 	    ++uc.count_updated;
 	}

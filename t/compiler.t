@@ -315,6 +315,9 @@ BOOST_AUTO_TEST_CASE( make_rules )
   BOOST_CHECK( foo.rule().commands().size() == 2 );
   BOOST_CHECK( bar.rule().commands().size() == 3 );
 
+  if ( fs::exists("foobar") ) fs::remove("foobar");
+  if ( fs::exists("foo") ) fs::remove("foo");
+  if ( fs::exists("bar") ) fs::remove("bar");
   smart::builtin::target::update_result uc( foobar.update( ctx ) );
   //std::clog<<"updated: "<<uc<<std::endl;
   BOOST_CHECK( uc.count_updated == 0 );
@@ -385,8 +388,20 @@ BOOST_AUTO_TEST_CASE( update_targets )
     BOOST_CHECK( s == "bar" );
   }
 
-  //fs::remove("foobar");
-  //fs::remove("foo");
-  //fs::remove("bar");
+  std::time_t t1( foobar.last_write_time() );
+  std::time_t t2( foo.last_write_time() );
+  std::time_t t3( bar.last_write_time() );
+  ::sleep( 0.5/*1*/ );
+  smart::builtin::target::update_result uc2( foobar.update( ctx ) );
+  BOOST_CHECK( uc2.count_updated == 0 );
+  BOOST_CHECK( uc2.count_executed == 0 );
+  BOOST_CHECK( uc2.count_newer == 0 );
+  BOOST_CHECK( t1 == foobar.last_write_time() );
+  BOOST_CHECK( t2 == foo.last_write_time() );
+  BOOST_CHECK( t3 == bar.last_write_time() );
+
+  fs::remove("foobar");
+  fs::remove("foo");
+  fs::remove("bar");
 }
 

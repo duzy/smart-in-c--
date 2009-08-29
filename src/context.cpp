@@ -123,6 +123,12 @@ namespace smart
     return it->second;
   }
 
+  builtin::make_rule context::find_rule( const builtin::target & tar )
+  {
+    builtin::make_rule r;
+    return r;
+  }
+
   function_table *context::ftable() const
   {
     return _function_table;

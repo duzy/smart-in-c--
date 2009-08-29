@@ -47,6 +47,8 @@ namespace smart
     builtin::target target( const vm::type_string & v );
     builtin::target map_target( const vm::type_string & v );
 
+    builtin::make_rule find_rule( const builtin::target & );
+
     /**
      * setup $1, $2, $3, $4, ....
      */

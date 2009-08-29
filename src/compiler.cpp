@@ -19,6 +19,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include "exceptions.hpp"
 
 # ifdef BOOST_SPIRIT_DEBUG
 #   include <iostream>
@@ -190,12 +191,8 @@ namespace smart
 	default:
 	  {
 	    std::ostringstream err;
-	    err<<"invalid macro ref type: "<<ref.type
-               <<", in line "<<get_position(iter).line
-               <<" at "<<get_position(iter).column;
-            //err<<ctx.file()<<":"<<get_position(iter).line
-            //   <<":"get_position(iter).column<<": error";
-	    throw std::runtime_error( err.str() );
+	    err<<"invalid macro ref type: "<<ref.type;
+            throw compile_error( ctx.file(), iter, err.str() );
 	  }
 	}//switch( ref-type )
 	
@@ -283,8 +280,8 @@ namespace smart
       default:
         {
           std::ostringstream err;
-          err<<"invalid assignment, in line "<<get_position(iter).line<<" at "<<get_position(iter).column;
-          throw std::runtime_error( err.str() );
+          err<<"invalid assignment";
+          throw compile_error( ctx.file(), iter, err.str() );
         }
         break;
 
@@ -469,10 +466,8 @@ namespace smart
             default:
               {
                 std::ostringstream err;
-                err<<"Unimplemented statement: "<<iter->value.id().to_long()
-                   <<", in line "<<get_position(iter).line
-                   <<" at "<<get_position(iter).column;
-                throw std::runtime_error( err.str() );
+                err<<"Unimplemented statement: "<<iter->value.id().to_long();
+                throw compile_error( ctx.file(), iter, err.str() );
               }
             }//switch( statement-type )
           }//for( each-statement )
@@ -494,10 +489,8 @@ namespace smart
       default:
         {
           std::ostringstream err;
-          err<<"Unimplemented statement: "<<iter->value.id().to_long()
-             <<", in line "<<get_position(iter).line
-             <<" at "<<get_position(iter).column;
-          throw std::runtime_error( err.str() );
+          err<<"Unimplemented statement: "<<iter->value.id().to_long();
+          throw compile_error( ctx.file(), iter, err.str() );
         }
         
       }//switch( type )
@@ -536,10 +529,9 @@ namespace smart
 
     if ( !pt.full ) {
       std::ostringstream err;
-      err<<"parse error at column "<<pt.stop.get_position().column
-         <<" on line "<<pt.stop.get_position().line
-        ;
-      throw std::runtime_error( err.str() );
+      err<<"parse error";
+      throw compile_error( ctx.file(), pt.stop.get_position().column,
+                           pt.stop.get_position().line, err.str() );
     }
 
     vm::type_string v;
@@ -606,10 +598,9 @@ namespace smart
 
     if ( !pt.full ) {
       std::ostringstream err;
-      err<<"parse error at column "<<pt.stop.get_position().column
-         <<" on line "<<pt.stop.get_position().line
-        ;
-      throw std::runtime_error( err.str() );
+      err<<"parse error";
+      throw compile_error( _context.file(), pt.stop.get_position().column,
+                           pt.stop.get_position().line, err.str() );
     }
 
 #   ifdef BOOST_SPIRIT_DEBUG_XML
