@@ -53,23 +53,32 @@ namespace smart
 
     //======================================================================
 
-    make_rule::make_rule()
-      : _i( new imp )
+    make_rule::make_rule( bool valid )
+      : _i( valid ? new imp : NULL )
     {
     }
 
     const std::vector<builtin::target> & make_rule::prerequisites() const
     {
+      if ( !_i ) {
+	static std::vector<builtin::target> empty;
+	return empty;
+      }
       return _i->_prerequisites;
     }
 
     const std::vector<vm::type_string> & make_rule::commands() const
     {
+      if ( !_i ) {
+	std::vector<vm::type_string> empty;
+	return empty;
+      }
       return _i->_commands;
     }
 
     void make_rule::add_prerequisite( const target & t )
     {
+      if ( !_i ) return;
       _i->_prerequisites.push_back( t );
     }
 
@@ -92,6 +101,7 @@ namespace smart
     target::update_result make_rule::update_prerequisites( context & ctx, std::time_t compareTime ) const
     {
       target::update_result uc = {0, 0, 0};
+      if ( !_i ) return uc;
       do_update_target doUpdate( ctx, uc, compareTime );
       do_update_target & dr( doUpdate );
       std::for_each( _i->_prerequisites.begin(), _i->_prerequisites.end(), dr );
@@ -100,11 +110,13 @@ namespace smart
 
     void make_rule::add_command( const vm::type_string & s )
     {
+      if ( !_i ) return;
       _i->_commands.push_back( s );
     }
 
     void make_rule::set_commands( const std::vector<vm::type_string> & cmds )
     {
+      if ( !_i ) return;
       _i->_commands = cmds;
     }
 
@@ -143,6 +155,7 @@ namespace smart
     };//struct do_execute_command
     int make_rule::execute_commands( context & ctx ) const
     {
+      if ( !_i ) return 0;
       do_execute_command exec( ctx );
       std::for_each( _i->_commands.begin(), _i->_commands.end(), exec );
       return 0;
@@ -150,20 +163,28 @@ namespace smart
 
     bool make_rule::empty() const
     {
+      if ( !_i ) return true;
       return _i->_prerequisites.empty()
 	&& _i->_orderonly.empty()
 	&& _i->_commands.empty()
 	;
     }
 
+    bool make_rule::is_valid() const
+    {
+      return _i ? true : false;
+    }
+
     long make_rule::refcount() const
     {
+      if ( !_i ) return 0;
       return _i->_usage;
     }
 
     make_rule make_rule::clone() const
     {
-      make_rule r;
+      if ( !_i ) return make_rule( false );
+      make_rule r( true );
       if ( !_i->_prerequisites.empty() )
 	r._i->_prerequisites = _i->_prerequisites;
       if ( !_i->_orderonly.empty() )

@@ -196,10 +196,9 @@ namespace smart
       make_rule r( _i->_rule );
       if ( r.empty() ) {
 	r = ctx.find_rule( *this );
-	if ( r.empty() ) {
-	  //return uc;
+	if ( !r.is_valid() /* r.empty() */ ) {
 	  std::ostringstream err;
-	  err<<"no rule to make target '"<<_i->_object<<"'";
+	  err<<"no rule for target '"<<_i->_object<<"'";
 	  throw make_error( err.str() );
 	}
       }

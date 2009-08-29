@@ -292,30 +292,22 @@ namespace smart
     static std::vector<vm::type_string> parse_targets( context & ctx, const TTreeIter & iter )
     {
       std::vector<vm::type_string> vec;
-      switch( iter->value.id().to_long() ) {
-      case grammar::id_make_rule_targets:
-      case grammar::id_make_rule_prereqs:
-	{
-	  if ( iter->children.empty() ) goto bind_simple_targets;
-	  else {
-	    TTreeIter it( iter->children.begin() );
-	    for(; it != iter->children.end(); ++it) {
-	      vm::type_string str(ctx.const_string(std::string(it->value.begin(), it->value.end())));
-	      vec.push_back( str );
-	    }//for(each-prerequisites)
-	  }//
-	  break;
-	}
-
-      default:
-      bind_simple_targets:
-	{
-	  std::string s(iter->value.begin(), iter->value.end());
-	  vm::type_string str(ctx.const_string(s));
-	  vec.push_back( str );
-	  break;
-	}
-      }//switch
+      int id( iter->value.id().to_long() );
+      if ( iter->children.empty() ||
+           !( id == grammar::id_make_rule_targets ||
+              id == grammar::id_make_rule_prereqs ) ) {
+        std::string s(iter->value.begin(), iter->value.end());
+        vm::type_string str(ctx.const_string(s));
+        vec.push_back( str );
+      }
+      else {
+        TTreeIter it( iter->children.begin() );
+        for(; it != iter->children.end(); ++it) {
+          std::string s(it->value.begin(), it->value.end());
+          vm::type_string str(ctx.const_string(s));
+          vec.push_back( str );
+        }//for(each-prerequisites)
+      }
       return vec;
     }//parse_targets()
 
@@ -325,7 +317,7 @@ namespace smart
       assert( iter->value.id() == grammar::id_make_rule );
       assert( 2 <= iter->children.size() );
 
-      builtin::make_rule r;
+      builtin::make_rule r( true );
 
       TTreeIter child( iter->children.begin() );
       TTreeIter targets, prereqs, commands;
@@ -388,11 +380,11 @@ namespace smart
           builtin::target target( ctx.map_target(*it) );
           assert( 2 <= target.refcount() );
           if ( !target.rule().commands().empty() && !r.commands().empty() ) {
-            std::clog<<ctx.file()//iter->value.begin().file
-              <<":"<<get_position(iter).line
-              <<":"<<get_position(iter).column
-              <<":warning: overriding commands for target '"<<*it<<"'"
-              <<std::endl;
+            std::clog<<ctx.file()
+                     <<":"<<get_position(iter).line
+                     <<":"<<get_position(iter).column
+                     <<":warning: overriding commands for target '"<<*it<<"'"
+                     <<std::endl;
           }//if
           target.bind( r );
           ctx.set_default_goal_if_null( target );

@@ -25,7 +25,7 @@ namespace smart
      */
     struct make_rule : vm::type_ext
     {
-      make_rule();
+      explicit make_rule( bool valid = false );
 
       long refcount() const;
 
@@ -44,6 +44,7 @@ namespace smart
       int execute_commands( context & ) const;
 
       bool empty() const;
+      bool is_valid() const;
 
       make_rule clone() const;
 
