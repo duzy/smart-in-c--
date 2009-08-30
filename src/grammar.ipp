@@ -38,7 +38,6 @@ namespace smart
       id_make_rule_prereqs,
       id_make_rule_commands,
       id_make_rule_command,
-      id_in_spaces,
     };//enum parser_id_e
 
     template<typename TScan>
@@ -61,7 +60,6 @@ namespace smart
       rule<TScan, parser_tag<id_make_rule_prereqs> > make_rule_prereqs;
       rule<TScan, parser_tag<id_make_rule_commands> > make_rule_commands;
       rule<TScan, parser_tag<id_make_rule_command> > make_rule_command;
-      rule<TScan, parser_tag<id_in_spaces> > in_spaces; //!< inline spaces
 
       definition( const smart::grammar & self )
         : push_paren( _parens )
@@ -84,14 +82,13 @@ namespace smart
           =  lexeme_d
              [
                  macro_name
-                 >> no_node_d[ in_spaces ]
+                 >> no_node_d[ *(space_p - eol_p) ]
                  >> (  root_node_d[ ch_p('=')   ]
                     |  root_node_d[ str_p("+=") ]
                     |  root_node_d[ str_p(":=") ]
                     |  root_node_d[ str_p("?=") ]
                     )
                  >> no_node_d[ *(space_p - eol_p) ]
-                 //>> no_node_d[ in_spaces ] //!< will eat \n while entering in_spaces
                  >> (  no_node_d[ (eol_p | end_p) ]
                     |  macro_value
                        >> no_node_d[ !(eol_p | end_p) ]
@@ -103,7 +100,7 @@ namespace smart
           =  lexeme_d
              [
                 +(  token_node_d[ +(graph_p - ch_p('$'))]
-                 |  macro_ref //token_node_d[ macro_ref ]
+                 |  ~eps_p( space_p ) >> macro_ref
                  )
              ]
 	     >> ( eps_p( ch_p('=' ) | "+=" | ":=" | "?=" ) )
@@ -175,14 +172,14 @@ namespace smart
           =  lexeme_d
              [
                 //!< discard the heading spaces
-                no_node_d[ in_spaces ]
+                no_node_d[ *(space_p - eol_p) ]
                 >> *(  ~eps_p(eol_p) >> macro_ref
                     |  token_node_d[ +(anychar_p - chset_p("\\$\r\n")) ]
                     )
                 >> *(
 		       //!< more lines
-		       no_node_d[ in_spaces ]
-		       >> ch_p('\\') >> no_node_d[ eol_p >> in_spaces ]
+		       no_node_d[ *(space_p - eol_p) ]
+		       >> ch_p('\\') >> no_node_d[ eol_p >> *(space_p - eol_p) ]
                        >> *(  ~eps_p(eol_p) >> macro_ref
                            |  token_node_d[ +(anychar_p - chset_p("\\$\r\n")) ]
                            )
@@ -246,10 +243,6 @@ namespace smart
              ]
           ;
 
-        in_spaces
-          =  lexeme_d[ *(space_p - eol_p) ]
-          ;
-
 	this->start_parsers( statements, macro_value );
 
         debug();
@@ -271,7 +264,6 @@ namespace smart
         BOOST_SPIRIT_DEBUG_RULE(make_rule_prereqs);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_commands);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_command);
-        BOOST_SPIRIT_DEBUG_RULE(in_spaces);
 #       endif
       }//debug()
 

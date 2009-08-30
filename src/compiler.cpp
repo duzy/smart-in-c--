@@ -503,7 +503,7 @@ namespace smart
 
     if ( !pt.full ) {
       std::ostringstream err;
-      err<<"parse error";
+      err<<"syntax error";
       throw compile_error( ctx.file(), pt.stop.get_position().column,
                            pt.stop.get_position().line, err.str() );
     }
@@ -572,7 +572,7 @@ namespace smart
 
     if ( !pt.full ) {
       std::ostringstream err;
-      err<<"parse error";
+      err<<"syntax error";
       throw compile_error( _context.file(), pt.stop.get_position().column,
                            pt.stop.get_position().line, err.str() );
     }
