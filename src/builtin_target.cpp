@@ -18,6 +18,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <algorithm>
 #include <sstream>
+//#include <iostream>
 
 namespace fs = boost::filesystem;
 
@@ -58,7 +59,7 @@ namespace smart
       return _i->_object.empty();
     }
     
-    vm::type_string target::object() const
+    const vm::type_string & target::object() const
     {
       return _i->_object;
     }
@@ -121,7 +122,8 @@ namespace smart
       return d;
     }
     
-    static void execute_commands( context & ctx, const target & tar, const make_rule & r )
+    static void execute_commands( context & ctx, const target & tar, const make_rule & r,
+                                  const vm::type_string & stem = vm::type_string() )
     {
       vm::type_string empty;
 
@@ -163,7 +165,33 @@ namespace smart
 	m20.set_value( preq );
 	m21.set_value( get_f(preq) );
 	m22.set_value( get_d(preq) );
-      }
+
+        {
+          vm::type_string v40, v41, v42;
+          const std::vector<builtin::target> & ps( r.prerequisites() );
+          for(int n=0; n < ps.size(); ++n) {
+            if ( !v40.empty() ) v40 += " ";
+            if ( !v41.empty() ) v41 += " ";
+            if ( !v42.empty() ) v42 += " ";
+
+            vm::type_string v( ps[n].object() );
+            if ( !stem.empty() ) {
+              builtin::pattern pat( v ); //!< as to prerequisites like "%.cpp"
+              if ( pat.is_valid ) v = pat.head + stem + pat.tail;
+            }//if( for a pattern rule )
+
+            v40 += v;
+            v41 += get_f( v );
+            v42 += get_d( v );
+          }//for(each-prerequisite)
+          m40.set_value( v40 );
+          m41.set_value( v41 );
+          m42.set_value( v42 );
+        }
+      }//if(has-prerequisites)
+      m70.set_value( stem );
+      m71.set_value( get_f(stem) );
+      m72.set_value( get_d(stem) );
 
       r.execute_commands( ctx );
 
@@ -198,12 +226,16 @@ namespace smart
       update_result uc = {0, 0, 0};
       make_rule r( _i->_rule );
       if ( !r.is_valid() ) {
-	r = ctx.find_rule( *this );
-	if ( !r.is_valid() ) {
+        if ( this->exists() ) return uc;
+
+        target patt( ctx.match_patterns(_i->_object) );
+        if ( patt.is_null() ) {
 	  std::ostringstream err;
 	  err<<"smart: No rule to make target '"<<_i->_object<<"'.";
 	  throw make_error( err.str() );
 	}
+        assert( patt.object().contains('%') );
+        return patt.pattern_update( ctx, *this );
       }
 
       bool isPhony( ctx.is_phony( *this ) );
@@ -220,6 +252,44 @@ namespace smart
 
         if ( b /*&& this->exists()*/ ) {
           if ( lastWriteTime < this->last_write_time() )
+            ++uc.count_updated;
+        }
+        ++uc.count_executed;
+        return uc;
+      }
+
+      return uc;
+    }
+
+    target::update_result target::pattern_update( context & ctx, const target & tar ) const
+    {
+      assert( _i->_object.contains('%') );
+
+      target::update_result uc = {0, 0, 0};
+
+      if ( !_i->_rule.is_valid() ) {
+        std::ostringstream err;
+        err<<"smart: No rule to make target '"<<tar<<"'.";
+        throw make_error( err.str() );
+      }
+
+      builtin::pattern pat( _i->_object ); assert( pat.is_valid );
+      vm::type_string stem( pat.match(tar.object()) ); assert( !stem.empty() );
+
+      bool isPhony( ctx.is_phony( tar ) );
+      std::time_t lastWriteTime( tar.last_write_time() );
+      
+      uc = _i->_rule.update_prerequisites( ctx, lastWriteTime, stem );
+
+      if ( _i->_rule.commands().empty() ) return uc;
+
+      if ( isPhony || 0 < uc.count_updated || 0 < uc.count_newer || lastWriteTime == 0 /*|| !this->exists()*/ ) {
+        bool b( lastWriteTime == 0 || 0 < uc.count_newer );
+
+        execute_commands( ctx, tar, _i->_rule, stem );
+
+        if ( b /*&& tar.exists()*/ ) {
+          if ( lastWriteTime < tar.last_write_time() )
             ++uc.count_updated;
         }
         ++uc.count_executed;

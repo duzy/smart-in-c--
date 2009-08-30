@@ -33,7 +33,7 @@ namespace smart
 
       bool is_null() const;
 
-      vm::type_string object() const;
+      const vm::type_string & object() const;
 
       bool exists() const;
       std::time_t last_write_time() const;
@@ -50,6 +50,8 @@ namespace smart
       };//struct update_result
       update_result update( context & ) const;
       bool updated() const;
+
+      update_result pattern_update( context &, const target & ) const;
 
       bool operator<( const target & ) const;
 

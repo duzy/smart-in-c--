@@ -101,7 +101,7 @@ namespace smart
     _macroArgs.pop_back();
   }
 
-  builtin::target context::target( vm::type_string const& object )
+  builtin::target context::get_target( vm::type_string const& object )
   {
     target_table::iterator it( _targets.find(object) );
     if ( it == _targets.end() ) return builtin::target();
@@ -126,15 +126,30 @@ namespace smart
   builtin::target context::map_pattern( const vm::type_string & patt )
   {
     assert( patt.contains('%') );
-    typedef std::map< vm::type_string, builtin::target >::iterator iter_t;
-    iter_t it( _patterns.find(patt) );
-    if ( it == _patterns.end() ) {
-      builtin::target tar( patt );
-      _patterns.insert(std::make_pair(patt, tar));
-      assert( tar.refcount() == 2 );
-      return tar;
+//     typedef std::map< vm::type_string, builtin::target >::iterator iter_t;
+//     iter_t it( _patterns.find(patt) );
+//     if ( it == _patterns.end() ) {
+//       builtin::target tar( patt );
+//       _patterns.insert(std::make_pair(patt, tar));
+//       assert( tar.refcount() == 2 );
+//       return tar;
+//     }
+//     return it->second;
+    builtin::target tar( patt );
+    _patterns.push_back( tar );
+    assert( tar.refcount() == 2 );
+    return tar;
+  }
+
+  builtin::target context::match_patterns( const vm::type_string & obj ) const
+  {
+    std::vector< builtin::target >::const_iterator it( _patterns.begin() );
+    for(; it != _patterns.end(); ++it) {
+      builtin::pattern pat( it->object() );    assert( pat.is_valid );
+      std::string stem( pat.match(obj) );
+      if ( !stem.empty() ) return *it;
     }
-    return it->second;
+    return builtin::target();
   }
 
   builtin::make_rule context::find_rule( const builtin::target & tar )

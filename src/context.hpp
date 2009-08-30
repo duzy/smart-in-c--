@@ -45,9 +45,10 @@ namespace smart
     builtin::macro macro( const vm::type_string & v );
     builtin::macro macro( const std::string & v );
 
-    builtin::target target( const vm::type_string & v );
+    builtin::target get_target( const vm::type_string & v );
     builtin::target map_target( const vm::type_string & v );
     builtin::target map_pattern( const vm::type_string & v );
+    builtin::target match_patterns( const vm::type_string & v ) const;
 
     builtin::make_rule find_rule( const builtin::target & );
 
@@ -77,7 +78,7 @@ namespace smart
     typedef boost::unordered_map<vm::type_string, builtin::target> target_table;
     target_table _targets;
     std::set< builtin::target > _phony_targets;
-    std::map< vm::type_string, builtin::target > _patterns;
+    std::vector< builtin::target > _patterns;
     builtin::target _default_goal;
 
     typedef std::vector<builtin::make_rule> rules_t;

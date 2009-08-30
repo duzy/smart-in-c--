@@ -137,13 +137,13 @@ namespace smart
       std::string match( const std::string & s );
 
       /**
-       *  $(V:%.cpp=%.o)
+       *  $(V:%.cpp=%.o)  =>  a.cpp -> a.o
        */
       vm::type_string convert( const pattern & pat1, const std::string & str );
 
       std::string head;
       std::string tail;
-      bool is_valid;
+      bool is_valid; //!< true if the %pat arg is a valid pattern string
     };//struct pattern
   
   }//namespace builtin

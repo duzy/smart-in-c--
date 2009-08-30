@@ -8,7 +8,9 @@
  **/
 
 #include "builtin_make_rule.hpp"
+#include "builtin_macro.hpp"
 #include "exceptions.hpp"
+#include "context.hpp"
 #include "expand.hpp"
 #include <boost/ref.hpp>
 #include <algorithm>
@@ -87,22 +89,36 @@ namespace smart
       target::update_result & _uc;
       context & _ctx;
       std::time_t _compare;
-      do_update_target( context & ctx, target::update_result & uc, std::time_t t )
-	: _uc(uc), _ctx(ctx), _compare(t) {}
+      const vm::type_string & _stem;
+      do_update_target( context & ctx, target::update_result & uc, std::time_t t, const vm::type_string & stem )
+	: _uc(uc), _ctx(ctx), _compare(t), _stem(stem) {}
       void operator()( const target & tar ) const
       {
-	//const_cast<long&>(_uc) += tar.update( _ctx );
-	target::update_result t( tar.update( _ctx ) );
+	target::update_result t = {0,0,0};
+	if ( _stem.empty() ) t = tar.update( _ctx );
+	else { //!< pattern
+	  builtin::pattern pat( tar.object() );
+	  if ( !pat.is_valid ) t = tar.update( _ctx );
+	  else {
+	    std::string obj( pat.head + _stem + pat.tail );
+	    target tar2( _ctx.get_target(obj) );
+	    if ( tar2.is_null() ) {
+	      target tempTarget( obj );
+	      t = tempTarget.update( _ctx );
+	    }
+	    else t = tar2.update( _ctx );
+	  }
+	}
 	_uc.count_updated += t.count_updated;
 	_uc.count_executed += t.count_executed;
 	if ( _compare < tar.last_write_time() ) ++_uc.count_newer;
       }
     };//struct do_update_target
-    target::update_result make_rule::update_prerequisites( context & ctx, std::time_t compareTime ) const
+    target::update_result make_rule::update_prerequisites( context & ctx, std::time_t compareTime, const vm::type_string & stem ) const
     {
       target::update_result uc = {0, 0, 0};
       if ( !_i ) return uc;
-      do_update_target doUpdate( ctx, uc, compareTime );
+      do_update_target doUpdate( ctx, uc, compareTime, stem );
       do_update_target & dr( doUpdate );
       std::for_each( _i->_prerequisites.begin(), _i->_prerequisites.end(), dr );
       return uc;
