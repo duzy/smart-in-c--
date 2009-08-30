@@ -41,8 +41,8 @@ $(BUILT_OBJECTS):$(BUILT_OBJECT_PAT):%.cpp
 
 include foo.inc
 
-say "check:(includee):", $(FOO);
-say "check:(foobar):", $(TARGET);
+#say "check:(includee):", $(FOO);
+#say "check:(foobar):", $(TARGET);
 
 # sa: ; {
 #   say "hello";

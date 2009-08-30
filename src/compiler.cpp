@@ -188,7 +188,6 @@ namespace smart
 	  }
 	case macro_ref_type_funcall:
 	  {
-	    //return m.expand( ctx, ref.args );
 	    return ctx.invoke( ref.name, ref.args );
 	  }
 	default:
@@ -343,7 +342,9 @@ namespace smart
       else targets = child++;
       ++child;
 
-      if ( *child->value.begin() == '\r' || *child->value.begin() == '\n' )
+      if ( *child->value.begin() == '\r' ||
+           *child->value.begin() == '\n' ||
+           *child->value.begin() == ';' )
         (void)false;
       else prereqs = child++;
       ++child;
@@ -590,13 +591,6 @@ namespace smart
     iter_t beg(codeBeg, codeEnd), end;
     parse_tree_info_t pt( classic::ast_parse<factory_t>(beg, end, g, s) );
 
-    if ( !pt.full ) {
-      std::ostringstream err;
-      err<<"Syntax error.";
-      throw compile_error( _context.file(), pt.stop.get_position().line,
-                           pt.stop.get_position().column, err.str() );
-    }
-
 #   ifdef BOOST_SPIRIT_DEBUG_XML
     {
       std::map<classic::parser_id, std::string> names;
@@ -617,6 +611,13 @@ namespace smart
       classic::tree_to_xml(std::clog, pt.trees, code, names);
     }
 #   endif//BOOST_SPIRIT_DEBUG_XML
+
+    if ( !pt.full ) {
+      std::ostringstream err;
+      err<<"Syntax error.";
+      throw compile_error( _context.file(), pt.stop.get_position().line,
+                           pt.stop.get_position().column, err.str() );
+    }
 
     detail::compile_tree( _context, pt.trees );
   }

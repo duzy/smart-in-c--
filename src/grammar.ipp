@@ -38,6 +38,7 @@ namespace smart
       id_make_rule_prereqs,
       id_make_rule_commands,
       id_make_rule_command,
+      id_include_directive,
     };//enum parser_id_e
 
     template<typename TScan>
@@ -60,6 +61,8 @@ namespace smart
       rule<TScan, parser_tag<id_make_rule_prereqs> > make_rule_prereqs;
       rule<TScan, parser_tag<id_make_rule_commands> > make_rule_commands;
       rule<TScan, parser_tag<id_make_rule_command> > make_rule_command;
+      rule<TScan, parser_tag<id_include_directive> > include_directive;
+      
 
       definition( const smart::grammar & self )
         : push_paren( _parens )
@@ -71,11 +74,11 @@ namespace smart
              >> end_p
           ;
 
-        statement
-          =  no_node_d[ *space_p ] /* looks spirit can't eat spaces between two rules */
-	     >> assignment
+        statement  /* looks spirit can't eat spaces between two rules */
+          =  no_node_d[ *space_p ] >> assignment
           |  no_node_d[ *space_p ] >> make_rule
 	  |  no_node_d[ *space_p ] >> macro_ref
+          |  no_node_d[ *space_p ] >> include_directive
           ;
 
         assignment
@@ -83,11 +86,12 @@ namespace smart
              [
                  macro_name
                  >> no_node_d[ *(space_p - eol_p) ]
-                 >> (  root_node_d[ ch_p('=')   ]
-                    |  root_node_d[ str_p("+=") ]
-                    |  root_node_d[ str_p(":=") ]
-                    |  root_node_d[ str_p("?=") ]
-                    )
+                 >> root_node_d
+                    [  ch_p('=')
+                    |  str_p("+=")
+                    |  str_p(":=")
+                    |  str_p("?=")
+                    ]
                  >> no_node_d[ *(space_p - eol_p) ]
                  >> (  no_node_d[ (eol_p | end_p) ]
                     |  macro_value
@@ -99,7 +103,7 @@ namespace smart
         macro_name
           =  lexeme_d
              [
-                +(  token_node_d[ +(graph_p - ch_p('$'))]
+                +(  token_node_d[ +(graph_p - chset_p("$:=+?"))]
                  |  ~eps_p( space_p ) >> macro_ref
                  )
              ]
@@ -157,11 +161,17 @@ namespace smart
           =  lexeme_d
              [
                 no_node_d[ ch_p(':') ]
-                >> +(  token_node_d[ +(anychar_p - (chset_p("$=")|f_ch_p(rparen))) ]
+                >> +(  token_node_d
+                       [
+                         +(anychar_p - (chset_p("$=")|f_ch_p(rparen)))
+                       ]
                     |  macro_ref
                     )
                 >> root_node_d[ ch_p('=') ]
-                >> +(  token_node_d[ +(anychar_p - (chset_p("$")|f_ch_p(rparen))) ]
+                >> +(  token_node_d
+                       [
+                         +(anychar_p - (chset_p("$")|f_ch_p(rparen)))
+                       ]
                     |  macro_ref
                     )
              ]
@@ -189,33 +199,43 @@ namespace smart
 
         make_rule
           =  lexeme_d
-             [
+             [  //eps_p( e >>
                 make_rule_targets
-                >> no_node_d[ *(space_p - eol_p) ] //!< spirit can't eat these spaces
+                >> no_node_d[ *(space_p - eol_p) ]
                 >> token_node_d[ ch_p(':') ]
-                >> no_node_d[ *(space_p - eol_p) ] //!< spirit can't eat these spaces
-                >> ( token_node_d[ eol_p | end_p ]
-                   | make_rule_targets //make_rule_prereqs
-                     >> token_node_d[ eol_p | end_p ]
+                >> no_node_d[ *(space_p - eol_p) ]
+                >> !(  ~eps_p( eol_p )
+                       >> make_rule_targets
+                       >> no_node_d[ *(space_p - eol_p) ]
+                       >> !(  token_node_d[ ch_p(':') ]
+                              >> no_node_d[ *(space_p - eol_p) ]
+                              >> ~eps_p(eol_p)
+                              >> make_rule_targets
+                           )
+                    )
+                >> no_node_d[ *(space_p - eol_p) ]
+                >> (  token_node_d[ eol_p | end_p ]
+                      >> no_node_d[ *comment_p( "#" ) ]
+                      >> !(  no_node_d[ ch_p('\t') ]
+                             >> make_rule_commands
+                          )
+                   |  token_node_d[ ch_p(';') ]
+                      >> make_rule_commands
                    )
-                >> no_node_d[ *comment_p( "#" ) ]
-                >> !(no_node_d[ ch_p('\t') ] >> make_rule_commands)
              ]
           ;
 
         make_rule_targets
           =  lexeme_d
              [
-                +( token_node_d
-                   [
-                    +( (anychar_p - chset_p(": \t\r\n"))
-                       | ~eps_p( space_p ) >> macro_ref
-                     )
-                   ]
-                 | eps_p(space_p - eol_p)
-                   >> no_node_d[ +(space_p - eol_p) ]
-                   >> macro_ref
-                   >> eps_p(space_p - eol_p)
+                +(  token_node_d
+                    [
+                       +( (anychar_p - chset_p("$:; \t\r\n"))
+                        | ~eps_p( space_p ) >> macro_ref
+                        )
+                    ]
+                 |  no_node_d[ +(space_p - eol_p) ]
+                    >> !macro_ref
                  )
              ]
           ;
@@ -250,6 +270,11 @@ namespace smart
              ]
           ;
 
+        include_directive
+          =  root_node_d[ !ch_p('-') >> str_p("include") ]
+          >> make_rule_targets
+          ;
+
 	this->start_parsers( statements, macro_value );
 
         debug();
@@ -271,6 +296,7 @@ namespace smart
         BOOST_SPIRIT_DEBUG_RULE(make_rule_prereqs);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_commands);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_command);
+        BOOST_SPIRIT_DEBUG_RULE(include_directive);
 #       endif
       }//debug()
 
