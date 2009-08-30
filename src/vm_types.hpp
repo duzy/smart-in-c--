@@ -77,6 +77,9 @@ namespace smart
       bool empty() const;
       void clear();
 
+      bool contains( std::string::value_type t ) const;
+      bool contains( const std::string & ) const;
+
       /**
        *  @brief Strip heading and tailing whitespaces.
        */

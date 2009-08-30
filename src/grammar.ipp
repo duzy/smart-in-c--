@@ -195,10 +195,10 @@ namespace smart
                 >> token_node_d[ ch_p(':') ]
                 >> no_node_d[ *(space_p - eol_p) ] //!< spirit can't eat these spaces
                 >> ( token_node_d[ eol_p | end_p ]
-                   | make_rule_prereqs
+                   | make_rule_targets //make_rule_prereqs
                      >> token_node_d[ eol_p | end_p ]
                    )
-                //>> !(eps_p('\t') >> make_rule_commands)
+                >> no_node_d[ *comment_p( "#" ) ]
                 >> !(no_node_d[ ch_p('\t') ] >> make_rule_commands)
              ]
           ;
@@ -206,9 +206,16 @@ namespace smart
         make_rule_targets
           =  lexeme_d
              [
-                +( token_node_d[ +( anychar_p - chset_p(": \t\r\n") ) ]
-                 | no_node_d[ +(space_p - eol_p) ]
-                 | macro_ref
+                +( token_node_d
+                   [
+                    +( (anychar_p - chset_p(": \t\r\n"))
+                       | ~eps_p( space_p ) >> macro_ref
+                     )
+                   ]
+                 | eps_p(space_p - eol_p)
+                   >> no_node_d[ +(space_p - eol_p) ]
+                   >> macro_ref
+                   >> eps_p(space_p - eol_p)
                  )
              ]
           ;

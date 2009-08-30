@@ -123,6 +123,20 @@ namespace smart
     return it->second;
   }
 
+  builtin::target context::map_pattern( const vm::type_string & patt )
+  {
+    assert( patt.contains('%') );
+    typedef std::map< vm::type_string, builtin::target >::iterator iter_t;
+    iter_t it( _patterns.find(patt) );
+    if ( it == _patterns.end() ) {
+      builtin::target tar( patt );
+      _patterns.insert(std::make_pair(patt, tar));
+      assert( tar.refcount() == 2 );
+      return tar;
+    }
+    return it->second;
+  }
+
   builtin::make_rule context::find_rule( const builtin::target & tar )
   {
     builtin::make_rule r;

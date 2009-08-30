@@ -201,7 +201,7 @@ namespace smart
 	r = ctx.find_rule( *this );
 	if ( !r.is_valid() ) {
 	  std::ostringstream err;
-	  err<<"smart: no rule for target '"<<_i->_object<<"'";
+	  err<<"smart: No rule to make target '"<<_i->_object<<"'.";
 	  throw make_error( err.str() );
 	}
       }

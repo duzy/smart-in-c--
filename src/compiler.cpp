@@ -15,11 +15,14 @@
 #include "vm_types.hpp"
 #include "expand.hpp"
 #include "grammar.ipp"
+#include "exceptions.hpp"
 
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include "exceptions.hpp"
+#include <boost/algorithm/string/find_iterator.hpp>
+#include <boost/algorithm/string/finder.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 # ifdef BOOST_SPIRIT_DEBUG
 #   include <iostream>
@@ -288,6 +291,21 @@ namespace smart
       }//switch( type )
     }//compile_assignment()
 
+    static void split_targets( context & ctx,
+                               std::vector<vm::type_string> & out,
+                               const vm::type_string & lst )
+    {
+      const std::string & str( lst );
+      typedef boost::split_iterator<std::string::const_iterator> iter_t;
+      iter_t it( boost::make_split_iterator(str, boost::token_finder(boost::is_any_of(" \t"))) );
+      iter_t const end;
+      for(; it != end; ++it) {
+	if ( it->empty() ) continue;
+        std::string t( boost::copy_range<std::string>( *it ) );
+        out.push_back( ctx.const_string(t) );
+      }
+    }//split_targets()
+
     template<typename TTreeIter>
     static std::vector<vm::type_string> parse_targets( context & ctx, const TTreeIter & iter )
     {
@@ -296,16 +314,14 @@ namespace smart
       if ( iter->children.empty() ||
            !( id == grammar::id_make_rule_targets ||
               id == grammar::id_make_rule_prereqs ) ) {
-        std::string s(iter->value.begin(), iter->value.end());
-        vm::type_string str(ctx.const_string(s));
-        vec.push_back( str );
+        std::string s( iter->value.begin(), iter->value.end() );
+        split_targets( ctx, vec, expand( ctx, s ) );
       }
       else {
         TTreeIter it( iter->children.begin() );
         for(; it != iter->children.end(); ++it) {
-          std::string s(it->value.begin(), it->value.end());
-          vm::type_string str(ctx.const_string(s));
-          vec.push_back( str );
+          std::string s( it->value.begin(), it->value.end() );
+          split_targets( ctx, vec, expand( ctx, s ) );
         }//for(each-prerequisites)
       }
       return vec;
@@ -334,12 +350,15 @@ namespace smart
 
       if ( child != iter->children.end() ) commands = child;
 
+      bool hasPatternPrereq( false );
       if ( prereqs != iter->children.end() ) {
         std::vector<vm::type_string> vec( parse_targets(ctx, prereqs) );
         std::vector<vm::type_string>::iterator it( vec.begin() );
         for(; it != vec.end(); ++it) {
-          builtin::target target( ctx.map_target(*it) );
-          assert( 2 <= target.refcount() );
+          bool isPattern( it->contains('%') );
+          if ( !hasPatternPrereq ) hasPatternPrereq = isPattern;
+          builtin::target target( isPattern ? builtin::target(*it) : ctx.map_target(*it) );
+          //assert( 2 <= target.refcount() );
           r.add_prerequisite( target );
           //std::clog<<"prerequisite: "<<target<<std::endl;
         }//for(each-prerequisite)
@@ -353,21 +372,21 @@ namespace smart
             s.clear();
             if ( it->value.id() == grammar::id_make_rule_command ) {
               if ( it->children.empty() )
-                s.assign(it->value.begin(), it->value.end());
+                s.assign( it->value.begin(), it->value.end() );
               else {
                 TTreeIter i( it->children.begin() );
                 for(; i != it->children.end(); ++i) {
-                  s += std::string(i->value.begin(), i->value.end());
+                  s += std::string( i->value.begin(), i->value.end() );
                 }//for
               }
             }//if( make_rule_command )
-            else s = std::string(it->value.begin(), it->value.end());
+            else s = std::string( it->value.begin(), it->value.end() );
             r.add_command( ctx.const_string(s) );
             //std::clog<<"command: "<<s<<std::endl;
           }//for( commands )
         }//if( make_rule_commands )
         else {
-          std::string s(commands->value.begin(), commands->value.end());
+          std::string s( commands->value.begin(), commands->value.end() );
           r.add_command( ctx.const_string(s) );
           //std::clog<<"command: "<<s<<std::endl;
         }//not( make_rule_commands )
@@ -377,7 +396,8 @@ namespace smart
         std::vector<vm::type_string> vec( parse_targets(ctx, targets) );
         std::vector<vm::type_string>::iterator it( vec.begin() );
         for(; it != vec.end(); ++it) {
-          builtin::target target( ctx.map_target(*it) );
+          bool isPattern( it->contains('%') );
+          builtin::target target( isPattern ? ctx.map_pattern(*it) : ctx.map_target(*it) );
           assert( 2 <= target.refcount() );
           if ( !target.rule().commands().empty() && !r.commands().empty() ) {
             std::clog<<ctx.file()
@@ -385,7 +405,7 @@ namespace smart
                      <<":"<<get_position(iter).column
                      <<":warning: overriding commands for target '"<<*it<<"'"
                      <<std::endl;
-          }//if
+          }//if( overriding-commands )
           target.bind( r );
           ctx.set_default_goal_if_null( target );
           //std::clog<<"prerequisite: "<<target<<std::endl;
@@ -503,9 +523,9 @@ namespace smart
 
     if ( !pt.full ) {
       std::ostringstream err;
-      err<<"syntax error";
-      throw compile_error( ctx.file(), pt.stop.get_position().column,
-                           pt.stop.get_position().line, err.str() );
+      err<<"Syntax error.";
+      throw compile_error( ctx.file(), pt.stop.get_position().line,
+                           pt.stop.get_position().column, err.str() );
     }
 
     vm::type_string v;
@@ -572,9 +592,9 @@ namespace smart
 
     if ( !pt.full ) {
       std::ostringstream err;
-      err<<"syntax error";
-      throw compile_error( _context.file(), pt.stop.get_position().column,
-                           pt.stop.get_position().line, err.str() );
+      err<<"Syntax error.";
+      throw compile_error( _context.file(), pt.stop.get_position().line,
+                           pt.stop.get_position().column, err.str() );
     }
 
 #   ifdef BOOST_SPIRIT_DEBUG_XML
@@ -593,7 +613,6 @@ namespace smart
       names[smart::grammar::id_make_rule_prereqs] = "make_rule_prereqs";
       names[smart::grammar::id_make_rule_commands] = "make_rule_commands";
       names[smart::grammar::id_make_rule_command] = "make_rule_command";
-      names[smart::grammar::id_in_spaces] = "in_spaces";
       std::string code( codeBeg, codeEnd );
       classic::tree_to_xml(std::clog, pt.trees, code, names);
     }

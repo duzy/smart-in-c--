@@ -153,6 +153,16 @@ namespace smart
       _i->_str->clear();
     }
 
+    bool type_string::contains( std::string::value_type t ) const
+    {
+      return _i->_cstr->find( t ) != std::string::npos;
+    }
+
+    bool type_string::contains( const std::string & s ) const
+    {
+      return _i->_cstr->find( s ) != std::string::npos;
+    }
+
     void type_string::trim()
     {
       imp::copy_if_refs( _i );
