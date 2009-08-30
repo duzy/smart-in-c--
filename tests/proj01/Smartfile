@@ -1,0 +1,35 @@
+## -*- mode: Makefile -*-
+## $Id$
+
+CXX = g++
+CXXFLAGS =
+
+RM = rm
+RM_RF = $(RM) -rf
+
+TARGET = foo
+
+all: $(TARGET)
+
+SOURCES = src/main.cpp \
+  src/foo.cpp \
+  src/bar.cpp \
+
+OBJECTS = src/main.o \
+  src/foo.o \
+  src/bar.o \
+
+$(TARGET): $(OBJECTS)
+# here-comment will be ignored
+	$(CXX) $^ -o $@
+
+%.o: %.cpp
+	$(CXX) -c $^ -o $@
+
+CLEANUPS = $(TARGET) src/main.o \
+  src/foo.o \
+  src/bar.o \
+
+clean:
+	$(RM_RF) $(CLEANUPS)
+

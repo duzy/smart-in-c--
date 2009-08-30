@@ -1,0 +1,58 @@
+## -*- mode: Makefile -*-
+## $Id$
+
+CXX = g++
+CXXFLAGS = 
+
+RM = rm
+RM_RF = $(RM) -rf
+
+V = debug
+
+OUT_DIR  = build/foo/$(V)
+OUT_BIN  = $(OUT_DIR)/bin
+OUT_OBJS = $(OUT_DIR)/objs
+
+SOURCES = $(wildcard src/*.cpp)
+OBJECTS = $(SOURCES:.cpp=.o)
+
+BUILT_OBJECT_PAT = $(OUT_OBJS)/%.o
+BUILT_OBJECTS = $(OBJECTS:%.o=$(BUILT_OBJECT_PAT))
+
+TARGET = foobar
+
+#.DEFAULT_GOAL := $(TARGET)
+
+MKDIR_IF_NON = @[ -d $(@D) ] || mkdir -p $(@D)
+
+all: $(TARGET:%=$(OUT_BIN)/%) foo
+	@echo $(.DEFAULT_GOAL) done
+
+clean:
+	$(RM_RF) $(TARGET:%=$(OUT_BIN)/%) $(BUILT_OBJECTS)
+
+$(TARGET:%=$(OUT_BIN)/%): $(BUILT_OBJECTS)
+	$(MKDIR_IF_NON)
+	$(CXX) $(LDFLAGS) $^ $(LOADLIBES) $() -o $@
+
+$(BUILT_OBJECTS):$(BUILT_OBJECT_PAT):%.cpp
+	$(MKDIR_IF_NON)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+include foo.inc
+
+say "check:(includee):", $(FOO);
+say "check:(foobar):", $(TARGET);
+
+# sa: ; {
+#   say "hello";
+# }
+sa :; @echo "$(FOO)"
+
+foo:
+	@echo "check:(includee):$(FOO)"
+
+#%:
+#	@echo $@
+
+

@@ -44,7 +44,7 @@ int main(int argc, const char** argv)
   }//try
 
   catch( const smart::compile_error & e ) {
-    std::clog<<e.file()<<":"<<e.line()<<":"<<e.column()<<":"
+    std::clog<<e.file()<<":"<<e.line()<<":"<<e.column()<<": "
 	     <<e.what()<<std::endl;
   }//catch( compile-error )
 
