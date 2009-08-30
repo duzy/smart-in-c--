@@ -429,45 +429,22 @@ namespace smart
     }//compile_macro_ref()
 
     template<typename TTreeIter>
-    static void compile_statements( context & ctx, const TTreeIter & iter )
+    static void compile_include_directive( context & ctx, const TTreeIter & iter )
     {
-      assert( iter->value.id() == grammar::id_statements ||
-              iter->value.id() == grammar::id_statement ||
-              iter->value.id() == grammar::id_make_rule ||
-              iter->value.id() == grammar::id_macro_ref ||
-              iter->value.id() == grammar::id_assignment
-              );
+      assert( iter->value.id() == grammar::id_include_directive );
+      throw compile_error( ctx.file(), iter, "TODO: compile 'include'" );
+    }//compile_include_directive()
 
+    template<typename TTreeIter>
+    static void compile_statements( context & ctx, const TTreeIter & iter );
+
+    template<typename TTreeIter>
+    static void compile_statement( context & ctx, const TTreeIter & iter )
+    {
       switch( iter->value.id().to_long() ) {
       case grammar::id_statements:
-        {
-          TTreeIter child( iter->children.begin() );
-          TTreeIter const end( iter->children.end() );
-          for(; child != end; ++child) {
-            switch( child->value.id().to_long() ) {
-
-            case grammar::id_assignment:
-              compile_assignment( ctx, child );
-              break;
-
-            case grammar::id_make_rule:
-              compile_make_rule( ctx, child );
-              break;
-
-            case grammar::id_macro_ref:
-              compile_macro_ref( ctx, child );
-              break;
-
-            default:
-              {
-                std::ostringstream err;
-                err<<"Unimplemented statement: "<<iter->value.id().to_long();
-                throw compile_error( ctx.file(), iter, err.str() );
-              }
-            }//switch( statement-type )
-          }//for( each-statement )
-          break;
-        }//case statements
+        compile_statements( ctx, iter );
+        break;
 
       case grammar::id_assignment:
         compile_assignment( ctx, iter );
@@ -481,6 +458,10 @@ namespace smart
         compile_macro_ref( ctx, iter );
         break;
 
+      case grammar::id_include_directive:
+        compile_include_directive( ctx, iter );
+        break;
+
       default:
         {
           std::ostringstream err;
@@ -488,6 +469,31 @@ namespace smart
           throw compile_error( ctx.file(), iter, err.str() );
         }
         
+      }//switch( type )
+    }//compile_statement()
+
+    template<typename TTreeIter>
+    static void compile_statements( context & ctx, const TTreeIter & iter )
+    {
+      assert( iter->value.id() == grammar::id_statements ||
+              iter->value.id() == grammar::id_statement ||
+              iter->value.id() == grammar::id_make_rule ||
+              iter->value.id() == grammar::id_macro_ref ||
+              iter->value.id() == grammar::id_assignment ||
+              iter->value.id() == grammar::id_include_directive
+              );
+
+      switch( iter->value.id().to_long() ) {
+      case grammar::id_statements:
+        {
+          TTreeIter child( iter->children.begin() );
+          TTreeIter const end( iter->children.end() );
+          for(; child != end; ++child) compile_statement( ctx, child );
+          break;
+        }//case statements
+
+      default:
+        compile_statement( ctx, iter );
       }//switch( type )
     }//compile_statements()
 
@@ -607,6 +613,7 @@ namespace smart
       names[smart::grammar::id_make_rule_prereqs] = "make_rule_prereqs";
       names[smart::grammar::id_make_rule_commands] = "make_rule_commands";
       names[smart::grammar::id_make_rule_command] = "make_rule_command";
+      names[smart::grammar::id_include_directive] = "include_directive";
       std::string code( codeBeg, codeEnd );
       classic::tree_to_xml(std::clog, pt.trees, code, names);
     }
