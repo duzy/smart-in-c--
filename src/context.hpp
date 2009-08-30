@@ -15,6 +15,7 @@
 #	include "frame.hpp"
 #	include <boost/unordered_map.hpp>
 #	include <string>
+#	include <list>
 #	include <map>
 #	include <set>
 
@@ -45,7 +46,8 @@ namespace smart
     builtin::macro macro( const vm::type_string & v );
     builtin::macro macro( const std::string & v );
 
-    builtin::target get_target( const vm::type_string & v );
+    builtin::target target( const std::string & v ) { return this->target(vm::type_string(v)); }
+    builtin::target target( const vm::type_string & v );
     builtin::target map_target( const vm::type_string & v );
     builtin::target map_pattern( const vm::type_string & v );
     builtin::target match_patterns( const vm::type_string & v ) const;
@@ -68,6 +70,11 @@ namespace smart
     builtin::target default_goal() const;
     void set_default_goal_if_null( const builtin::target & tar );
 
+    bool add_include( const vm::type_string & );
+
+  private:
+    void include_files();
+
   private:
     string_table *_string_table; //!< for string constants
     //real_table *_number_table; //!< for real number constants
@@ -83,6 +90,9 @@ namespace smart
 
     typedef std::vector<builtin::make_rule> rules_t;
     rules_t _rules;
+
+    std::list<vm::type_string> _includes;
+    std::set<vm::type_string> _included;
 
     typedef std::vector<vm::type_string> args_t;
     std::vector<args_t> _macroArgs;

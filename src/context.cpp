@@ -8,10 +8,12 @@
  **/
 
 #include "context.hpp"
+#include "compiler.hpp"
 #include "string_table.hpp"
 #include "macro_table.hpp"
 #include "function_table.hpp"
 #include "vm_types.hpp"
+#include <boost/bind.hpp>
 #include <sstream>
 #include <iostream>
 namespace smart
@@ -101,7 +103,7 @@ namespace smart
     _macroArgs.pop_back();
   }
 
-  builtin::target context::get_target( vm::type_string const& object )
+  builtin::target context::target( vm::type_string const& object )
   {
     target_table::iterator it( _targets.find(object) );
     if ( it == _targets.end() ) return builtin::target();
@@ -216,5 +218,26 @@ namespace smart
   {
     if ( _default_goal.is_null() ) _default_goal = tar;
   }
-  
+
+  bool context::add_include( const vm::type_string & fn )
+  {
+    if ( _included.find(fn) != _included.end() ) return false;
+    if ( std::find(_includes.begin(), _includes.end(), fn) != _includes.end() )
+      return false;
+
+    _includes.push_back( fn );
+    return true;
+  }
+
+  void context::include_files()
+  {
+    while( !_includes.empty() ) {
+      vm::type_string str( _includes.front() );
+      assert( _included.find( str ) == _included.end() );
+      _includes.pop_front();
+
+      smart::include( *this, str );
+      _included.insert( str );
+    }
+  }
 }//namespace smart

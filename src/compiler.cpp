@@ -23,6 +23,7 @@
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/bind.hpp>
 
 # ifdef BOOST_SPIRIT_DEBUG
 #   include <iostream>
@@ -84,7 +85,7 @@ namespace smart
       parsed_macro_ref ref;
       if ( iter->children.empty() ) return ref;
       if ( iter->children.size() == 2 || iter->children.size() == 3 ) {
-        //!< $X, $(X), ${X}
+        //!< $X, $(X), ${X}, the first child may be '$' or '$(' or '${'
         TTreeIter nodeName( iter->children.begin() + 1 );
         ref.name = ctx.const_string( std::string(nodeName->value.begin(), nodeName->value.end()) );
 	return ref;
@@ -135,7 +136,13 @@ namespace smart
 	
 	if ( child == end ) break;
 	else ++child;
-      }//while
+      }//while( has-more-child )
+
+      if ( ref.type == macro_ref_type_pattern ) {
+        assert( ref.args.size() == 2 );
+        if ( !ref.args[0].contains('%') ) ref.args[0] = "%" + ref.args[0];
+        if ( !ref.args[1].contains('%') ) ref.args[1] = "%" + ref.args[1];
+      }//if( macro-ref )
       
       return ref;
     }//parse_macro_ref()
@@ -432,7 +439,11 @@ namespace smart
     static void compile_include_directive( context & ctx, const TTreeIter & iter )
     {
       assert( iter->value.id() == grammar::id_include_directive );
-      throw compile_error( ctx.file(), iter, "TODO: compile 'include'" );
+      assert( iter->children.size() == 1 );
+
+      TTreeIter targets( iter->children.begin() );
+      std::vector<vm::type_string> vec( parse_targets(ctx, targets) );
+      std::for_each(vec.begin(), vec.end(), boost::bind(&context::add_include, &ctx, _1));
     }//compile_include_directive()
 
     template<typename TTreeIter>
@@ -545,6 +556,18 @@ namespace smart
 
   //======================================================================
 
+  void include( context & ctx, const std::string & filename )
+  {
+    builtin::target tar( filename );
+    if ( !tar.exists() ) {
+      tar.update( ctx );
+    }
+    compiler smc( ctx );
+    smc.compile_file( filename );
+  }
+
+  //======================================================================
+
   compiler::compiler( context & ctx )
     : _context( ctx )
   {
@@ -555,8 +578,8 @@ namespace smart
     std::ifstream ifs( filename.c_str() );
     if ( !ifs ) {
       std::ostringstream err;
-      err<<"Can't open script '"<<filename<<"'";
-      throw std::runtime_error( err.str() );
+      err<<"smart: Can't open script '"<<filename<<"'.";
+      throw smart::runtime_error( err.str() );
     }
 
     ifs.seekg( 0, ifs.end );
@@ -627,6 +650,8 @@ namespace smart
     }
 
     detail::compile_tree( _context, pt.trees );
+
+    _context.include_files();
   }
 }//namespace smart
 

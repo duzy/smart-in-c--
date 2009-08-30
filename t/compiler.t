@@ -149,6 +149,8 @@ BOOST_AUTO_TEST_CASE( assignments )
 	"CALL := $(call fun,abc,def)\n"
 	"PAT1 := $(VV:%=%.o)\n"
 	"PAT2 := $(patsubst %,%.o,$(VV))\n"
+	"VVV = a.cpp b.cpp 	 c.cpp  d.cpp  e.cpp	 	 f.cpp\n"
+	"PAT3 := $(VVV:.cpp=.o)\n"
 	"" );
     smart::compiler sm( ctx );
     sm.compile( code );
@@ -166,9 +168,12 @@ BOOST_AUTO_TEST_CASE( assignments )
       BOOST_CHECK( m2.value() == "a.o b.o c.o d.o e.o f.o" );
       BOOST_CHECK( m3.flavor() == smart::builtin::macro::flavor_simple );
       BOOST_CHECK( m3.value() == "a.o b.o c.o d.o e.o f.o" );
+
+      smart::builtin::macro PAT3( ctx.macro("PAT3") );
+      BOOST_CHECK( PAT3.value() == "a.o b.o c.o d.o e.o f.o" );
     }
   }
-}//test_assignments()
+}//assignments
 
 BOOST_AUTO_TEST_CASE( function_call )
 {
@@ -230,7 +235,7 @@ BOOST_AUTO_TEST_CASE( function_call )
       BOOST_CHECK( m1.value() == "a.o b.o c.o d.o e.o f.o" );
     }
   }
-}//test_function_call()
+}//function_call
 
 BOOST_AUTO_TEST_CASE( make_rules )
 {
@@ -335,7 +340,7 @@ BOOST_AUTO_TEST_CASE( make_rules )
   catch( const smart::make_error & e ) {
     std::clog<<e.what()<<std::endl;
   }
-}
+}//make_rules
 
 BOOST_AUTO_TEST_CASE( update_targets )
 {
@@ -423,5 +428,101 @@ BOOST_AUTO_TEST_CASE( update_targets )
   fs::remove("foobar");
   fs::remove("foo");
   fs::remove("bar");
-}
+}//update_targets
 
+BOOST_AUTO_TEST_CASE( code_seg1 )
+{
+  smart::context sm;
+  smart::compiler smc( sm );
+
+  std::string code
+    ( "############################\n"
+      "CXX = g++\n"
+      "CXXFLAGS = \n"
+      "\n"
+      "RM = rm\n"
+      "RM_RF = $(RM) -rf\n"
+      "V = debug\n"
+      "\n"
+      "OUT_DIR  = build/foo/$(V)\n"
+      "OUT_BIN  = $(OUT_DIR)/bin\n"
+      "OUT_OBJS = $(OUT_DIR)/objs\n"
+      "\n"
+      "#SOURCES = $(wildcard src/*.cpp)\n"
+      "SOURCES = src/foo.cpp src/bar.cpp src/main.cpp\n"
+      "OBJECTS = $(SOURCES:.cpp=.o)\n"
+      "OBJECTS2 := $(SOURCES:%.cpp=%.o)\n"
+      "OBJECTS3 := $(SOURCES:.cpp=.o)\n"
+      "\n"
+      "BUILT_OBJECT_PAT = $(OUT_OBJS)/%.o\n"
+      "BUILT_OBJECT_PAT2 := $(OUT_OBJS)/%.o\n"
+      "BUILT_OBJECTS = $(OBJECTS:%.o=$(BUILT_OBJECT_PAT))\n"
+      "BUILT_OBJECTS2 := $(OBJECTS:%.o=$(BUILT_OBJECT_PAT))\n"
+      "\n"
+      "TARGET = foobar\n"
+      "\n"
+      "#.DEFAULT_GOAL := $(TARGET)\n"
+      "\n"
+      "MKDIR_IF_NON = @[ -d $(@D) ] || mkdir -p $(@D)\n"
+      "\n"
+      "all: $(TARGET:%=$(OUT_BIN)/%) foo\n"
+      "\t@echo $(.DEFAULT_GOAL) done\n"
+      "\n"
+      "clean:\n"
+      "\t$(RM_RF) $(TARGET:%=$(OUT_BIN)/%) $(BUILT_OBJECTS)\n"
+      "\n"
+      "$(TARGET:%=$(OUT_BIN)/%): $(BUILT_OBJECTS)\n"
+      "#\t$(MKDIR_IF_NON)\n"
+      "\tmkdir -p $(OUT_BIN)\n"
+      "\t$(CXX) $(LDFLAGS) $^ $(LOADLIBES) $() -o $@\n"
+      "\n"
+      "$(BUILT_OBJECTS):$(BUILT_OBJECT_PAT):%.cpp\n"
+      "\t$(MKDIR_IF_NON)\n"
+      "\t$(CXX) $(CXXFLAGS) -c $< -o $@\n"
+      "\n"
+      "" );
+
+  smc.compile( code );
+
+  smart::builtin::macro CXX( sm.macro("CXX") );
+  smart::builtin::macro CXXFLAGS( sm.macro("CXXFLAGS") );
+  smart::builtin::macro RM( sm.macro("RM") );
+  smart::builtin::macro RM_RF( sm.macro("RM_RF") );
+  smart::builtin::macro V( sm.macro("V") );
+  smart::builtin::macro OUT_DIR( sm.macro("OUT_DIR") );
+  smart::builtin::macro OUT_BIN( sm.macro("OUT_BIN") );
+  smart::builtin::macro OUT_OBJS( sm.macro("OUT_OBJS") );
+  smart::builtin::macro SOURCES( sm.macro("SOURCES") );
+  smart::builtin::macro OBJECTS( sm.macro("OBJECTS") );
+  smart::builtin::macro OBJECTS2( sm.macro("OBJECTS2") );
+  smart::builtin::macro OBJECTS3( sm.macro("OBJECTS3") );
+  smart::builtin::macro BUILT_OBJECT_PAT( sm.macro("BUILT_OBJECT_PAT") );
+  smart::builtin::macro BUILT_OBJECT_PAT2( sm.macro("BUILT_OBJECT_PAT2") );
+  smart::builtin::macro BUILT_OBJECTS( sm.macro("BUILT_OBJECTS") );
+  smart::builtin::macro BUILT_OBJECTS2( sm.macro("BUILT_OBJECTS2") );
+  smart::builtin::macro TARGET( sm.macro("TARGET") );
+  smart::builtin::macro DEFAULT_GOAL( sm.macro(".DEFAULT_GOAL") );
+  BOOST_CHECK( CXX == "g++" );
+  BOOST_CHECK( CXXFLAGS == "" );
+  BOOST_CHECK( RM == "rm" );
+  BOOST_CHECK( RM_RF == "$(RM) -rf" );
+  BOOST_CHECK( V == "debug" );
+  BOOST_CHECK( OUT_DIR == "build/foo/$(V)" );
+  BOOST_CHECK( OUT_BIN == "$(OUT_DIR)/bin" );
+  BOOST_CHECK( OUT_OBJS == "$(OUT_DIR)/objs" );
+  BOOST_CHECK( SOURCES == "src/foo.cpp src/bar.cpp src/main.cpp" );
+  BOOST_CHECK( OBJECTS == "$(SOURCES:.cpp=.o)" );
+  BOOST_CHECK( OBJECTS2 == "src/foo.o src/bar.o src/main.o" );
+  BOOST_CHECK( OBJECTS3 == "src/foo.o src/bar.o src/main.o" );
+  BOOST_CHECK( BUILT_OBJECT_PAT == "" );
+
+  smart::builtin::target all( sm.target("all") );
+  smart::builtin::target clean( sm.target("clean") );
+  smart::builtin::target foobar( sm.target("build/foo/debug/bin/foobar") );
+  smart::builtin::target obj1( sm.target("build/foo/debug/objs/src/foo.o") );
+  smart::builtin::target obj2( sm.target("build/foo/debug/objs/src/bar.o") );
+  smart::builtin::target obj3( sm.target("build/foo/debug/objs/src/main.o") );
+  smart::builtin::target src1( sm.target("src/foo.cpp") );
+  smart::builtin::target src2( sm.target("src/bar.cpp") );
+  smart::builtin::target src3( sm.target("src/main.cpp") );
+}//code_seg1

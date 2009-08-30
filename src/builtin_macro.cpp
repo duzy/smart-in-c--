@@ -162,6 +162,11 @@ namespace smart
       _i->value = s;
     }
 
+    bool macro::operator==( const std::string & s )
+    {
+      return _i->value == s;
+    }
+
     void macro::set_origin( const vm::type_string & s )
     {
       _i->origin = s;

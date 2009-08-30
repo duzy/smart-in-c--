@@ -259,39 +259,53 @@ namespace smart
       f[0] = m.flavor();
     }
 
-    void info( context & ctx )
+    static bool pack_expanded_args( context & ctx, vm::type_string & str )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) return;
-      vm::type_string str;
+      if ( f.args_size() < 1 ) return false;
       for(int n=1; n < f.size(); ++n) {
         if ( !str.empty() ) str += " ";
-        str += f[n];
+        str += expand( ctx, f[n] );
       }
+      return true;
+    }
+
+    void info( context & ctx )
+    {
+//       frame & f ( ctx.current_frame() );
+//       if ( f.args_size() < 1 ) return;
+      vm::type_string str;
+//       for(int n=1; n < f.size(); ++n) {
+//         if ( !str.empty() ) str += " ";
+//         str += expand( ctx, f[n] );
+//       }
+      if ( !pack_expanded_args( ctx, str ) ) return;
       smart::info( str );
     }
 
     void warning( context & ctx )
     {
-      frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) return;
+//       frame & f ( ctx.current_frame() );
+//       if ( f.args_size() < 1 ) return;
       vm::type_string str;
-      for(int n=1; n < f.size(); ++n) {
-        if ( !str.empty() ) str += " ";
-        str += f[n];
-      }
+//       for(int n=1; n < f.size(); ++n) {
+//         if ( !str.empty() ) str += " ";
+//         str += expand( ctx, f[n] );
+//       }
+      if ( !pack_expanded_args( ctx, str ) ) return;
       smart::warning( str );
     }
 
     void error( context & ctx )
     {
-      frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) return;
+//       frame & f ( ctx.current_frame() );
+//       if ( f.args_size() < 1 ) return;
       vm::type_string str;
-      for(int n=1; n < f.size(); ++n) {
-        if ( !str.empty() ) str += " ";
-        str += f[n];
-      }
+//       for(int n=1; n < f.size(); ++n) {
+//         if ( !str.empty() ) str += " ";
+//         str += f[n];
+//       }
+      if ( !pack_expanded_args( ctx, str ) ) return;
       smart::error( str );
     }
 

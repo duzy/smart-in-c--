@@ -101,7 +101,7 @@ namespace smart
 	  if ( !pat.is_valid ) t = tar.update( _ctx );
 	  else {
 	    std::string obj( pat.head + _stem + pat.tail );
-	    target tar2( _ctx.get_target(obj) );
+	    target tar2( _ctx.target(obj) );
 	    if ( tar2.is_null() ) {
 	      target tempTarget( obj );
 	      t = tempTarget.update( _ctx );

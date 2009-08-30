@@ -26,6 +26,7 @@ namespace smart
     context & _context;
   };//struct compiler
 
+  void include( context &, const std::string & filename );
   
 }//namespace smart
 

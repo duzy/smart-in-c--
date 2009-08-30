@@ -13,11 +13,17 @@ OUT_DIR  = build/foo/$(V)
 OUT_BIN  = $(OUT_DIR)/bin
 OUT_OBJS = $(OUT_DIR)/objs
 
-SOURCES = $(wildcard src/*.cpp)
+#SOURCES = $(wildcard src/*.cpp)
+SOURCES = src/foo.cpp src/bar.cpp src/main.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
+#OBJECTS = $(SOURCES:%.cpp=%.o)
 
 BUILT_OBJECT_PAT = $(OUT_OBJS)/%.o
 BUILT_OBJECTS = $(OBJECTS:%.o=$(BUILT_OBJECT_PAT))
+
+$(info $(OBJECTS))
+$(info $(BUILT_OBJECT_PAT))
+$(info $(BUILT_OBJECTS))
 
 TARGET = foobar
 
@@ -32,7 +38,8 @@ clean:
 	$(RM_RF) $(TARGET:%=$(OUT_BIN)/%) $(BUILT_OBJECTS)
 
 $(TARGET:%=$(OUT_BIN)/%): $(BUILT_OBJECTS)
-	$(MKDIR_IF_NON)
+#	$(MKDIR_IF_NON)
+	mkdir -p $(OUT_BIN)
 	$(CXX) $(LDFLAGS) $^ $(LOADLIBES) $() -o $@
 
 $(BUILT_OBJECTS):$(BUILT_OBJECT_PAT):%.cpp

@@ -36,6 +36,8 @@ namespace smart
       vm::type_string value() const;
       void set_value( const vm::type_string & );
 
+      bool operator==( const std::string & );
+
       vm::type_string expand( const context & ) const;
       vm::type_string expand( const context &, const std::vector<vm::type_string> & args ) const;
 
