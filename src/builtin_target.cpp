@@ -199,7 +199,7 @@ namespace smart
       make_rule r( _i->_rule );
       if ( !r.is_valid() ) {
 	r = ctx.find_rule( *this );
-	if ( !r.is_valid() /* r.empty() */ ) {
+	if ( !r.is_valid() ) {
 	  std::ostringstream err;
 	  err<<"smart: no rule for target '"<<_i->_object<<"'";
 	  throw make_error( err.str() );
@@ -213,7 +213,6 @@ namespace smart
 
       if ( r.commands().empty() ) return uc;
 
-      //std::clog<<_i->_object<<":"<<uc<<std::endl;
       if ( isPhony || 0 < uc.count_updated || 0 < uc.count_newer || lastWriteTime == 0 /*|| !this->exists()*/ ) {
         bool b( lastWriteTime == 0 || 0 < uc.count_newer );
 

@@ -141,7 +141,7 @@ namespace smart
 	      if ( n != 0 && !hasDash ) {
 		std::ostringstream err;
 		err<<"smart: Command error with exit code "<<n;
-		throw smart::runtime_error( err.str() );
+		throw smart::make_error( err.str() );
 	      }
 	      return;
 	    }
