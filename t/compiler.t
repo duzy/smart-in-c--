@@ -7,6 +7,7 @@
 #include "../src/context.hpp"
 #include "../src/compiler.hpp"
 #include "../src/string_table.hpp"
+#include "../src/exceptions.hpp"
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -311,7 +312,6 @@ BOOST_AUTO_TEST_CASE( make_rules )
     "\techo command 2\n"
     "\techo command 3\n"
     "x: \n"
-    //"\techo $@\n"
     "";
   sm.compile( code );
   BOOST_CHECK( foo.rule().commands().size() == 2 );
@@ -320,11 +320,16 @@ BOOST_AUTO_TEST_CASE( make_rules )
   if ( fs::exists("foobar") ) fs::remove("foobar");
   if ( fs::exists("foo") ) fs::remove("foo");
   if ( fs::exists("bar") ) fs::remove("bar");
-  smart::builtin::target::update_result uc( foobar.update( ctx ) );
-  //std::clog<<"updated: "<<uc<<std::endl;
-  BOOST_CHECK( uc.count_updated == 0 );
-  BOOST_CHECK( uc.count_executed == 3 );
-  BOOST_CHECK( uc.count_newer == 0 );
+  try {
+    smart::builtin::target::update_result uc( foobar.update( ctx ) );
+    //std::clog<<"updated: "<<uc<<std::endl;
+    BOOST_CHECK( uc.count_updated == 0 );
+    BOOST_CHECK( uc.count_executed == 3 );
+    BOOST_CHECK( uc.count_newer == 0 );
+  }
+  catch( const smart::make_error & e ) {
+    std::clog<<e.what()<<std::endl;
+  }
 }
 
 BOOST_AUTO_TEST_CASE( update_targets )

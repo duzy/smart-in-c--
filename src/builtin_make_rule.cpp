@@ -70,7 +70,7 @@ namespace smart
     const std::vector<vm::type_string> & make_rule::commands() const
     {
       if ( !_i ) {
-	std::vector<vm::type_string> empty;
+	static std::vector<vm::type_string> empty;
 	return empty;
       }
       return _i->_commands;

@@ -89,11 +89,14 @@ namespace smart
      */
     void target::bind( const make_rule & r )
     {
-      if ( _i->_rule.empty() ) {
+      if ( _i->_rule.empty() || !_i->_rule.is_valid() ) {
+	assert( r.is_valid() );
         _i->_rule = r;
         return;
       }
       else {
+	assert( _i->_rule.is_valid() );
+
 	//!< If some other targets are referenced to the rule, we should make
 	//!< a cloning of it.
 	if ( 1 < _i->_rule.refcount() ) {
@@ -194,11 +197,11 @@ namespace smart
     {
       update_result uc = {0, 0, 0};
       make_rule r( _i->_rule );
-      if ( r.empty() ) {
+      if ( !r.is_valid() ) {
 	r = ctx.find_rule( *this );
 	if ( !r.is_valid() /* r.empty() */ ) {
 	  std::ostringstream err;
-	  err<<"no rule for target '"<<_i->_object<<"'";
+	  err<<"smart: no rule for target '"<<_i->_object<<"'";
 	  throw make_error( err.str() );
 	}
       }
@@ -208,18 +211,20 @@ namespace smart
       
       uc = r.update_prerequisites( ctx, lastWriteTime );
 
+      if ( r.commands().empty() ) return uc;
+
       //std::clog<<_i->_object<<":"<<uc<<std::endl;
       if ( isPhony || 0 < uc.count_updated || 0 < uc.count_newer || lastWriteTime == 0 /*|| !this->exists()*/ ) {
-	bool b( lastWriteTime == 0 || 0 < uc.count_newer );
+        bool b( lastWriteTime == 0 || 0 < uc.count_newer );
 
-	execute_commands( ctx, *this, r );
+        execute_commands( ctx, *this, r );
 
-	if ( b /*&& this->exists()*/ ) {
-	  if ( lastWriteTime < this->last_write_time() )
-	    ++uc.count_updated;
-	}
-	++uc.count_executed;
-	return uc;
+        if ( b /*&& this->exists()*/ ) {
+          if ( lastWriteTime < this->last_write_time() )
+            ++uc.count_updated;
+        }
+        ++uc.count_executed;
+        return uc;
       }
 
       return uc;
