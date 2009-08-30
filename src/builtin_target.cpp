@@ -303,6 +303,11 @@ namespace smart
     {
       return _i->_object < o._i->_object;
     }
-    
+
+    bool target::operator==( const target & o ) const
+    {
+      return _i->_object == o._i->_object;
+    }
+
   }//namespace builtin
 }//namespace smart

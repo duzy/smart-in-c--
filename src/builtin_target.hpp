@@ -54,6 +54,7 @@ namespace smart
       update_result pattern_update( context &, const target & ) const;
 
       bool operator<( const target & ) const;
+      bool operator==( const target & ) const;
 
       struct imp;
 
