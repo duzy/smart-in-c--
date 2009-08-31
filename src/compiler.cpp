@@ -597,8 +597,7 @@ namespace smart
     ifs.seekg( 0, ifs.end );
     int sz( ifs.tellg() );
     if ( 0 < sz ) {
-      std::string code;
-      code.resize( sz );
+      std::string code( sz, '\0' );
       ifs.seekg( 0, ifs.beg );
       ifs.read( &code[0], sz );
 
