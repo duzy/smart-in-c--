@@ -224,9 +224,12 @@ namespace smart
              [
                //!< discard the heading spaces
                 no_node_d[ *(space_p - eol_p) ]
-                >> *(  token_node_d[ +(anychar_p - chset_p("$\r\n\\")) ]
-                    |  token_node_d[ ch_p('\\') >> graph_p ]
-                    |  ~eps_p(eol_p) >> macro_ref
+                >> *(  !token_node_d[ ch_p('\\') >> eol_p ]
+                       >> no_node_d[ *(space_p - eol_p) ]
+                       >> +(  token_node_d[ +(anychar_p - chset_p("$\r\n\\")) ]
+                           |  ~eps_p(eol_p) >> macro_ref
+                           |  token_node_d[ ch_p('\\') >> graph_p ]
+                           )
                     )
              ]
           ;

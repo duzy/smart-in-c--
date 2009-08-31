@@ -153,10 +153,14 @@ namespace smart
         std::string s( child->value.begin(), child->value.end() );
         ctx.const_string(s);
 
-        std::string t;
-        if ( s == "\\" ) t = ( value.empty() ? "" : " " );
-        else t += s;
-        value += t;
+        if ( s[0] == '\\' ) {
+          assert( s.size() == 2 );
+          if ( s[1] == '\n' || s[1] == '\r' ) {
+            if ( !value.empty() ) value += " ";
+          }
+          else value += s.c_str() + 1;
+        }
+        else value += s;
       }//for
 
       return value;
@@ -225,7 +229,13 @@ namespace smart
             std::string s( child->value.begin(), child->value.end() );
             ctx.const_string( s );
 
-            if ( s == "\\" ) v += " ";
+            if ( s[0] == '\\' ) {
+              assert( s.size() == 2 );
+              if ( s[1] == '\n' || s[1] == '\r' ) {
+                if ( !v.empty() ) v += " ";
+              }
+              else v += s.c_str() + 1;
+            }
             else v += s;
           }
           break;

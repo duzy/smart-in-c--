@@ -48,43 +48,45 @@ BOOST_AUTO_TEST_CASE( assignments )
     BOOST_CHECK( ctx.stable()->get("i3   ").ptr != NULL );
     BOOST_CHECK( ctx.stable()->get("i4").ptr != NULL );
     //BOOST_CHECK( *ctx.stable()->get("NnN").ptr == "NnN" );
-    BOOST_CHECK( *ctx.stable()->get("N").ptr == "N" );
-    BOOST_CHECK( *ctx.stable()->get("L1").ptr == "L1" );
-    BOOST_CHECK( *ctx.stable()->get("L2").ptr == "L2" );
-    BOOST_CHECK( *ctx.stable()->get("i1").ptr == "i1" );
-    BOOST_CHECK( *ctx.stable()->get("i2").ptr == "i2" );
-    BOOST_CHECK( *ctx.stable()->get("i3   ").ptr == "i3   " );
-    BOOST_CHECK( *ctx.stable()->get("i4").ptr == "i4" );
+    if ( ctx.stable()->get("N").ptr )  BOOST_CHECK( *ctx.stable()->get("N").ptr == "N" );
+    if ( ctx.stable()->get("L1").ptr ) BOOST_CHECK( *ctx.stable()->get("L1").ptr == "L1" );
+    if ( ctx.stable()->get("L2").ptr ) BOOST_CHECK( *ctx.stable()->get("L2").ptr == "L2" );
+    if ( ctx.stable()->get("i1").ptr ) BOOST_CHECK( *ctx.stable()->get("i1").ptr == "i1" );
+    if ( ctx.stable()->get("i2").ptr ) BOOST_CHECK( *ctx.stable()->get("i2").ptr == "i2" );
+    if ( ctx.stable()->get("i3   ").ptr ) BOOST_CHECK( *ctx.stable()->get("i3   ").ptr == "i3   " );
+    if ( ctx.stable()->get("i4").ptr ) BOOST_CHECK( *ctx.stable()->get("i4").ptr == "i4" );
 
-    smart::builtin::macro m1( ctx.macro("N") );
-    smart::builtin::macro m2( ctx.macro("NnN") );
-    BOOST_CHECK( m1.name() == "N" );
-    BOOST_CHECK( m1.value() == "n" );
-    BOOST_CHECK( m2.name() == "NnN" );
-    BOOST_CHECK( m2.value() == "nnn" );
-    BOOST_CHECK( m1.origin() == smart::builtin::macro::origin_file );
-    BOOST_CHECK( m2.origin() == smart::builtin::macro::origin_file );
-    BOOST_CHECK( m1.flavor() == smart::builtin::macro::flavor_recursive );
-    BOOST_CHECK( m2.flavor() == smart::builtin::macro::flavor_recursive );
+    smart::builtin::macro N( ctx.macro("N") );
+    smart::builtin::macro NnN( ctx.macro("NnN") );
+    BOOST_CHECK( N.name() == "N" );
+    BOOST_CHECK( N.value() == "n" );
+    BOOST_CHECK( NnN.name() == "NnN" );
+    BOOST_CHECK( NnN.value() == "nnn" );
+    BOOST_CHECK( N.origin() == smart::builtin::macro::origin_file );
+    BOOST_CHECK( NnN.origin() == smart::builtin::macro::origin_file );
+    BOOST_CHECK( N.flavor() == smart::builtin::macro::flavor_recursive );
+    BOOST_CHECK( NnN.flavor() == smart::builtin::macro::flavor_recursive );
 
-    smart::builtin::macro m3( ctx.macro("L1") );
-    smart::builtin::macro m4( ctx.macro("L2") );
-    BOOST_CHECK( m3.name() == "L1" );
-    BOOST_CHECK( m3.value() == "i1 i2 i3    i4" );
-    BOOST_CHECK( m3.origin() == smart::builtin::macro::origin_file );
-    BOOST_CHECK( m3.flavor() == smart::builtin::macro::flavor_recursive );
-    BOOST_CHECK( m4.name() == "L2" );
-    BOOST_CHECK( m4.value() == "i1 i2 i3    i4" );
-    BOOST_CHECK( m4.origin() == smart::builtin::macro::origin_file );
-    BOOST_CHECK( m4.flavor() == smart::builtin::macro::flavor_simple );
+    smart::builtin::macro L1( ctx.macro("L1") );
+    smart::builtin::macro L2( ctx.macro("L2") );
+    std::clog<<"L1: "<<L1.value()<<std::endl;
+    std::clog<<"L2: "<<L2.value()<<std::endl;
+    BOOST_CHECK( L1.name() == "L1" );
+    BOOST_CHECK( L1.value() == "i1 i2 i3    i4" );
+    BOOST_CHECK( L1.origin() == smart::builtin::macro::origin_file );
+    BOOST_CHECK( L1.flavor() == smart::builtin::macro::flavor_recursive );
+    BOOST_CHECK( L2.name() == "L2" );
+    BOOST_CHECK( L2.value() == "i1 i2 i3    i4" );
+    BOOST_CHECK( L2.origin() == smart::builtin::macro::origin_file );
+    BOOST_CHECK( L2.flavor() == smart::builtin::macro::flavor_simple );
   }
   {
     {
-      smart::builtin::macro m0( ctx.macro("N2") );
-      BOOST_CHECK( m0.flavor() == smart::builtin::macro::flavor_undefined );
-      BOOST_CHECK( m0.origin() == smart::builtin::macro::origin_undefined );
-      BOOST_CHECK( m0.name() == "N2" );
-      BOOST_CHECK( m0.value() == "" );
+      smart::builtin::macro N2( ctx.macro("N2") );
+      BOOST_CHECK( N2.flavor() == smart::builtin::macro::flavor_undefined );
+      BOOST_CHECK( N2.origin() == smart::builtin::macro::origin_undefined );
+      BOOST_CHECK( N2.name() == "N2" );
+      BOOST_CHECK( N2.value() == "" );
     }
 
     std::string code
@@ -504,6 +506,7 @@ BOOST_AUTO_TEST_CASE( code_seg1 )
   smart::builtin::macro DEFAULT_GOAL( sm.macro(".DEFAULT_GOAL") );
   //std::clog<<"OBJECTS3: "<<OBJECTS3.value()<<std::endl;
   //std::clog<<"BUILT_OBJECTS2: "<<BUILT_OBJECTS2.value()<<std::endl;
+  //std::clog<<"RM_RF: "<<RM_RF.value()<<std::endl;
   BOOST_CHECK( CXX == "g++" );
   BOOST_CHECK( CXXFLAGS == "" );
   BOOST_CHECK( RM == "rm" );
@@ -607,7 +610,7 @@ BOOST_AUTO_TEST_CASE( code_seg2 )
       "		 bar  \\\n \t \\\n"
       "\n"
       "" );
-  std::clog<<code<<std::endl;
+  //std::clog<<code<<std::endl;
   smc.compile( code );
   smart::builtin::target foo( sm.target("foo") );
   smart::builtin::target null( sm.target("nullxx") );
@@ -628,20 +631,24 @@ BOOST_AUTO_TEST_CASE( code_seg2 )
   {
     std::string cont
       (
-       "/* Generated by moc.mk */\n"
-       "#include \"foo.hpp\"\n"
-       "#include \"bar.hpp\"\n"
-       "#!/bin/bash\n"
-       "D=~/foofoo\n"
-       "LD_LIBRARY_PATH=$D\n"
-       "export LD_LIBRARY_PATH\n"
-       "cd $D\n"
-       "./foo\n"
+       "/* Generated by moc.mk */"//\n"
+       "#include \"foo.hpp\""//\n"
+       "#include \"bar.hpp\""//\n"
+       "#!/bin/bash"//\n"
+       "D=~/foofoo"//\n"
+       "LD_LIBRARY_PATH=$D"//\n"
+       "export LD_LIBRARY_PATH"//\n"
+       "cd $D"//\n"
+       "./foo"//\n"
        );
     std::string s;
-    std::ifstream ifs("foo");
+    std::ifstream ifs( "foo", std::ios::binary );
     std::istream_iterator<std::string::value_type> it( ifs ), end;
     std::copy( it, end, std::back_inserter(s) );
     BOOST_CHECK( s == cont );
+    if ( s != cont ) {
+      std::clog<<"s = '"<<s<<"'"<<std::endl;
+      std::clog<<"cont = '"<<cont<<"'"<<std::endl;
+    }
   }
 }//code_seg2
