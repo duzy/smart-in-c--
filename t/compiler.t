@@ -503,7 +503,7 @@ BOOST_AUTO_TEST_CASE( code_seg1 )
   smart::builtin::macro TARGET( sm.macro("TARGET") );
   smart::builtin::macro DEFAULT_GOAL( sm.macro(".DEFAULT_GOAL") );
   //std::clog<<"OBJECTS3: "<<OBJECTS3.value()<<std::endl;
-  std::clog<<"BUILT_OBJECTS2: "<<BUILT_OBJECTS2.value()<<std::endl;
+  //std::clog<<"BUILT_OBJECTS2: "<<BUILT_OBJECTS2.value()<<std::endl;
   BOOST_CHECK( CXX == "g++" );
   BOOST_CHECK( CXXFLAGS == "" );
   BOOST_CHECK( RM == "rm" );
@@ -533,6 +533,9 @@ BOOST_AUTO_TEST_CASE( code_seg1 )
   smart::builtin::target src2( sm.target("src/bar.cpp") );
   smart::builtin::target src3( sm.target("src/main.cpp") );
   //std::clog<<"foobar: "<<foobar<<std::endl;
+  std::clog<<"obj1: "<<obj1<<std::endl;
+  std::clog<<"obj1.prerequisites[0]: "<<obj1.rule().prerequisites()[0]<<std::endl;
+  //std::clog<<"src1: "<<src1<<std::endl;
   BOOST_CHECK( all.object() == "all" );
   BOOST_CHECK( all.rule().prerequisites().size() == 2 );
   BOOST_CHECK( all.rule().prerequisites()[0].object() == "build/foo/debug/bin/foobar" );
@@ -548,7 +551,7 @@ BOOST_AUTO_TEST_CASE( code_seg1 )
   BOOST_CHECK( foobar.rule().prerequisites().size() == 3 );
   BOOST_CHECK( foobar.rule().prerequisites()[0].object() == "build/foo/debug/objs/src/foo.o" );
   BOOST_CHECK( foobar.rule().prerequisites()[1].object() == "build/foo/debug/objs/src/bar.o" );
-  BOOST_CHECK( foobar.rule().prerequisites()[2].object() == "build/foo/debug/objs/src/foobar.o" );
+  BOOST_CHECK( foobar.rule().prerequisites()[2].object() == "build/foo/debug/objs/src/main.o" );
   BOOST_CHECK( foobar.rule().prerequisites()[0] == obj1 );
   BOOST_CHECK( foobar.rule().prerequisites()[1] == obj2 );
   BOOST_CHECK( foobar.rule().prerequisites()[2] == obj3 );
@@ -563,14 +566,14 @@ BOOST_AUTO_TEST_CASE( code_seg1 )
   BOOST_CHECK( obj2.rule().prerequisites().size() == 1 );
   BOOST_CHECK( obj2.rule().prerequisites()[0].object() == "src/bar.cpp" );
   BOOST_CHECK( obj2.rule().prerequisites()[0] == src2 );
-  BOOST_CHECK( obj3.object() == "build/foo/debug/objs/src/foobar.o" );
+  BOOST_CHECK( obj3.object() == "build/foo/debug/objs/src/main.o" );
   BOOST_CHECK( obj3.rule().prerequisites().size() == 1 );
-  BOOST_CHECK( obj3.rule().prerequisites()[0].object() == "src/foobar.cpp" );
+  BOOST_CHECK( obj3.rule().prerequisites()[0].object() == "src/main.cpp" );
   BOOST_CHECK( obj3.rule().prerequisites()[0] == src3 );
   BOOST_CHECK( src1.object() == "src/foo.cpp" );
   BOOST_CHECK( src1.rule().prerequisites().size() == 0 );
   BOOST_CHECK( src2.object() == "src/bar.cpp" );
   BOOST_CHECK( src2.rule().prerequisites().size() == 0 );
-  BOOST_CHECK( src3.object() == "src/foobar.cpp" );
+  BOOST_CHECK( src3.object() == "src/main.cpp" );
   BOOST_CHECK( src3.rule().prerequisites().size() == 0 );
 }//code_seg1
