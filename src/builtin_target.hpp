@@ -27,6 +27,7 @@ namespace smart
     struct target : vm::type_ext
     {
       target();
+      explicit target( const std::string & );
       explicit target( const vm::type_string & );
 
       long refcount() const;
@@ -55,6 +56,7 @@ namespace smart
 
       bool operator<( const target & ) const;
       bool operator==( const target & ) const;
+      bool operator==( const std::string & ) const;
 
       struct imp;
 

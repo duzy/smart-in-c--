@@ -8,7 +8,6 @@
  **/
 
 #include <exception>
-//#include <stdexcept>
 #include <string>
 
 namespace smart
@@ -23,6 +22,28 @@ namespace smart
   private:
     std::string _what;
   };//struct exception
+
+  struct parser_error : exception
+  {
+    parser_error( long line, long column, const std::string & w ) throw();
+    virtual ~parser_error() throw();
+
+    template<typename TIter>
+    parser_error( const TIter & it, const std::string & w ) throw()
+      : exception(w), _line(get_line(it)), _column(get_column(it))
+    {}
+
+    long line() const throw();
+    long column() const throw();
+
+  private:
+    template<typename TIter> static inline long get_line( const TIter & it ) { return it.get_position().line; }
+    template<typename TIter> static inline long get_column( const TIter & it ) { return it.get_position().column; }
+
+  private:
+    long _line;
+    long _column;
+  };//struct parser_error
 
   struct compile_error : exception
   {

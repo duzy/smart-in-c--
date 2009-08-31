@@ -49,6 +49,12 @@ namespace smart
     {
     }
 
+    target::target( const std::string & str )
+      : vm::type_ext()
+      , _i( new imp(str) )
+    {
+    }
+
     long target::refcount() const
     {
       return _i->_usage;
@@ -309,5 +315,9 @@ namespace smart
       return _i->_object == o._i->_object;
     }
 
+    bool target::operator==( const std::string & s ) const
+    {
+      return _i->_object == s;
+    }
   }//namespace builtin
 }//namespace smart

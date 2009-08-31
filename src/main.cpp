@@ -24,8 +24,8 @@ int main(int argc, const char** argv)
     NULL,
   };
 
+  smart::context ctx;
   try {
-    smart::context ctx;
     smart::compiler sm( ctx );
 
     for( int n=0; files[n] != NULL; ++n ) {
@@ -42,6 +42,11 @@ int main(int argc, const char** argv)
       tar.update( ctx );
     }
   }//try
+
+  catch( const smart::parser_error & e ) {
+    std::clog<<ctx.file()<<":"<<e.line()<<":"<<e.column()<<": "
+	     <<e.what()<<std::endl;
+  }//catch( parser-error )
 
   catch( const smart::compile_error & e ) {
     std::clog<<e.file()<<":"<<e.line()<<":"<<e.column()<<": "

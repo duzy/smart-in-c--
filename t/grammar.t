@@ -10,11 +10,12 @@
 
 //#define BOOST_SPIRIT_DEBUG
 //#define BOOST_SPIRIT_DEBUG_FLAGS BOOST_SPIRIT_DEBUG_FLAGS_NODES
+#include <sstream>
+#include "../src/exceptions.hpp"
 #include "../src/grammar.ipp"
 #include <boost/spirit/include/classic_tree_to_xml.hpp>
 #include <boost/test/unit_test.hpp>
 #include <string>
-#include <sstream>
 #include <fstream>
 #include <stdexcept>
 #include <map>

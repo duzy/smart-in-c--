@@ -49,7 +49,7 @@ namespace smart
 
     struct type_string : type_base<type_string>
     {
-      /*explicit*/ type_string( const std::string & v = "" );
+      type_string( const std::string & v = "" );
       explicit type_string( const string_table_entry & );
 
       type_string( const type_string & );

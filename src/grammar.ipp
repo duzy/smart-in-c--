@@ -15,7 +15,7 @@
 #include <boost/spirit/include/classic_push_back_actor.hpp>
 //#include <boost/spirit/include/classic_attribute.hpp>
 //#include <boost/spirit/include/classic_parametric.hpp>
-#include <stdexcept>
+#include <boost/spirit/include/classic_exceptions.hpp>
 
 namespace smart
 {
@@ -34,21 +34,55 @@ namespace smart
       id_macro_ref_args,
       id_macro_ref_pattern,
       id_macro_value,
+      id_expandable,
       id_make_rule,
       id_make_rule_targets,
-      id_make_rule_prereqs,
       id_make_rule_commands,
       id_make_rule_command,
       id_include_directive,
     };//enum parser_id_e
 
+    enum error_e {
+      e_expect_eol, e_expect_eq, e_expect_rparen,
+    };
+    typedef boost::spirit::classic::assertion<int> assertion_t;
+    typedef guard<int> guard_t;
+    struct parse_error_handler_t
+    {
+      template<typename TScan, typename TError>
+      error_status<> operator()( const TScan &, const TError & e ) const
+      {
+        std::ostringstream err;
+        err<<"Syntax error: "<<*e.where;
+        throw smart::parser_error( e.where, err.str() );
+      }
+    };//struct parse_error_handler_t
+    struct parse_expandable_error_handler_t
+    {
+      template<typename TScan, typename TError>
+      error_status<> operator()( const TScan &, const TError & e ) const
+      {
+        std::ostringstream err;
+        err<<"Expandable syntax error at '"<<*e.where<<"'";
+        throw smart::parser_error( e.where, err.str() );
+      }
+    };//struct parse_expandable_error_handler_t
+
     template<typename TScan>
     struct definition
       : boost::spirit::classic::grammar_def<
       rule<TScan, parser_tag<id_statements> >,
-      rule<TScan, parser_tag<id_macro_value> >
+      rule<TScan, parser_tag<id_expandable> >
       >
     {
+      assertion_t expect_eol;
+      assertion_t expect_eq;
+      assertion_t expect_rparen;
+
+      guard_t sm_guard;
+      parse_error_handler_t sm_error_handler;
+      parse_expandable_error_handler_t sm_expandable_error_handler;
+
       rule<TScan, parser_tag<id_statements> > statements;
       rule<TScan, parser_tag<id_statement> > statement;
       rule<TScan, parser_tag<id_assignment> > assignment;
@@ -58,22 +92,23 @@ namespace smart
       rule<TScan, parser_tag<id_macro_ref_args> > macro_ref_args;
       rule<TScan, parser_tag<id_macro_ref_pattern> > macro_ref_pattern;
       rule<TScan, parser_tag<id_macro_value> > macro_value;
+      rule<TScan, parser_tag<id_expandable> > expandable;
       rule<TScan, parser_tag<id_make_rule> > make_rule;
       rule<TScan, parser_tag<id_make_rule_targets> > make_rule_targets;
-      rule<TScan, parser_tag<id_make_rule_prereqs> > make_rule_prereqs;
       rule<TScan, parser_tag<id_make_rule_commands> > make_rule_commands;
       rule<TScan, parser_tag<id_make_rule_command> > make_rule_command;
       rule<TScan, parser_tag<id_include_directive> > include_directive;
-      
 
       definition( const smart::grammar & self )
-        : push_paren( _parens )
+        : expect_eol( e_expect_eol )
+        , expect_eq( e_expect_eq )
+        , expect_rparen( e_expect_rparen )
+        , push_paren( _parens )
         , pop_paren( _parens )
         , rparen( _parens )
       {
         statements
-          =  *statement
-             >> end_p
+          =  sm_guard( *statement >> end_p )[ sm_error_handler ]
           ;
 
         statement  /* looks spirit can't eat spaces between two rules */
@@ -124,7 +159,7 @@ namespace smart
                       >> !( ( no_node_d[ space_p ] >> macro_ref_args )
                           | ( eps_p(':') >> macro_ref_pattern )
                           )
-                      >> f_ch_p(rparen)[ pop_paren ]
+                      >> expect_rparen( f_ch_p(rparen)[ pop_paren ] )
 
                    |  ch_p('$') >> graph_p
                    )
@@ -173,7 +208,7 @@ namespace smart
                        |  ~eps_p( space_p ) >> macro_ref
                        )
                    ]
-                >> root_node_d[ ch_p('=') ]
+                >> expect_eq( root_node_d[ ch_p('=') ] )
                 >> token_node_d
                    [
                       +(  (anychar_p - (chset_p("$")|f_ch_p(rparen)))
@@ -187,20 +222,17 @@ namespace smart
         macro_value
           =  lexeme_d
              [
-                //!< discard the heading spaces
+               //!< discard the heading spaces
                 no_node_d[ *(space_p - eol_p) ]
-                >> *(  ~eps_p(eol_p) >> macro_ref
-                    |  token_node_d[ +(anychar_p - chset_p("\\$\r\n")) ]
-                    )
-                >> *(
-		       //!< more lines
-		       no_node_d[ *(space_p - eol_p) ]
-		       >> ch_p('\\') >> no_node_d[ eol_p >> *(space_p - eol_p) ]
-                       >> *(  ~eps_p(eol_p) >> macro_ref
-                           |  token_node_d[ +(anychar_p - chset_p("\\$\r\n")) ]
-                           )
+                >> *(  token_node_d[ +(anychar_p - chset_p("$\r\n\\")) ]
+                    |  token_node_d[ ch_p('\\') >> graph_p ]
+                    |  ~eps_p(eol_p) >> macro_ref
                     )
              ]
+          ;
+
+        expandable
+          = sm_guard( macro_value )[ sm_expandable_error_handler ]
           ;
 
         make_rule
@@ -236,22 +268,12 @@ namespace smart
              [
                 +(  token_node_d
                     [
-                       +( (anychar_p - chset_p("$:; \t\r\n"))
+                       +( (anychar_p - chset_p("$:; \t\r\n\\"))
                         | ~eps_p( space_p ) >> macro_ref
                         )
                     ]
-                 |  no_node_d[ +(space_p - eol_p) ]
-                    >> !macro_ref
-                 )
-             ]
-          ;
-
-        make_rule_prereqs
-          =  lexeme_d
-             [
-                *( token_node_d[ +( anychar_p - chset_p(" \t\r\n") ) ]
-                 | no_node_d[ +(space_p - eol_p) ]
-                 | ~eps_p(chset_p(" \t\r\n")) >> macro_ref
+                 |  no_node_d[ +(space_p - eol_p) ] >> !macro_ref
+                 |  no_node_d[ ch_p('\\') >> eol_p ]
                  )
              ]
           ;
@@ -269,10 +291,10 @@ namespace smart
         make_rule_command
           =  lexeme_d
              [
-                token_node_d[ *(anychar_p - (eol_p|'\\')) ]
-                >> *(  no_node_d[ ch_p('\\') >> eol_p ]
-                       >> token_node_d[ *(anychar_p - (eol_p|'\\')) ]
-                    )
+                *(  token_node_d[ +(anychar_p - (eol_p|'\\')) ]
+                 |  token_node_d[ ch_p('\\') >> graph_p ]
+                 |  no_node_d[ ch_p('\\') >> expect_eol( eol_p ) ]
+                 )
              ]
           ;
 
@@ -281,7 +303,7 @@ namespace smart
           >> make_rule_targets
           ;
 
-	this->start_parsers( statements, macro_value );
+	this->start_parsers( statements, expandable );
 
         debug();
       }//definition()
@@ -298,9 +320,9 @@ namespace smart
         BOOST_SPIRIT_DEBUG_RULE(macro_ref_args);
         BOOST_SPIRIT_DEBUG_RULE(macro_ref_pattern);
         BOOST_SPIRIT_DEBUG_RULE(macro_value);
+        BOOST_SPIRIT_DEBUG_RULE(expandable);
         BOOST_SPIRIT_DEBUG_RULE(make_rule);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_targets);
-        BOOST_SPIRIT_DEBUG_RULE(make_rule_prereqs);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_commands);
         BOOST_SPIRIT_DEBUG_RULE(make_rule_command);
         BOOST_SPIRIT_DEBUG_RULE(include_directive);
@@ -323,7 +345,7 @@ namespace smart
           std::string s( beg, end );
           if ( s == "$(" ) parens.push_back( ')' );
           else if ( s == "${" ) parens.push_back( '}' );
-          else throw std::runtime_error("unknown paren: " + s);
+          else throw smart::runtime_error( "unmatched paren: " + s);
         }
       } push_paren;
       struct pop_paren_t
@@ -332,9 +354,9 @@ namespace smart
         explicit pop_paren_t( std::vector<char> & ref ) : parens(ref) {}
         template<typename TChar> void operator()( TChar ch ) const
         {
-          if ( parens.empty() ) throw std::runtime_error("empty parens");
+          if ( parens.empty() ) throw smart::runtime_error("empty parens");
           else if ( parens.back() != ch )
-            throw std::runtime_error(std::string("paren not match: ")+ch);
+            throw smart::runtime_error(std::string("unmatched paren: ")+ch);
           parens.pop_back();
         }
       } pop_paren;

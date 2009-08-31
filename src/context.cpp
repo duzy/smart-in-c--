@@ -71,7 +71,6 @@ namespace smart
 
   builtin::macro context::macro( const vm::type_string & name )
   {
-    //return _macro_table->map( name );
     return _macro_table->get( name );
   }
 
@@ -216,7 +215,13 @@ namespace smart
 
   void context::set_default_goal_if_null( const builtin::target & tar )
   {
-    if ( _default_goal.is_null() ) _default_goal = tar;
+    if ( _default_goal.is_null() ) {
+      _default_goal = tar;
+      builtin::macro m( _macro_table->map(".DEFAULT_GOAL") );
+      m.set_value( tar.object() );
+      m.set_origin( builtin::macro::origin_automatic );
+      //m.set_flavor( builtin::macro::flavor_simple );
+    }
   }
 
   bool context::add_include( const vm::type_string & fn )

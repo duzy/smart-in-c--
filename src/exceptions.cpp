@@ -28,6 +28,27 @@ namespace smart
 
   //======================================================================
 
+  parser_error::parser_error( long line, long column, const std::string & w ) throw()
+    : exception( w ), _line(line), _column(column)
+  {
+  }
+
+  parser_error::~parser_error() throw()
+  {
+  }
+
+  long parser_error::line() const throw()
+  {
+    return _line;
+  }
+
+  long parser_error::column() const throw()
+  {
+    return _column;
+  }
+
+  //======================================================================
+
   compile_error::compile_error( const std::string & f, long line, long column, const std::string & w ) throw()
     : exception(w), _file(f), _line(line), _column(column)
   {

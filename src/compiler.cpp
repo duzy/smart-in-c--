@@ -14,12 +14,12 @@
 #include "builtins.hpp"
 #include "vm_types.hpp"
 #include "expand.hpp"
-#include "grammar.ipp"
 #include "exceptions.hpp"
 
-#include <fstream>
 #include <sstream>
-#include <stdexcept>
+#include "grammar.ipp"
+
+#include <fstream>
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -320,9 +320,7 @@ namespace smart
     {
       std::vector<vm::type_string> vec;
       int id( iter->value.id().to_long() );
-      if ( iter->children.empty() ||
-           !( id == grammar::id_make_rule_targets ||
-              id == grammar::id_make_rule_prereqs ) ) {
+      if ( iter->children.empty() || id != grammar::id_make_rule_targets ) {
         std::string s( iter->value.begin(), iter->value.end() );
         split_targets( ctx, vec, expand( ctx, s ) );
       }
@@ -619,6 +617,7 @@ namespace smart
     typedef classic::position_iterator<std::string::const_iterator> iter_t;
     typedef classic::node_iter_data_factory<> factory_t;
     typedef classic::tree_parse_info<iter_t, factory_t> parse_tree_info_t;
+    typedef classic::parser_error<int, iter_t> parser_error_t;
 
     iter_t beg(codeBeg, codeEnd), end;
     parse_tree_info_t pt( classic::ast_parse<factory_t>(beg, end, g, s) );
@@ -635,9 +634,9 @@ namespace smart
       names[smart::grammar::id_macro_ref_args] = "macro_ref_args";
       names[smart::grammar::id_macro_ref_pattern] = "macro_ref_pattern";
       names[smart::grammar::id_macro_value] = "macro_value";
+      names[smart::grammar::id_expandable] = "expandable";
       names[smart::grammar::id_make_rule] = "make_rule";
       names[smart::grammar::id_make_rule_targets] = "make_rule_targets";
-      names[smart::grammar::id_make_rule_prereqs] = "make_rule_prereqs";
       names[smart::grammar::id_make_rule_commands] = "make_rule_commands";
       names[smart::grammar::id_make_rule_command] = "make_rule_command";
       names[smart::grammar::id_include_directive] = "include_directive";
