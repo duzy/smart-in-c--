@@ -74,7 +74,7 @@ namespace smart
     }
 
     template<typename TTreeIter>
-    static vm::type_string expanded_macro_value( context & ctx, const TTreeIter & iter );
+    static vm::type_string expanded_value( context & ctx, const TTreeIter & iter );
 
     template<typename TTreeIter>
     static parsed_macro_ref parse_macro_ref( context & ctx, const TTreeIter & iter )
@@ -91,58 +91,50 @@ namespace smart
 	return ref;
       }
 
-      TTreeIter child( iter->children.begin() + 1 ); //!< skip '$('
-      TTreeIter const end( iter->children.end() - 1 ); //!< skip ')'
-      while( child != end ) {
+      TTreeIter child( iter->children.begin() + 1 ); //!< skip '$(', '${'
+      if ( child->value.id() == grammar::id_macro_ref ) {
+        ref.name = expanded_value( ctx, child );
+      }
+      else if ( child->children.empty() ) {
+        ref.name = std::string(child->value.begin(), child->value.end());
+      }
+      else {
+        TTreeIter p( child->children.begin() );
+        for(; p != child->children.end(); ++p) {
+          if( p->value.id().to_long() == grammar::id_macro_ref ) {
+            ref.name += expanded_value( ctx, child );
+          }
+          else {
+            ref.name += std::string(p->value.begin(), p->value.end());
+          }
+        }//for( args )
+      }
+
+      if ( 3 < iter->children.size() ) {
+        child = iter->children.begin() + 2;
         switch( child->value.id().to_long() ) {
-        case grammar::id_macro_ref:
-          ref.name += expanded_macro_value( ctx, child );
-          break;
-
 	case grammar::id_macro_ref_args:
-	  ref.type = macro_ref_type_funcall;
-	  if ( child->children.empty() ) {
-	    std::string s(child->value.begin(), child->value.end());
-	    ref.args.push_back( ctx.const_string(s) );
-	    break;
-	  }
-	  else goto pack_args;
-
+          ref.type = macro_ref_type_funcall; break;
 	case grammar::id_macro_ref_pattern:
-	  ref.type = macro_ref_type_pattern;
-	  goto pack_args;
+          ref.type = macro_ref_type_pattern; break;
+        }//switch( child-type )
 
-	pack_args:
-	  {
-	    TTreeIter arg( child->children.begin() );
-	    for(; arg != child->children.end(); ++arg) {
-	      switch( arg->value.id().to_long() ) {
-	      default:
-		{
-		  std::string s(arg->value.begin(),arg->value.end());
-		  ref.args.push_back( ctx.const_string(s) );
-		}
-		break;
-	      }//switch( arg-type )
-	    }//for( args )
-	  }//case macro_ref_pattern
-	  child = end; //!< ends the iteration
-	  break;
-
-        default:
-          ref.name += ctx.const_string( std::string(child->value.begin(), child->value.end()) );
-	  break;
-        }//switch
-	
-	if ( child == end ) break;
-	else ++child;
-      }//while( has-more-child )
-
-      if ( ref.type == macro_ref_type_pattern ) {
-        assert( ref.args.size() == 2 );
-        if ( !ref.args[0].contains('%') ) ref.args[0] = "%" + ref.args[0];
-        if ( !ref.args[1].contains('%') ) ref.args[1] = "%" + ref.args[1];
-      }//if( macro-ref )
+        {
+          TTreeIter arg( child->children.begin() );
+          for(; arg != child->children.end(); ++arg) {
+            //switch( arg->value.id().to_long() ) {
+            std::string s(arg->value.begin(),arg->value.end());
+            //std::clog<<"arg("<<ref.name<<"): "<<s<<std::endl;
+            ref.args.push_back( ctx.const_string(s) );
+          }//for( args )
+        }
+      }//if( has 4 children )
+      
+//       if ( ref.type == macro_ref_type_pattern ) {
+//         assert( ref.args.size() == 2 );
+//         if ( !ref.args[0].contains('%') ) ref.args[0] = "%" + ref.args[0];
+//         if ( !ref.args[1].contains('%') ) ref.args[1] = "%" + ref.args[1];
+//       }//if( macro-ref )
       
       return ref;
     }//parse_macro_ref()
@@ -171,7 +163,7 @@ namespace smart
     }//unexpended_macro_value()
 
     template<typename TTreeIter>
-    static vm::type_string expanded_macro_value( context & ctx, const TTreeIter & iter )
+    static vm::type_string expanded_value( context & ctx, const TTreeIter & iter )
     {
       assert( iter->value.id() == grammar::id_macro_name ||
 	      iter->value.id() == grammar::id_macro_value ||
@@ -188,10 +180,16 @@ namespace smart
 	  }
 	case macro_ref_type_pattern:
 	  {
+            //std::clog<<"pattern: $("<<ref.name<<":"<<ref.args[0]<<"="<<ref.args[1]<<")"<<std::endl;
 	    builtin::macro m( ctx.mtable()->get( ref.name ) );
 	    assert( ref.name == m.name() );
-	    assert( ref.args.size() == 2 ); //!< e.g. [%.cpp,%.o]
-	    return m.patsubst( ref.args );
+	    assert( ref.args.size() == 2 ); //!< e.g. [%.cpp, %.o], [.cpp, .o]
+            ref.args[0] = expand(ctx, ref.args[0]);
+            ref.args[1] = expand(ctx, ref.args[1]);
+            //std::clog<<"pattern: $("<<ref.name<<":"<<ref.args[0]<<"="<<ref.args[1]<<")"<<std::endl;
+            if ( !ref.args[0].contains('%') ) ref.args[0] = "%" + ref.args[0];
+            if ( !ref.args[1].contains('%') ) ref.args[1] = "%" + ref.args[1];
+	    return m.patsubst( ctx, ref.args );
 	  }
 	case macro_ref_type_funcall:
 	  {
@@ -220,7 +218,7 @@ namespace smart
       for(; child != end; ++child) {
         switch( child->value.id().to_long() ) {
         case grammar::id_macro_ref:
-          v += expanded_macro_value( ctx, child );
+          v += expanded_value( ctx, child );
           break;
         default:
           {
@@ -235,7 +233,7 @@ namespace smart
       }//for
       
       return v;
-    }//expanded_macro_value()
+    }//expanded_value()
 
     template<typename TTreeIter>
     static void compile_assignment( context & ctx, const TTreeIter & iter )
@@ -243,8 +241,8 @@ namespace smart
       assert( iter->value.id() == grammar::id_assignment );
       assert( 0 < iter->children.size() );
 
-      vm::type_string name( expanded_macro_value( ctx, iter->children.begin() ) );
-      TTreeIter nodeValue( 1 < iter->children.size()
+      vm::type_string name( expanded_value( ctx, iter->children.begin() ) );
+      TTreeIter value( 1 < iter->children.size()
                            ? iter->children.begin() + 1
 			   : iter->children.end() );
 
@@ -260,8 +258,8 @@ namespace smart
             break;
           m.set_origin( builtin::macro::origin_file );
           m.set_flavor( builtin::macro::flavor_recursive );
-          if ( nodeValue != iter->children.end() ) {
-            m.set_value( unexpended_macro_value(ctx, nodeValue) );
+          if ( value != iter->children.end() ) {
+            m.set_value( unexpended_macro_value(ctx, value) );
           }
         }
         break;
@@ -270,19 +268,24 @@ namespace smart
         {
           m.set_origin( builtin::macro::origin_file );
           m.set_flavor( builtin::macro::flavor_simple );
-          if ( nodeValue != iter->children.end() ) {
-            m.set_value( expanded_macro_value( ctx, nodeValue ) );
+          if ( value != iter->children.end() ) {
+            m.set_value( expanded_value( ctx, value ) );
+//             std::clog<<"simple: "<<m.name()<<" = "<<m.value()
+//                      <<" <- "
+//                      <<std::string(value->value.begin(), value->value.end())
+//                      <<", "<<value->value.id().to_long()
+//                      <<std::endl;
           }
         }
         break;
 
       case '+':
-        if ( nodeValue == iter->children.end() ) break;
+        if ( value == iter->children.end() ) break;
         if ( m.flavor() == builtin::macro::flavor_simple ) { //!< :=
-          m.set_value( m.value() + expanded_macro_value( ctx, nodeValue ) );
+          m.set_value( m.value() + expanded_value( ctx, value ) );
         }
         else { //!< =, or undefined
-          m.set_value( m.value() + unexpended_macro_value(ctx, nodeValue) );
+          m.set_value( m.value() + unexpended_macro_value(ctx, value) );
         }
         break;
 
@@ -547,7 +550,7 @@ namespace smart
     }
 
     vm::type_string v;
-    v = detail::expanded_macro_value( const_cast<context&>(ctx), pt.trees.begin() );
+    v = detail::expanded_value( const_cast<context&>(ctx), pt.trees.begin() );
 
     const_cast<context&>(ctx).clear_macro_args();
 
@@ -628,6 +631,7 @@ namespace smart
       names[smart::grammar::id_assignment] = "assignment";
       names[smart::grammar::id_macro_name] = "macro_name";
       names[smart::grammar::id_macro_ref] = "macro_ref";
+      names[smart::grammar::id_macro_ref_name] = "macro_ref_name";
       names[smart::grammar::id_macro_ref_args] = "macro_ref_args";
       names[smart::grammar::id_macro_ref_pattern] = "macro_ref_pattern";
       names[smart::grammar::id_macro_value] = "macro_value";

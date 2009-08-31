@@ -50,7 +50,7 @@ namespace smart
        *  $(patsubst %.cpp,%.o,$(M))
        *  $(M:%.cpp=%.o)
        */
-      vm::type_string patsubst( const std::vector<vm::type_string> & pats ) const;
+      vm::type_string patsubst( const context & ctx, const std::vector<vm::type_string> & pats ) const;
 
       /**
        *  @brief Removes leading and trailing whitespaces from the expanded

@@ -21,7 +21,7 @@ namespace smart
      *  @brief The number of args.
      *  The first var (f[0]) is used as the return value of a invocation.
      */
-    std::size_t args_size() const { return _vars.size()-1; }
+    std::size_t args_count() const { return _vars.size()-1; }
 
     void resize( std::size_t sz ) { _vars.resize(sz); }
 

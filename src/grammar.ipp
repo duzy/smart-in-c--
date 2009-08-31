@@ -30,6 +30,7 @@ namespace smart
       id_assignment,
       id_macro_name,
       id_macro_ref,
+      id_macro_ref_name,
       id_macro_ref_args,
       id_macro_ref_pattern,
       id_macro_value,
@@ -53,6 +54,7 @@ namespace smart
       rule<TScan, parser_tag<id_assignment> > assignment;
       rule<TScan, parser_tag<id_macro_name> > macro_name;
       rule<TScan, parser_tag<id_macro_ref> > macro_ref;
+      rule<TScan, parser_tag<id_macro_ref_name> > macro_ref_name;
       rule<TScan, parser_tag<id_macro_ref_args> > macro_ref_args;
       rule<TScan, parser_tag<id_macro_ref_pattern> > macro_ref_pattern;
       rule<TScan, parser_tag<id_macro_value> > macro_value;
@@ -117,14 +119,8 @@ namespace smart
                 >> (  no_node_d[ str_p("$()") ]
                    |  no_node_d[ str_p("${}") ]
                    |  ( str_p("$(") | str_p("${") )[ push_paren ]
-                      >> +(  token_node_d
-                             [
-                              +( ( graph_p - (chset_p("$:") | f_ch_p(rparen)) )
-                                 //| ~eps_p( space_p ) >> macro_ref
-                               )
-                             ]
-                          |  ~eps_p( space_p ) >> macro_ref
-                          )
+                      >> ~eps_p( space_p )
+                      >> macro_ref_name
                       >> !( ( no_node_d[ space_p ] >> macro_ref_args )
                           | ( eps_p(':') >> macro_ref_pattern )
                           )
@@ -135,22 +131,34 @@ namespace smart
              ]
           ;
 
-        macro_ref_args
+        macro_ref_name
           =  lexeme_d
              [
                 +(  token_node_d
-                    [ +(  ( anychar_p - (chset_p("$,")|f_ch_p(rparen)) )
-                       |  macro_ref
-                       )
+                    [
+                       +(  (graph_p - (chset_p("$:") | f_ch_p(rparen)))
+                        //|  ~eps_p( space_p ) >> macro_ref
+                        )
                     ]
-                    )
+                 |  ~eps_p( space_p ) >> macro_ref
+                 )
+             ]
+          ;
+
+        macro_ref_args
+          =  lexeme_d
+             [
+                token_node_d
+                [ +(  ( anychar_p - (chset_p("$,")|f_ch_p(rparen)) )
+                   |  macro_ref
+                   )
+                ]
                 >> *(  no_node_d[ ch_p(',') ]
-                       >> *(  token_node_d
-                              [ +(  (anychar_p - (chset_p("$,") | f_ch_p(rparen) ))
-                                 |  macro_ref
-                                 )
-                              ]
-                           )
+                       >> !token_node_d
+                          [ +(  (anychar_p - (chset_p("$,") | f_ch_p(rparen) ))
+                             |  macro_ref
+                             )
+                          ]
                     )
              ]
           ;
@@ -286,6 +294,7 @@ namespace smart
         BOOST_SPIRIT_DEBUG_RULE(assignment);
         BOOST_SPIRIT_DEBUG_RULE(macro_name);
         BOOST_SPIRIT_DEBUG_RULE(macro_ref);
+        BOOST_SPIRIT_DEBUG_RULE(macro_ref_name);
         BOOST_SPIRIT_DEBUG_RULE(macro_ref_args);
         BOOST_SPIRIT_DEBUG_RULE(macro_ref_pattern);
         BOOST_SPIRIT_DEBUG_RULE(macro_value);

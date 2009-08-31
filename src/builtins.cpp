@@ -32,11 +32,12 @@ namespace smart
     void patsubst( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 3 ) {
+      if ( f.args_count() < 3 || f[3].empty() ) {
 	f[0] = vm::type_string();
 	return;
       }
 
+      //std::clog<<"patsubst: "<<f[1]<<","<<f[2]<<","<<f[3]<<std::endl;
       builtin::pattern pat0( expand(ctx, f[1]) );
       builtin::pattern pat1( expand(ctx, f[2]) );
       f[0] = pat0.convert( pat1, expand(ctx, f[3]) );
@@ -121,14 +122,14 @@ namespace smart
     void if_f( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 2 ) return;
+      if ( f.args_count() < 2 ) return;
       vm::type_string s( expand(ctx, f[1]) );
       s.trim();
       if ( !s.empty() ) {
         f[0] = f[2];
       }
       else {
-        if ( 3 <= f.args_size() ) f[0] = f[3];
+        if ( 3 <= f.args_count() ) f[0] = f[3];
         else f[0] = vm::type_string();
       }
     }
@@ -136,7 +137,7 @@ namespace smart
     void or_f( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) return;
+      if ( f.args_count() < 1 ) return;
       f[0] = vm::type_string();
       for( int n=1; n < f.size(); ++n ) {
         vm::type_string s( expand(ctx, f[n]) );
@@ -151,7 +152,7 @@ namespace smart
     void and_f( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) return;
+      if ( f.args_count() < 1 ) return;
       f[0] = vm::type_string();
       for( int n=1; n < f.size(); ++n ) {
         vm::type_string s( expand(ctx, f[n]) );
@@ -164,7 +165,7 @@ namespace smart
     void foreach_f( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 3 ) {
+      if ( f.args_count() < 3 ) {
         f[0] = vm::type_string();
         return;
       }
@@ -204,7 +205,7 @@ namespace smart
     void call( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) {
+      if ( f.args_count() < 1 ) {
 	f[0] = vm::type_string();
 	return;
       }
@@ -223,7 +224,7 @@ namespace smart
     void value( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) {
+      if ( f.args_count() < 1 ) {
 	f[0] = vm::type_string();
 	return;
       }
@@ -236,7 +237,7 @@ namespace smart
     void origin( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) {
+      if ( f.args_count() < 1 ) {
 	f[0] = vm::type_string();
 	return;
       }
@@ -249,7 +250,7 @@ namespace smart
     void flavor( context & ctx )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) {
+      if ( f.args_count() < 1 ) {
 	f[0] = vm::type_string();
 	return;
       }
@@ -262,7 +263,7 @@ namespace smart
     static bool pack_expanded_args( context & ctx, vm::type_string & str )
     {
       frame & f ( ctx.current_frame() );
-      if ( f.args_size() < 1 ) return false;
+      if ( f.args_count() < 1 ) return false;
       for(int n=1; n < f.size(); ++n) {
         if ( !str.empty() ) str += " ";
         str += expand( ctx, f[n] );
@@ -272,39 +273,21 @@ namespace smart
 
     void info( context & ctx )
     {
-//       frame & f ( ctx.current_frame() );
-//       if ( f.args_size() < 1 ) return;
       vm::type_string str;
-//       for(int n=1; n < f.size(); ++n) {
-//         if ( !str.empty() ) str += " ";
-//         str += expand( ctx, f[n] );
-//       }
       if ( !pack_expanded_args( ctx, str ) ) return;
       smart::info( str );
     }
 
     void warning( context & ctx )
     {
-//       frame & f ( ctx.current_frame() );
-//       if ( f.args_size() < 1 ) return;
       vm::type_string str;
-//       for(int n=1; n < f.size(); ++n) {
-//         if ( !str.empty() ) str += " ";
-//         str += expand( ctx, f[n] );
-//       }
       if ( !pack_expanded_args( ctx, str ) ) return;
       smart::warning( str );
     }
 
     void error( context & ctx )
     {
-//       frame & f ( ctx.current_frame() );
-//       if ( f.args_size() < 1 ) return;
       vm::type_string str;
-//       for(int n=1; n < f.size(); ++n) {
-//         if ( !str.empty() ) str += " ";
-//         str += f[n];
-//       }
       if ( !pack_expanded_args( ctx, str ) ) return;
       smart::error( str );
     }

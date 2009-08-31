@@ -502,6 +502,8 @@ BOOST_AUTO_TEST_CASE( code_seg1 )
   smart::builtin::macro BUILT_OBJECTS2( sm.macro("BUILT_OBJECTS2") );
   smart::builtin::macro TARGET( sm.macro("TARGET") );
   smart::builtin::macro DEFAULT_GOAL( sm.macro(".DEFAULT_GOAL") );
+  //std::clog<<"OBJECTS3: "<<OBJECTS3.value()<<std::endl;
+  std::clog<<"BUILT_OBJECTS2: "<<BUILT_OBJECTS2.value()<<std::endl;
   BOOST_CHECK( CXX == "g++" );
   BOOST_CHECK( CXXFLAGS == "" );
   BOOST_CHECK( RM == "rm" );

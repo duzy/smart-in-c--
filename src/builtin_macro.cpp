@@ -118,13 +118,15 @@ namespace smart
       return v;
     }
 
-    vm::type_string macro::patsubst( const std::vector<vm::type_string> & pats ) const
+    vm::type_string macro::patsubst( const context & ctx, const std::vector<vm::type_string> & pats ) const
     {
-      if ( pats.size() < 2 ) return vm::type_string();
+      if ( pats.size() < 2 || _i->value.empty() ) return vm::type_string();
+
+      //std::clog<<"patsubst: "<<pats[0]<<","<<pats[1]<<","<<_i->value<<std::endl;
 
       pattern pat0( pats[0] );
       pattern pat1( pats[1] );
-      return pat0.convert( pat1, _i->value );
+      return pat0.convert( pat1, smart::expand(ctx, _i->value) );
     }
       
     void macro::assign( const vm::type_string & s )
