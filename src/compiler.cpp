@@ -158,7 +158,7 @@ namespace smart
           if ( s[1] == '\n' || s[1] == '\r' ) {
             if ( !value.empty() ) value += " ";
           }
-          else value += s.c_str() + 1;
+          else value += s;//s.c_str() + 1;
         }
         else value += s;
       }//for
@@ -178,6 +178,7 @@ namespace smart
 	switch( ref.type ) {
 	case macro_ref_type_normal:
 	  {
+            if ( ref.name == "$" ) return ref.name;
 	    builtin::macro m( ctx.mtable()->get( ref.name ) );
 	    assert( ref.name == m.name() );
 	    return m.expand( ctx );
@@ -234,7 +235,7 @@ namespace smart
               if ( s[1] == '\n' || s[1] == '\r' ) {
                 if ( !v.empty() ) v += " ";
               }
-              else v += s.c_str() + 1;
+              else v += s;//s.c_str() + 1;
             }
             else v += s;
           }

@@ -226,9 +226,15 @@ namespace smart
                 no_node_d[ *(space_p - eol_p) ]
                 >> *(  !token_node_d[ ch_p('\\') >> eol_p ]
                        >> no_node_d[ *(space_p - eol_p) ]
-                       >> +(  token_node_d[ +(anychar_p - chset_p("$\r\n\\")) ]
+                       >> +(  token_node_d
+                              [
+                                 +( anychar_p - (  chset_p("$\r\n")
+                                                |  ch_p('\\') >> eps_p(eol_p)
+                                                )
+                                  )
+                              ]
                            |  ~eps_p(eol_p) >> macro_ref
-                           |  token_node_d[ ch_p('\\') >> graph_p ]
+                           //|  token_node_d[ ch_p('\\') >> graph_p ]
                            )
                     )
              ]
@@ -294,8 +300,11 @@ namespace smart
         make_rule_command
           =  lexeme_d
              [
-                *(  token_node_d[ +(anychar_p - (eol_p|'\\')) ]
-                 |  token_node_d[ ch_p('\\') >> graph_p ]
+                *(  token_node_d
+                    [
+                       +(anychar_p - ( eol_p | ch_p('\\') >> eps_p(eol_p) ) )
+                    ]
+                 //|  token_node_d[ ch_p('\\') >> graph_p ]
                  |  no_node_d[ ch_p('\\') >> expect_eol( eol_p ) ]
                  )
              ]

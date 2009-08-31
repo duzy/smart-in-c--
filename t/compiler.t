@@ -647,8 +647,8 @@ BOOST_AUTO_TEST_CASE( code_seg2 )
     std::copy( it, end, std::back_inserter(s) );
     BOOST_CHECK( s == cont );
     if ( s != cont ) {
-      std::clog<<"s = '"<<s<<"'"<<std::endl;
       std::clog<<"cont = '"<<cont<<"'"<<std::endl;
+      std::clog<<"s = '"<<s<<"'"<<std::endl;
     }
   }
 }//code_seg2
