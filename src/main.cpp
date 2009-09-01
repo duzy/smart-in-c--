@@ -12,6 +12,7 @@
 #include "exceptions.hpp"
 #include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <iostream>
 //#include <string>
 //#include <vector>
@@ -27,44 +28,48 @@ static void print_version()
     ;
 }
 
+static bool parse_options(int ac, char** av, po::variables_map & opts )
+{
+  po::options_description generic( "Generic smart options" );
+  generic.add_options()
+    ( "help", "Prints this screen of help message." )
+    ( "version,v", "Prints the version information." )
+    ( "file,f", po::value<std::string>(),
+      "Read specified file as Smartfile." )
+    ;
+  po::options_description hidden( "Hidden options" );
+  hidden.add_options()
+    ( "targets", po::value<std::vector<std::string> >(), "specify target" )
+    ;
+  po::options_description all( "Allowed smart options" );
+  all.add( generic ).add( hidden );
+  po::options_description visible( "Allowed options" );
+  visible.add( generic );
+
+  //po::store( po::parse_command_line(ac, av, desc), opts );
+  po::positional_options_description p;
+  p.add( "targets", -1 );
+  po::store( po::command_line_parser(ac, av).
+	     options(all).positional(p).run(), opts );
+  po::notify( opts );
+
+  if ( opts.count("help") ) {
+    std::cout << visible << std::endl;
+    return false;
+  }
+  else if ( opts.count("version") ) {
+    print_version();
+    return false;
+  }
+  return true;
+}//parse_options()
+
 int main(int ac, char** av)
 {
   std::set_terminate(__gnu_cxx::__verbose_terminate_handler);
 
   po::variables_map opts;
-  {
-    po::options_description generic( "Generic smart options" );
-    generic.add_options()
-      ( "help", "Prints this screen of help message." )
-      ( "version,v", "Prints the version information." )
-      ( "file,f", po::value<std::string>(),
-	"Read specified file as Smartfile." )
-      ;
-    po::options_description hidden( "Hidden options" );
-    hidden.add_options()
-      ( "targets", po::value<std::vector<std::string> >(), "specify target" )
-      ;
-    po::options_description all( "Allowed smart options" );
-    all.add( generic ).add( hidden );
-    po::options_description visible( "Allowed options" );
-    visible.add( generic );
-
-    //po::store( po::parse_command_line(ac, av, desc), opts );
-    po::positional_options_description p;
-    p.add( "targets", -1 );
-    po::store( po::command_line_parser(ac, av).
-	       options(all).positional(p).run(), opts );
-    po::notify( opts );
-
-    if ( opts.count("help") ) {
-      std::cout << visible << std::endl;
-      return 1;
-    }
-    else if ( opts.count("version") ) {
-      print_version();
-      return 1;
-    }
-  }
+  if ( !parse_options( ac, av, opts ) ) return 1;
 
   //!< Default Smartfile names
   const char * default_files[] = {
@@ -72,9 +77,9 @@ int main(int ac, char** av)
     NULL,
   };
 
-  smart::context ctx;
+  boost::scoped_ptr<smart::context> ctx( new smart::context );
   try {
-    smart::compiler sm( ctx );
+    smart::compiler sm( *ctx );
 
     if ( opts.count("file") ) {
       sm.compile_file( opts["file"].as<std::string>() );
@@ -95,19 +100,19 @@ int main(int ac, char** av)
       //std::cout<<vec.size()<<std::endl;
       svec_t::iterator it( vec.begin() );
       for(; it != vec.end(); ++it) {
-	smart::builtin::target tar( ctx.target( *it ) );
-	tar.update( ctx );
+	smart::builtin::target tar( ctx->target( *it ) );
+	tar.update( *ctx );
       }
     }
     else {
-      smart::builtin::target tar( ctx.default_goal() );
+      smart::builtin::target tar( ctx->default_goal() );
       if ( tar.is_null() ) return 0;
-      tar.update( ctx );
+      tar.update( *ctx );
     }
   }//try
 
   catch( const smart::parser_error & e ) {
-    std::clog<<ctx.file()<<":"<<e.line()<<":"<<e.column()<<": "
+    std::clog<<ctx->file()<<":"<<e.line()<<":"<<e.column()<<": "
 	     <<e.what()<<std::endl;
   }//catch( parser-error )
 
@@ -123,6 +128,6 @@ int main(int ac, char** av)
   catch( const smart::runtime_error & e ) {
     std::clog<<e.what()<<std::endl;
   }//catch( runtime-error )
-  
+
   return 0;
 }
