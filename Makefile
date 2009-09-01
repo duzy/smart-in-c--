@@ -21,7 +21,8 @@ LOADLIBRES = -L$(OUT_DIR)/lib -L$(BOOST_DIR)/stage/lib
 #LDLIBS = -lsmart
 LDLIBS = -lpthread \
   -l$(call BOOST_LIB,filesystem) \
-  -l$(call BOOST_LIB,system)
+  -l$(call BOOST_LIB,system) \
+  -l$(call BOOST_LIB,program_options)
 ##################################################
 
 SOURCES = $(wildcard src/*.cpp)
