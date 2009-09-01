@@ -16,6 +16,21 @@
 
 namespace fs = boost::filesystem;
 
+static std::string read_all( const std::string & fn )
+{
+  std::ifstream ifs( fn.c_str(), std::ios::binary );
+  ifs.seekg( 0, ifs.end );
+  int sz( ifs.tellg() );
+  BOOST_CHECK( 0 < sz );
+  if ( 0 < sz ) {
+    std::string s( sz, '\0' );
+    ifs.seekg( 0, ifs.beg );
+    ifs.read( &s[0], sz );
+    return s;
+  }
+  return std::string();
+}
+
 BOOST_AUTO_TEST_CASE( assignments )
 {
   smart::context ctx;
@@ -705,21 +720,11 @@ BOOST_AUTO_TEST_CASE( code_seg2 )
        "cd $D\n"
        "./foo\n"
        );
-    std::ifstream ifs( "foo", std::ios::binary );
-    //std::istream_iterator<std::string::value_type> it( ifs ), end;
-    //std::copy( it, end, std::back_inserter(s) );
-    ifs.seekg( 0, ifs.end );
-    int sz( ifs.tellg() );
-    BOOST_CHECK( 0 < sz );
-    if ( 0 < sz ) {
-      std::string s( sz, '\0' );
-      ifs.seekg( 0, ifs.beg );
-      ifs.read( &s[0], sz );
-      BOOST_CHECK( s == cont );
-      if ( s != cont ) {
-	std::clog<<"cont = '"<<cont<<"'"<<std::endl;
-	std::clog<<"s = '"<<s<<"'"<<std::endl;
-      }
+    std::string s( read_all( "foo" ) );
+    BOOST_CHECK( s == cont );
+    if ( s != cont ) {
+      std::clog<<"cont = '"<<cont<<"'"<<std::endl;
+      std::clog<<"s = '"<<s<<"'"<<std::endl;
     }
   }
 }//code_seg2

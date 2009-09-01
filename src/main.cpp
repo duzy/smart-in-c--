@@ -11,6 +11,7 @@
 #include "compiler.hpp"
 #include "exceptions.hpp"
 #include <boost/filesystem/operations.hpp>
+#include <boost/program_options.hpp>
 #include <iostream>
 
 namespace fs = boost::filesystem;
