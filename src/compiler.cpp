@@ -25,6 +25,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/bind.hpp>
 
+//#define BOOST_SPIRIT_DEBUG_XML
 # ifdef BOOST_SPIRIT_DEBUG
 #   include <iostream>
 # endif
@@ -171,7 +172,9 @@ namespace smart
     {
       assert( iter->value.id() == grammar::id_macro_name ||
 	      iter->value.id() == grammar::id_macro_value ||
-              iter->value.id() == grammar::id_macro_ref );
+              iter->value.id() == grammar::id_macro_ref ||
+              iter->value.id() == grammar::id_make_rule_targets
+              );
 
       if ( iter->value.id() == grammar::id_macro_ref ) {
 	parsed_macro_ref ref( parse_macro_ref(ctx, iter) );
@@ -354,8 +357,8 @@ namespace smart
       builtin::make_rule r( true );
 
       TTreeIter child( iter->children.begin() );
-      TTreeIter targets, prereqs, commands;
-      targets = prereqs = commands = iter->children.end();
+      TTreeIter targets, prereqs, commands, static_pat1;
+      targets = prereqs = commands = static_pat1 = iter->children.end();
 
       if ( *child->value.begin() == ':' ) (void)false;
       else targets = child++;
@@ -363,27 +366,23 @@ namespace smart
 
       if ( *child->value.begin() == '\r' ||
            *child->value.begin() == '\n' ||
-           *child->value.begin() == ';' )
-        (void)false;
-      else prereqs = child++;
+           *child->value.begin() == ';' ) (void)false; //!< no prerequisites
+      else {
+        TTreeIter t( child++ );
+
+        //!< static-pattern:  'foo.o bar.o : %.o : %.cpp'
+        if ( *child->value.begin() == ':' ) {
+          static_pat1 = t;
+          ++child;
+          prereqs = child++;
+        }
+
+        //!< non-static pattern: 'foo.o: foo.cpp' or '%.o: %.cpp'
+        else prereqs = t;
+      }
       ++child;
 
       if ( child != iter->children.end() ) commands = child;
-
-      bool hasPatternPrereq( false );
-      if ( prereqs != iter->children.end() ) {
-        std::vector<vm::type_string> vec( parse_targets(ctx, prereqs) );
-        std::vector<vm::type_string>::iterator it( vec.begin() );
-        for(; it != vec.end(); ++it) {
-          bool isPattern( it->contains('%') );
-          if ( !hasPatternPrereq ) hasPatternPrereq = isPattern;
-          builtin::target target( isPattern ? builtin::target(*it) : ctx.map_target(*it) );
-          //assert( 2 <= target.refcount() );
-          r.add_prerequisite( target );
-          //std::clog<<"prerequisite: "<<target<<std::endl;
-        }//for(each-prerequisite)
-      }//if(has-prerequisites)
-
       if ( commands != iter->children.end() ) {
         if ( commands->value.id() == grammar::id_make_rule_commands ) {
           std::string s;
@@ -411,6 +410,77 @@ namespace smart
           //std::clog<<"command: "<<s<<std::endl;
         }//not( make_rule_commands )
       }//if(has-commands)
+
+      //!< static pattern
+      if ( static_pat1 != iter->children.end() ) {
+        //vm::type_string patStr( expanded_value(ctx, static_pat1) );
+        std::string s(static_pat1->value.begin(), static_pat1->value.end());
+        vm::type_string patStr( expand(ctx, s) );
+        if ( !patStr.contains('%') ) {
+          std::string err("Syntax error, bad pattern: " + std::string(patStr));
+          throw compile_error( ctx.file(), static_pat1, err );
+        }
+
+        builtin::pattern pat( patStr );
+        assert( pat.is_valid );
+
+        std::vector<vm::type_string> vec( parse_targets(ctx, targets) );
+        std::vector<vm::type_string>::iterator it( vec.begin() );
+        for(; it != vec.end(); ++it) {
+          if ( it->contains('%') ) {
+            std::ostringstream err;
+            err<<"Static pattern rule contains pattern target: "<<*it;
+            throw compile_error( ctx.file(), targets, err.str() );
+          }
+
+          builtin::target target( ctx.map_target(*it) );
+          assert( 2 <= target.refcount() );
+          if ( !target.rule().commands().empty() && !r.commands().empty() ) {
+            std::clog<<ctx.file()
+                     <<":"<<get_position(iter).line
+                     <<":"<<get_position(iter).column
+                     <<":warning: overriding commands for target '"<<*it<<"'"
+                     <<std::endl;
+          }//if( overriding commands )
+
+          builtin::make_rule sr( r.clone() );
+          if ( prereqs != iter->children.end() ) {
+            std::vector<vm::type_string> vec( parse_targets(ctx, prereqs) );
+            std::vector<vm::type_string>::iterator it( vec.begin() );
+            for(; it != vec.end(); ++it) {
+              vm::type_string preq( *it );
+              if ( preq.contains('%') ) {
+                builtin::pattern pat2( preq );  assert( pat2.is_valid );
+                preq = pat.convert( pat2, target.object() );
+                assert( !preq.empty() );
+              }
+              sr.add_prerequisite( ctx.map_target(preq) );
+              assert( 2 <= target.refcount() );
+              //std::clog<<"prerequisite: "<<target<<std::endl;
+            }//for( each prerequisite )
+          }//if( has prerequisites )
+          
+          target.bind( sr );
+          ctx.set_default_goal_if_null( target );
+        }//for
+        
+        return;
+      }//if( static pattern )
+
+      //!< non-staic pattern
+      bool hasPatternPrereq( false );
+      if ( prereqs != iter->children.end() ) {
+        std::vector<vm::type_string> vec( parse_targets(ctx, prereqs) );
+        std::vector<vm::type_string>::iterator it( vec.begin() );
+        for(; it != vec.end(); ++it) {
+          bool isPattern( it->contains('%') );
+          if ( !hasPatternPrereq ) hasPatternPrereq = isPattern;
+          builtin::target target( isPattern ? builtin::target(*it) : ctx.map_target(*it) );
+          //assert( 2 <= target.refcount() );
+          r.add_prerequisite( target );
+          //std::clog<<"prerequisite: "<<target<<std::endl;
+        }//for( each prerequisite )
+      }//if( has prerequisites )
 
       if ( targets != iter->children.end() ) {
         std::vector<vm::type_string> vec( parse_targets(ctx, targets) );

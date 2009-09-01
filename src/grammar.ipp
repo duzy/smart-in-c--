@@ -277,7 +277,7 @@ namespace smart
              [
                 +(  token_node_d
                     [
-                       +( (anychar_p - chset_p("$:; \t\r\n\\"))
+                       +( (anychar_p - chset_p("$:|; \t\r\n\\"))
                         | ~eps_p( space_p ) >> macro_ref
                         )
                     ]

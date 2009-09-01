@@ -432,6 +432,70 @@ BOOST_AUTO_TEST_CASE( update_targets )
   fs::remove("bar");
 }//update_targets
 
+BOOST_AUTO_TEST_CASE( static_pattern_rule )
+{
+  smart::context sm;
+  smart::compiler smc( sm );
+
+  std::string code
+    ( "############################\n"
+      "foo.o bar.o foobar.o : %.o : %.cpp\n"
+      "\t@echo $<, $@ > $@\n"
+      "\n"
+      "%.cpp:\n"
+      "\t@echo source:$@ > $@\n"
+      );
+  //std::clog<<"static-pattern: "<<std::endl;
+  smc.compile( code );
+  
+  smart::builtin::target foo_o( sm.target("foo.o") );
+  smart::builtin::target bar_o( sm.target("bar.o") );
+  smart::builtin::target foobar_o( sm.target("foobar.o") );
+  BOOST_CHECK( foo_o.exists() == fs::exists("foo.o") );
+  BOOST_CHECK( bar_o.exists() == fs::exists("bar.o") );
+  BOOST_CHECK( foobar_o.exists() == fs::exists("foobar.o") );
+  BOOST_CHECK( foo_o.rule().prerequisites().size() == 1 );
+  BOOST_CHECK( bar_o.rule().prerequisites().size() == 1 );
+  BOOST_CHECK( foobar_o.rule().prerequisites().size() == 1 );
+  if ( foo_o.rule().prerequisites().size() == 1 )
+    BOOST_CHECK( foo_o.rule().prerequisites()[0] == "foo.cpp" );
+  if ( bar_o.rule().prerequisites().size() == 1 )
+    BOOST_CHECK( bar_o.rule().prerequisites()[0] == "bar.cpp" );
+  if ( foobar_o.rule().prerequisites().size() == 1 )
+    BOOST_CHECK( foobar_o.rule().prerequisites()[0] == "foobar.cpp" );
+
+  if ( fs::exists("foo.o") ) fs::remove("foo.o");
+  if ( fs::exists("bar.o") ) fs::remove("bar.o");
+  if ( fs::exists("foobar.o") ) fs::remove("foobar.o");
+  if ( fs::exists("foo.cpp") ) fs::remove("foo.cpp");
+  if ( fs::exists("bar.cpp") ) fs::remove("bar.cpp");
+  if ( fs::exists("foobar.cpp") ) fs::remove("foobar.cpp");
+  smart::builtin::target::update_result uc1 = foo_o.update( sm );
+  smart::builtin::target::update_result uc2 = bar_o.update( sm );
+  smart::builtin::target::update_result uc3 = foobar_o.update( sm );
+  BOOST_CHECK( uc1.count_updated == 2 );
+  BOOST_CHECK( uc1.count_executed == 2 );
+  BOOST_CHECK( uc1.count_newer == 1 );
+  BOOST_CHECK( uc2.count_updated == 2 );
+  BOOST_CHECK( uc2.count_executed == 2 );
+  BOOST_CHECK( uc2.count_newer == 1 );
+  BOOST_CHECK( uc3.count_updated == 2 );
+  BOOST_CHECK( uc3.count_executed == 2 );
+  BOOST_CHECK( uc3.count_newer == 1 );
+  BOOST_CHECK( fs::exists("foo.o") );
+  BOOST_CHECK( fs::exists("bar.o") );
+  BOOST_CHECK( fs::exists("foobar.o") );
+  BOOST_CHECK( fs::exists("foo.cpp") );
+  BOOST_CHECK( fs::exists("bar.cpp") );
+  BOOST_CHECK( fs::exists("foobar.cpp") );
+  fs::remove("foo.o");
+  fs::remove("bar.o");
+  fs::remove("foobar.o");
+  fs::remove("foo.cpp");
+  fs::remove("bar.cpp");
+  fs::remove("foobar.cpp");
+}
+
 BOOST_AUTO_TEST_CASE( code_seg1 )
 {
   smart::context sm;
