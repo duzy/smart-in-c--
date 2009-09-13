@@ -14,6 +14,11 @@
 #include <fstream>
 #include <iostream>
 
+#ifdef WIN32
+#  include <windows.h> //!< for sleep()
+#  define sleep(n) ::Sleep(1000*n)
+#endif
+
 namespace fs = boost::filesystem;
 
 static std::string read_all( const std::string & fn )
@@ -430,7 +435,7 @@ BOOST_AUTO_TEST_CASE( update_targets )
   std::time_t t1( foobar.last_write_time() );
   std::time_t t2( foo.last_write_time() );
   std::time_t t3( bar.last_write_time() );
-  ::sleep( 0.5/*1*/ );
+  sleep( 0.5/*1*/ );
   try {
     smart::builtin::target::update_result uc2( foobar.update( ctx ) );
     BOOST_CHECK( uc2.count_updated == 0 );
