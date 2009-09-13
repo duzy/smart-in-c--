@@ -2,7 +2,7 @@
 V = debug
 OUT_DIR = out/$(V)
 
-include Makefile.conf
+include conf.mk
 
 ##################################################
 
