@@ -1,6 +1,6 @@
 /**
- *    Copyright 2009-08-25 DuzySoft.com, by Duzy Chan£¨Õ²ÐÀÃú£©
- *    All rights reserved by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    Copyright 2009-08-25 DuzySoft.com, by Zhan Xin-Ming (Duzy Chan)
+ *    All rights reserved by Zhan Xin-Ming (Duzy Chan)
  *    Email: <duzy@duzy.info, duzy.chan@gmail.com>
  *
  *    $Id$
@@ -39,13 +39,16 @@ namespace smart
   context::context()
     : _string_table( new string_table )
     , _macro_table( new macro_table )
-    , _rule_table()
     , _function_table( new function_table )
     , _targets()
     , _phony_targets()
     , _rules()
     , _macroArgs()
     , _frames()
+  {
+  }
+
+  context::~context()
   {
   }
 

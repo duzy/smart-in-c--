@@ -1,6 +1,6 @@
 /**
- *    Copyright 2009-08-25 DuzySoft.com, by Duzy Chan£¨Õ²ÐÀÃú£©
- *    All rights reserved by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    Copyright 2009-08-25 DuzySoft.com, by Zhan Xin-Ming (Duzy Chan)
+ *    All rights reserved by Zhan Xin-Ming (Duzy Chan)
  *    Email: <duzy@duzy.info, duzy.chan@gmail.com>
  *
  *    $Id$
@@ -96,9 +96,9 @@ int main(int ac, char** av)
 
     if ( opts.count("targets") ) {
       typedef std::vector<std::string> svec_t;
-      svec_t vec( opts["targets"].as<svec_t>() );
+      const svec_t & vec( opts["targets"].as<svec_t>() );
       //std::cout<<vec.size()<<std::endl;
-      svec_t::iterator it( vec.begin() );
+      svec_t::const_iterator it( vec.begin() );
       for(; it != vec.end(); ++it) {
 	smart::builtin::target tar( ctx->target( *it ) );
 	tar.update( *ctx );

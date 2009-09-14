@@ -1,6 +1,6 @@
 /**
- *    Copyright 2009-08-25 DuzySoft.com, by Duzy Chan£¨Õ²ÐÀÃú£©
- *    All rights reserved by Duzy Chan£¨Õ²ÐÀÃú£©
+ *    Copyright 2009-08-25 DuzySoft.com, by Zhan Xin-Ming (Duzy Chan)
+ *    All rights reserved by Zhan Xin-Ming (Duzy Chan)
  *    Email: <duzy@duzy.info, duzy.chan@gmail.com>
  *
  *    $Id$
@@ -24,7 +24,6 @@ namespace smart
   struct string_table;
   struct real_table;
   struct macro_table;
-  struct rule_table;
   struct function_table;
 
   /**
@@ -33,6 +32,7 @@ namespace smart
   struct context
   {
     context();
+    virtual ~context();
 
     string_table * stable() const;
 
@@ -79,7 +79,6 @@ namespace smart
     string_table *_string_table; //!< for string constants
     //real_table *_number_table; //!< for real number constants
     macro_table *_macro_table;
-    rule_table *_rule_table;
     function_table *_function_table;
 
     typedef boost::unordered_map<vm::type_string, builtin::target> target_table;
