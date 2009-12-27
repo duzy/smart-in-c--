@@ -15,8 +15,11 @@ ifeq ($d,)
   $(error "Nothing to build.")
 endif
 
+objs := $(SM_MODULE_SOURCES:%.cpp=$(SM_OUT_DIR)/%.o)
+
 ifeq ($(SM_MODULE_TYPE),static)
-  $(info static module)
+#  $(info objs: $(objs))
+  $(eval $(SM_OUT_DIR)/$(SM_MODULE_NAME): $(objs))
 else
   ifeq ($(SM_MODULE_TYPE),dynamic)
     $(info dynamic module)
@@ -33,9 +36,26 @@ else
   endif
 endif
 
+# && \
+#  echo $(CXX) -o $$@ $$<
+define gen_compile_cmd
+  @echo "$(SM_MODULE_NAME): $$@"
+endef
+
+define gen_rule
+  $(eval $1: $2 ; $(gen_compile_cmd))
+endef
+
+d := $(SM_OUT_DIR)
+$(foreach v,$(SM_MODULE_SOURCES),$(call gen_rule,$(v:%.cpp=$d/%.o),$v))
+
+gen_compile_cmd :=
+gen_rule :=
+objs :=
+d :=
+
 # SM_MODULE_TYPE :=
 # SM_MODULE_NAME :=
 # SM_MODULE_SOURCES :=
 # SM_MODULE_HEADERS :=
 
-d :=
