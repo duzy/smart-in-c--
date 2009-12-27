@@ -2,86 +2,28 @@
 #	Copyright(c) 2009, by Zhan Xin-ming, duzy@duzy.info
 #	
 
+## Smart Build directory, internal use only, must always contain a '/' tail.
+SB_DIR = 
+
 # Automate configuration for build parameters.
-include build/conf.mk
+include $(SB_DIR)build/conf.mk
 
 ##################################################
 
-INCLUDES = -I$(BOOST_DIR)
+d := $(wildcard $(SM_TOP_DIR)/smart.mk)
+ifneq ($d,)
+  SM_MODULE_TYPE :=
+  SM_MODULE_NAME :=
+  SM_MODULE_SOURCES :=
+  SM_MODULE_HEADERS :=
+  $(eval include $d)
+  $(eval include $(SB_DIR)build/buildmod.mk)
+else
+  $(info smart: ************************************************************)
+  $(info smart:  You have to provide the root build script 'smart.mk' at top)
+  $(info smart:  level directory of the project.)
+  $(info smart: ************************************************************)
+  $(error "Can't find the root build script 'smart.mk'.")
+endif
 
-#CXXFLAGS = -std=gnu++0x -g -ggdb -DBOOST_SPIRIT_DEBUG -DBOOST_SPIRIT_DEBUG_XML $(INCLUDES)
-#CXXFLAGS = -std=gnu++0x -g -ggdb -DBOOST_SPIRIT_DEBUG_XML $(INCLUDES)
-CXXFLAGS = -std=gnu++0x -g -ggdb $(INCLUDES)
-#CXXFLAGS = -std=gnu++0x -O3 -DNDEBUG $(INCLUDES)
-#CXXFLAGS = $(INCLUDES)
-#CXXFLAGS = -ftemplate-depth-128 -O3 -finline-functions -DNDEBUG
-
-LOADLIBRES = -L$(OUT_DIR)/lib -L$(BOOST_LIB_DIR)
-#LDLIBS = -lsmart
-LDLIBS = -lpthread \
-  -l$(call BOOST_LIB,filesystem) \
-  -l$(call BOOST_LIB,system) \
-  -l$(call BOOST_LIB,program_options)
-##################################################
-
-SOURCES = $(wildcard src/*.cpp)
-OBJECT_PAT = $(OUT_DIR)/objs/%.o
-OBJECTS = $(SOURCES:%.cpp=$(OBJECT_PAT))
-DEPEND_PAT = $(OUT_DIR)/deps/%.d
-DEPENDS = $(SOURCES:%.cpp=$(DEPEND_PAT))
-
-UNITS = $(wildcard t/*.t)
-UNIT_PAT = $(OUT_DIR)/objs/%.o
-UNIT_OBJECTS = $(UNITS:%.t=$(UNIT_PAT))
-TEST_PAT = $(OUT_DIR)/%.test
-TESTS = $(UNITS:%.t=$(TEST_PAT))
-TEST_DEPEND_PAT = $(OUT_DIR)/deps/%.d
-TEST_DEPENDS = $(UNITS:%.t=$(TEST_DEPEND_PAT))
-
-##################################################
-PREPARE_OUTPUT_DIR = @[ -d `dirname $@` ] || mkdir -pv `dirname $@`
-
-##################################################
-
-SMART = smart
-SMART.LIB = $(OUT_DIR)/lib/libsmart.a
-
-PHONY = all
-all: $(SMART)
-
-PHONY += test
-test: $(TESTS)
-	@#for T in $(TESTS); do echo "unit: $$T"; $$T; done
-	@for T in $(TESTS); do $$T; done
-
-$(TESTS): $(SMART.LIB)
-test-%: $(OUT_DIR)/t/%.test
-	./$<
-
-$(SMART):$(OBJECTS)
-	$(PREPARE_OUTPUT_DIR)
-	$(LINK.cc) -o $@ $^ $(LOADLIBRES) $(LDLIBS)
-$(SMART.LIB):$(OBJECTS)
-	$(PREPARE_OUTPUT_DIR)
-	$(AR) crs $@ $^
-$(OBJECTS):$(OBJECT_PAT):%.cpp
-	$(PREPARE_OUTPUT_DIR)
-	$(COMPILE.cc) -o $@ $<
-$(DEPENDS):$(DEPEND_PAT):%.cpp
-	$(PREPARE_OUTPUT_DIR)
-	$(CXX) -MM -MT $(OUT_DIR)/objs/$*.o -MF $@ $<
-$(UNIT_OBJECTS):$(UNIT_PAT):%.t
-	$(PREPARE_OUTPUT_DIR)
-	$(COMPILE.cc) -xc++ -o $@ $<
-$(TESTS):$(TEST_PAT):$(OUT_DIR)/objs/%.o t/boost_test_stuff.o
-	$(PREPARE_OUTPUT_DIR)
-	$(LINK.cc) -o $@ $^ $(LOADLIBRES) $(LDLIBS) -lsmart
-$(TEST_DEPENDS):$(TEST_DEPEND_PAT):%.t
-	$(PREPARE_OUTPUT_DIR)
-	$(CXX) -xc++ -MM -MT $(OUT_DIR)/objs/$*.o -MF $@ $<
-
-clean:
-	$(RM) $(SMART) $(SMART.LIB) $(OBJECTS) $(DEPENDS)
-
-include $(DEPENDS)
-include $(TEST_DEPENDS)
+d :=
