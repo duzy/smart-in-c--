@@ -18,14 +18,13 @@ endif
 objs := $(SM_MODULE_SOURCES:%.cpp=$(SM_OUT_DIR)/%.o)
 
 ifeq ($(SM_MODULE_TYPE),static)
-#  $(info objs: $(objs))
-  $(eval $(SM_OUT_DIR)/$(SM_MODULE_NAME): $(objs))
+    $(info TODO: dynamic module)
 else
   ifeq ($(SM_MODULE_TYPE),dynamic)
-    $(info dynamic module)
+    $(info TODO: dynamic module)
   else
     ifeq ($(SM_MODULE_TYPE),executable)
-      $(info executable module)
+      $(info TODO: executable module)
     else
     $(info smart: ************************************************************)
     $(info smart:  You have to specify 'SM_MODULE_TYPE', it can be one of )
@@ -35,6 +34,12 @@ else
     endif
   endif
 endif
+
+define gen_module
+  @echo out: $$@
+endef
+$(eval $(SM_OUT_DIR)/$(SM_MODULE_NAME): $(objs) ; $(gen_module))
+gen_module :=
 
 # && \
 #  echo $(CXX) -o $$@ $$<
