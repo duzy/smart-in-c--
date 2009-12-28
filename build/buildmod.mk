@@ -9,12 +9,13 @@ ifeq ($(SM_MODULE_NAME),)
   $(error "SM_MODULE_NAME unknown")
 endif
 
-d := $(wildcard $(SM_MODULE_SOURCES))
-#d := $(SM_MODULE_SOURCES)
+#d := $(wildcard $(SM_MODULE_SOURCES))
+d := $(SM_MODULE_SOURCES)
 ifeq ($d,)
   $(error "Nothing to build.")
 endif
 
+DEFAULT_GOAL := $(SM_OUT_DIR)/$(SM_MODULE_NAME)
 objs := $(SM_MODULE_SOURCES:%.cpp=$(SM_OUT_DIR)/%.o)
 
 ifeq ($(SM_MODULE_TYPE),static)
@@ -36,24 +37,36 @@ else
 endif
 
 define gen_module
-  @echo out: $$@
+  @echo TODO: generate target $$@
 endef
 $(eval $(SM_OUT_DIR)/$(SM_MODULE_NAME): $(objs) ; $(gen_module))
 gen_module :=
 
-# && \
-#  echo $(CXX) -o $$@ $$<
+## Compute include path (-I switches).
+SM_INCLUDES :=
+append_include = $(eval SM_INCLUDES += -I$$(patsubst -I%,%,$$1))
+$(foreach v,$(SM_MODULE_INCLUDES),$(call append_include,$v))
+append_include :=
+
+## Compute compile flags.
+SM_COMPILE_FLAGS.cpp = $(SM_INCLUDES)
+
+#COMPILE.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+SM_COMPILE.cpp = $(CXX) $(SM_COMPILE_FLAGS.cpp) -c
+
+num_of_sources := $(words $(SM_MODULE_SOURCES))
+$(info smart: Totally $(num_of_sources) source files to compile.)
+
 define gen_compile_cmd
-  @echo "$(SM_MODULE_NAME): $$@"
+  @echo $(SM_COMPILE.cpp) -o $$@ $$^
 endef
 
-define gen_rule
-  $(eval $1: $2 ; $(gen_compile_cmd))
-endef
+gen_rule = $(eval $1: $2 ; $(gen_compile_cmd))
 
 d := $(SM_OUT_DIR)
 $(foreach v,$(SM_MODULE_SOURCES),$(call gen_rule,$(v:%.cpp=$d/%.o),$v))
 
+num_of_sources :=
 gen_compile_cmd :=
 gen_rule :=
 objs :=

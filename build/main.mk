@@ -16,8 +16,8 @@ ifneq ($d,)
   SM_MODULE_NAME :=
   SM_MODULE_SOURCES :=
   SM_MODULE_HEADERS :=
-  $(eval include $d)
-  $(eval include $(SB_DIR)build/buildmod.mk)
+  include $d
+  include $(SB_DIR)build/buildmod.mk
 else
   $(info smart: ************************************************************)
   $(info smart:  You have to provide the root build script 'smart.mk' at top)

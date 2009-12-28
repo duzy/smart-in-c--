@@ -7,3 +7,6 @@ SM_MODULE_TYPE := static
 SM_MODULE_NAME := libsmart.a
 SM_MODULE_SOURCES := $(wildcard src/*.cpp)
 SM_MODULE_HEADERS := 
+SM_MODULE_INCLUDES := a b c -Iinclude
+
+
