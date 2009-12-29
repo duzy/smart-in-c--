@@ -27,14 +27,19 @@ SM_PLATFORM_SUBTYPE :=
 SM_MODULE_TYPE :=
 SM_MODULE_TYPES_SUPPORTED := static dynamic executable
 
+# The name of the current compiling module, must be relative names.
 SM_MODULE_NAME :=
+
+# The source file list of the current compiling module, must be relative names.
 SM_MODULE_SOURCES :=
+
 SM_MODULE_HEADERS :=
+
+# Compile command log, provide a log name to enable that.
+SM_COMPILE_LOG :=
 
 # The ouput directory for generated objects and files.
 SM_OUT_DIR = $(SM_TOP_DIR)/out/$V
-
-
 
 
 
