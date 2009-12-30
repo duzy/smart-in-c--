@@ -31,7 +31,7 @@ endef
 define load-module
 $(if $1,\
   $(if $(wildcard $1),,$(error Module build script '$1' missed!))\
-  $(eval $(info smart: Load module '$1'..)\
+  $(eval $$(info smart: Load '$1'..)
     SM_MODULE_DIR:=
     SM_MODULE_TYPE:=
     SM_MODULE_NAME:=

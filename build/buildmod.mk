@@ -42,9 +42,13 @@ else
   endif
 endif
 
+## C++ link command
+link = $(CXX) -o $$@ $$^
+
 ## Generate the module build rule.
 objs := $(SM_MODULE_SOURCES:%.cpp=$(SM_OUT_DIR)/%.o)
-gen_module_cmd := @echo TODO: generate target $$@
+gen_module_cmd := @echo C++: $$@ \
+  && $(link) && echo " generated."
 $(eval $(SM_OUT_DIR)/$(SM_MODULE_NAME): $(objs) ; $(gen_module_cmd))
 gen_module_cmd :=
 objs :=
@@ -61,11 +65,14 @@ SM_COMPILE_FLAGS.cpp = $(SM_INCLUDES)
 #COMPILE.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 SM_COMPILE.cpp = $(CXX) $(SM_COMPILE_FLAGS.cpp) -c
 
-num_of_sources := $(words $(SM_MODULE_SOURCES))
-$(info smart: $(num_of_sources) source files will be compiled.)
-num_of_sources :=
+# num_of_sources := $(words $(SM_MODULE_SOURCES))
+# $(info smart: $(num_of_sources) source files will be compiled.)
+# num_of_sources :=
 
+## Compile log command.
 log = $(if $(SM_COMPILE_LOG),echo $1 >> $(SM_OUT_DIR)/$(SM_COMPILE_LOG),true)
+
+## Compile command.
 compile = $(SM_COMPILE.cpp) -o $$@ $$^
 
 #gen_compile_cmd = $(compile)
