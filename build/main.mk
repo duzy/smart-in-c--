@@ -20,12 +20,7 @@ include $(SB_DIR)/defuns.mk
 
 d := $(wildcard $(SM_TOP_DIR)/smart.mk)
 ifneq ($d,)
-  SM_MODULE_DIR :=
-  SM_MODULE_TYPE :=
-  SM_MODULE_NAME :=
-  SM_MODULE_SOURCES :=
-  SM_MODULE_HEADERS :=
-  include $d
+  $(call load-module,$d)
   $(if $(strip $(SM_MODULE_DIR)),,$(error "SM_MODULE_DIR must be set!"))
   include $(SB_DIR)/buildmod.mk
 else
