@@ -87,9 +87,8 @@ objs :=
 
 ## Compute include path (-I switches).
 SM_INCLUDES :=
-append_include = $(eval SM_INCLUDES += -I$$(patsubst -I%,%,$$1))
-$(foreach v,$(SM_MODULE_INCLUDES),$(call append_include,$v))
-append_include :=
+$(foreach v,$(SM_MODULE_INCLUDES),\
+  $(eval SM_INCLUDES += -I$$(patsubst -I%,%,$$v)))
 
 ## Compute compile flags.
 SM_COMPILE_FLAGS.cpp = $(SM_INCLUDES) $(SM_MODULE_COMPILE_FLAGS)
@@ -109,18 +108,16 @@ gen_compile_cmd = @echo "C++: $(SM_MODULE_NAME) <= $2" \
   && ( $(compile) || $(call log,"failed: $$^") )
 
 mk_out_dir = $(if $(wildcard $1),,$(info mkdir: $1)$(shell mkdir -p $1))
-gen_rule = $(eval $1: $2 ; $(gen_compile_cmd))
 
 d := $(SM_OUT_DIR)
 $(foreach v,$(SM_MODULE_SOURCES),$(call mk_out_dir,$d/$(dir $v)))
 $(foreach v,$(SM_MODULE_SOURCES),\
-  $(call gen_rule,$(v:%.cpp=$d/%.o),$(SM_MODULE_DIR)/$v))
+  $(eval $(v:%.cpp=$d/%.o) : $(SM_MODULE_DIR)/$v ; $(gen_compile_cmd)))
 
 #$(info $(abspath $(SM_MODULE_SOURCES)))
 #$(info $(realpath $(SM_MODULE_SOURCES)))
 
 gen_compile_cmd :=
-gen_rule :=
 d :=
 
 # SM_COMPILE_LOG :=
