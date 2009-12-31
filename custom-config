@@ -1,0 +1,7 @@
+# -*- mode: Makefile -*-
+#
+
+BOOST_DIR := $(HOME)/open/boost_libraries
+BOOST_LIB_DIR := $(BOOST_DIR)/stage-$V/lib
+
+#$(info BOOST_DIR is $(BOOST_DIR))

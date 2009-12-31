@@ -14,6 +14,9 @@ ifeq ($(SM_TOP_DIR),)
   $(error "Can't detect the value of project top level directory.")
 endif
 
+# The variant of this building.
+SM_VARIANT := $V
+
 # The type of the platform the project is built on, the following platform is
 # regonized by smart-build system: linux, cygwin, mingw.
 SM_PLATFORM_TYPE :=
@@ -21,6 +24,9 @@ SM_PLATFORM_TYPE :=
 # The sub-type of the platform the project is built on,
 # maybe: debian-5, ubuntu-44, ...
 SM_PLATFORM_SUBTYPE :=
+
+# The directory in which the module locates.
+SM_MODULE_DIR :=
 
 # The type of target which the smart build should generate, available value
 # would be: static, dynamic, executable
@@ -40,9 +46,4 @@ SM_COMPILE_LOG :=
 
 # The ouput directory for generated objects and files.
 SM_OUT_DIR = $(SM_TOP_DIR)/out/$V
-
-
-
-BOOST_DIR := $(HOME)/open/boost_libraries
-BOOST_LIB_DIR := $(BOOST_DIR)/stage-$V/lib
 

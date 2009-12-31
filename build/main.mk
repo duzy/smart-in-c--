@@ -2,6 +2,11 @@
 #	Copyright(c) 2009, by Zhan Xin-ming, duzy@duzy.info
 #	
 
+# Check make version
+# TODO: $(MAKE_VERSION)
+
+SHELL := /bin/bash
+
 #$(info MakefileList: $(MAKEFILE_LIST))
 
 ## Smart Build directory, internal use only, must always contain a '/' tail.

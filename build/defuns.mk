@@ -37,6 +37,11 @@ $(if $1,\
     SM_MODULE_NAME:=
     SM_MODULE_SOURCES:=
     SM_MODULE_HEADERS:=
+    SM_MODULE_INCLUDES:=
+    SM_MODULE_COMPILE_FLAGS:=
+    SM_MODULE_LINK_FLAGS:=
+    SM_MODULE_LIB_PATH:=
+    SM_MODULE_LIBS:=
     include $1),\
   $(error "Must specify the smart.mk file for the module."))
 endef
