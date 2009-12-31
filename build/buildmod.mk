@@ -60,8 +60,10 @@ append_lib :=
 ## Compute the link flags.
 SM_LINK_FLAGS.cpp := $(filter-out -shared,$(SM_MODULE_LINK_FLAGS))
 ifneq ($(SM_MODULE_TYPE),static)
-  ## Recompute for dynamic or executable module(add -shared flag).
-  SM_LINK_FLAGS.cpp := -shared $(SM_LINK_FLAGS.cpp) $(SM_LIB_PATH)
+  ifeq ($(SM_MODULE_TYPE),dynamic)
+    SM_LINK_FLAGS.cpp := -shared $(SM_LINK_FLAGS.cpp)
+  endif
+  SM_LINK_FLAGS.cpp += $(SM_LIB_PATH)
 endif
 
 ## C++ link command
@@ -96,9 +98,7 @@ SM_COMPILE_FLAGS.cpp = $(SM_INCLUDES) $(SM_MODULE_COMPILE_FLAGS)
 SM_COMPILE.cpp = $(CXX) $(SM_COMPILE_FLAGS.cpp) -c
 #COMPILE.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
-# num_of_sources := $(words $(SM_MODULE_SOURCES))
-# $(info smart: $(num_of_sources) source files will be compiled.)
-# num_of_sources :=
+# $(info smart: $(words $(SM_MODULE_SOURCES)) source files will be compiled.)
 
 ## Compile command.
 compile = $(SM_COMPILE.cpp) -o $$@ $$^

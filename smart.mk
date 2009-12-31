@@ -3,7 +3,8 @@
 #
 
 #$(call sm-new-module, libsmart.a, static)
-$(call sm-new-module, libsmart.so, dynamic)
+#$(call sm-new-module, libsmart.so, dynamic)
+$(call sm-new-module, smart.exe, executable)
 
 SM_COMPILE_LOG := libsmart.log
 SM_MODULE_SOURCES := $(wildcard src/*.cpp)
