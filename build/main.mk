@@ -7,7 +7,7 @@
 
 SHELL := /bin/bash
 
-#$(info MakefileList: $(MAKEFILE_LIST))
+$(info MakefileList: $(MAKEFILE_LIST))
 
 ## Smart Build directory, internal use only, must always contain a '/' tail.
 SB_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))

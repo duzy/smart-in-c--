@@ -26,7 +26,7 @@ endif
 #d := $(wildcard $(SM_MODULE_SOURCES))
 d := $(strip $(SM_MODULE_SOURCES))
 ifeq ($d,)
-  $(error "Nothing to build.")
+  $(error "Nothing to build, no sources specified.")
 endif
 
 ifneq ($(SM_MODULE_TYPE),static)
@@ -103,7 +103,7 @@ SM_COMPILE.cpp = $(CXX) $(SM_COMPILE_FLAGS.cpp) -c
 compile = $(SM_COMPILE.cpp) -o $$@ $$^
 
 #gen_compile_cmd = $(compile)
-gen_compile_cmd = @echo "C++: $(SM_MODULE_NAME) <= $2" \
+gen_compile_cmd = @echo "C++: $(SM_MODULE_NAME) <= $$^" \
   && $(call log,$(compile)) \
   && ( $(compile) || $(call log,"failed: $$^") )
 
