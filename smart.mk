@@ -4,21 +4,22 @@
 
 #$(call sm-new-module, libsmart.a, static)
 #$(call sm-new-module, libsmart.so, dynamic)
-$(call sm-new-module, smart.exe, executable)
+$(call sm-new-module, smart, executable)
 
 SM_COMPILE_LOG := libsmart.log
 SM_MODULE_SOURCES := $(wildcard src/*.cpp)
 SM_MODULE_HEADERS := 
 
-SM_MODULE_INCLUDES := -I$(SM_MODULE_DIR)/include \
-  $(SM_MODULE_DIR)/../boost_libraries
+SM_MODULE_INCLUDES := \
+  $(SM_MODULE_DIR)/include \
+  $(BOOST_DIR)
 
 SM_MODULE_COMPILE_FLAGS :=
 
 SM_MODULE_LINK_FLAGS :=
 
 SM_MODULE_LIB_PATH := \
-  $(SM_MODULE_DIR)/../boost_libraries/stage-$V/lib
+  $(BOOST_LIB_DIR)
 
 SM_MODULE_LIBS := \
   $(call BOOST_LIB,system) \

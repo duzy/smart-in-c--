@@ -3,5 +3,13 @@
 
 BOOST_DIR := $(HOME)/open/boost_libraries
 BOOST_LIB_DIR := $(BOOST_DIR)/stage-$V/lib
+ifeq ($(UNAME),Linux)
+  BOOST_LIB = boost_$(strip $1)
+else
+  ifeq ($V,debug)
+    BOOST_LIB = boost_$(strip $1)-mgw44-mt-d
+  else
+    BOOST_LIB = boost_$(strip $1)-mgw44-mt
+  endif
+endif
 
-#$(info BOOST_DIR is $(BOOST_DIR))
