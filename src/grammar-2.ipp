@@ -7,7 +7,22 @@
  *
  **/
 
-#include <boost/spirit/home/qi/nonterminal/grammar.hpp>
+// #include <boost/spirit/home/qi/nonterminal/grammar.hpp>
+// #include <boost/spirit/home/qi/auxiliary/eol.hpp>
+// #include <boost/spirit/home/qi/auxiliary/eoi.hpp>
+// #include <boost/spirit/home/qi/auxiliary/eps.hpp>
+// #include <boost/spirit/home/qi/auxiliary/attr.hpp>
+// #include <boost/spirit/home/qi/char/char.hpp>
+////#include <boost/spirit/home/qi.hpp>
+
+// #include <boost/spirit/include/qi_grammar.hpp>
+// #include <boost/spirit/include/qi_eol.hpp>
+// #include <boost/spirit/include/qi_eoi.hpp>
+// #include <boost/spirit/include/qi_eps.hpp>
+// #include <boost/spirit/include/qi_attr.hpp>
+// #include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi.hpp>
+#include <boost/variant/recursive_variant.hpp>
 
 namespace smart
 {
@@ -19,17 +34,19 @@ namespace smart
 
 namespace smart
 {
-  using boost::spirit::qi;
-
-  template<typename Iterator, parse_tree>
-  struct grammar : boost::spirit::qi::grammar<Iterator, parse_tree>
+  template<typename Iterator>
+  struct grammar : boost::spirit::qi::grammar<Iterator, parse_tree()>
   {
-    grammar() : base_type( statements, "smart::grammar" )
+    grammar() : grammar::base_type( statements, "smart::grammar" )
     {
-      //using qi::
+      using boost::spirit::qi::eoi;
+      using boost::spirit::qi::eol;
+      using boost::spirit::qi::eps;
+      using boost::spirit::qi::lit;
+      using boost::spirit::qi::ascii::char_;
 
       statements
-	= *statement >> end_p
+	= *statement >> eoi
 	;
 
       statement
@@ -58,24 +75,24 @@ namespace smart
 	;
 
       macro_value
-	= *(char_ - eol)
+	= *(char_ - char_("\n\r")/*eol*/)
 	;
     }
 
-    qi::rule<Iterator> statements;
-    qi::rule<Iterator> statement;
-    qi::rule<Iterator> assignment;
-    qi::rule<Iterator> macro_name;
-    qi::rule<Iterator> macro_ref;
-    qi::rule<Iterator> macro_ref_name;
-    qi::rule<Iterator> macro_ref_args;
-    qi::rule<Iterator> macro_ref_pattern;
-    qi::rule<Iterator> macro_value;
-    qi::rule<Iterator> expandable;
-    qi::rule<Iterator> make_rule;
-    qi::rule<Iterator> make_rule_targets;
-    qi::rule<Iterator> make_rule_commands;
-    qi::rule<Iterator> make_rule_command;
-    qi::rule<Iterator> include_directive;
+    boost::spirit::qi::rule<Iterator, parse_tree()> statements;
+    boost::spirit::qi::rule<Iterator, void()> statement;
+    boost::spirit::qi::rule<Iterator, void()> assignment;
+    boost::spirit::qi::rule<Iterator, void()> macro_name;
+    boost::spirit::qi::rule<Iterator, void()> macro_ref;
+    boost::spirit::qi::rule<Iterator, void()> macro_ref_name;
+    boost::spirit::qi::rule<Iterator, void()> macro_ref_args;
+    boost::spirit::qi::rule<Iterator, void()> macro_ref_pattern;
+    boost::spirit::qi::rule<Iterator, void()> macro_value;
+    boost::spirit::qi::rule<Iterator, void()> expandable;
+    boost::spirit::qi::rule<Iterator, void()> make_rule;
+    boost::spirit::qi::rule<Iterator, void()> make_rule_targets;
+    boost::spirit::qi::rule<Iterator, void()> make_rule_commands;
+    boost::spirit::qi::rule<Iterator, void()> make_rule_command;
+    boost::spirit::qi::rule<Iterator, void()> include_directive;
   };//struct grammar
 }//namespace smart
