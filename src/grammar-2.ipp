@@ -46,53 +46,53 @@ namespace smart
       using boost::spirit::qi::ascii::char_;
 
       statements
-	= *statement >> eoi
-	;
+        = *statement >> eoi
+        ;
 
       statement
-	= assignment
-	//| make_rule
-	//| macro_ref
-	//| include_directive
-	;
+        = assignment
+        //| make_rule
+        //| macro_ref
+        //| include_directive
+        ;
 
       assignment
-	=  macro_name
-	>> ( lit('=')
-	     | lit("+=")
-	     | lit(":=")
-	     | lit("?=")
-	     )
-	>> ( macro_value
-	     | eol
-	     | eoi
-	     )
-	;
+        =  macro_name
+        >> ( lit('=')
+           | lit("+=")
+           | lit(":=")
+           | lit("?=")
+           )
+        >> ( macro_value
+           | eol
+           | eoi
+           )
+        ;
 
       macro_name
-	= +(char_ - char_("$:=+?"))
-	>> eps( lit('=') | "+=" | ":=" | "?=" )
-	;
+        = +(char_ - char_("$:=+?"))
+        //>> eps( lit('=') | "+=" | ":=" | "?=" )
+        ;
 
       macro_value
-	= *(char_ - char_("\n\r")/*eol*/)
-	;
+        = *(char_ - char_("\n\r")/*eol*/)
+        ;
     }
 
     boost::spirit::qi::rule<Iterator, parse_tree()> statements;
-    boost::spirit::qi::rule<Iterator, void()> statement;
-    boost::spirit::qi::rule<Iterator, void()> assignment;
-    boost::spirit::qi::rule<Iterator, void()> macro_name;
-    boost::spirit::qi::rule<Iterator, void()> macro_ref;
-    boost::spirit::qi::rule<Iterator, void()> macro_ref_name;
-    boost::spirit::qi::rule<Iterator, void()> macro_ref_args;
-    boost::spirit::qi::rule<Iterator, void()> macro_ref_pattern;
-    boost::spirit::qi::rule<Iterator, void()> macro_value;
-    boost::spirit::qi::rule<Iterator, void()> expandable;
-    boost::spirit::qi::rule<Iterator, void()> make_rule;
-    boost::spirit::qi::rule<Iterator, void()> make_rule_targets;
-    boost::spirit::qi::rule<Iterator, void()> make_rule_commands;
-    boost::spirit::qi::rule<Iterator, void()> make_rule_command;
-    boost::spirit::qi::rule<Iterator, void()> include_directive;
+    boost::spirit::qi::rule<Iterator> statement;
+    boost::spirit::qi::rule<Iterator> assignment;
+    boost::spirit::qi::rule<Iterator> macro_name;
+    boost::spirit::qi::rule<Iterator> macro_ref;
+    boost::spirit::qi::rule<Iterator> macro_ref_name;
+    boost::spirit::qi::rule<Iterator> macro_ref_args;
+    boost::spirit::qi::rule<Iterator> macro_ref_pattern;
+    boost::spirit::qi::rule<Iterator> macro_value;
+    boost::spirit::qi::rule<Iterator> expandable;
+    boost::spirit::qi::rule<Iterator> make_rule;
+    boost::spirit::qi::rule<Iterator> make_rule_targets;
+    boost::spirit::qi::rule<Iterator> make_rule_commands;
+    boost::spirit::qi::rule<Iterator> make_rule_command;
+    boost::spirit::qi::rule<Iterator> include_directive;
   };//struct grammar
 }//namespace smart
