@@ -17,7 +17,7 @@
 #include "../exceptions.hpp"
 
 #include <sstream>
-#include "grammar-1.ipp"
+#include "grammar.ipp"
 
 #include <fstream>
 #include <boost/algorithm/string/find_iterator.hpp>
