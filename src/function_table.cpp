@@ -8,7 +8,7 @@
  **/
 
 #include "function_table.hpp"
-#include "builtins.hpp"
+#include "builtin.hpp"
 namespace smart
 {
   static struct {

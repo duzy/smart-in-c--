@@ -6,8 +6,13 @@
 #$(call sm-new-module, libsmart.so, dynamic)
 $(call sm-new-module, smart, executable)
 
-SM_COMPILE_LOG := libsmart.log
-SM_MODULE_SOURCES := $(wildcard src/*.cpp)
+#SM_COMPILE_LOG := libsmart.log
+SM_MODULE_SOURCES := \
+  $(wildcard src/builtin/*.cpp) \
+  $(wildcard src/compiler/*.cpp) \
+  $(wildcard src/vm/*.cpp) \
+  $(wildcard src/*.cpp)
+
 SM_MODULE_HEADERS := 
 
 SM_MODULE_INCLUDES := \

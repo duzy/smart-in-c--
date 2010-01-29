@@ -9,9 +9,9 @@
 
 #ifndef __SMART_CONTEXT__HPP____by_Duzy_Chan__
 #define __SMART_CONTEXT__HPP____by_Duzy_Chan__ 1
-#	include "vm_fwd.hpp"
-#	include "builtin_macro.hpp"
-#	include "builtin_make_rule.hpp"
+#	include "vm/vm_fwd.hpp"
+#	include "builtin/builtin_macro.hpp"
+#	include "builtin/builtin_make_rule.hpp"
 #	include "frame.hpp"
 #	include <boost/unordered_map.hpp>
 #	include <string>

@@ -41,6 +41,9 @@ ifneq ($(SM_MODULE_TYPE),static)
  endif
 endif
 
+#COMPILE.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+#LINK.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+
 ## set the default goal
 DEFAULT_GOAL := $(SM_OUT_DIR)/$(SM_MODULE_NAME)
 
@@ -68,7 +71,6 @@ endif
 
 ## C++ link command
 SM_LINK.cpp = $(CXX) $(SM_LINK_FLAGS.cpp)
-#LINK.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
 
 ## Archive command
 SM_ARCHIVE = $(AR) crs
@@ -95,9 +97,6 @@ SM_COMPILE_FLAGS.cpp = $(SM_INCLUDES) $(SM_MODULE_COMPILE_FLAGS)
 
 ## The C++ compilation command.
 SM_COMPILE.cpp = $(CXX) $(SM_COMPILE_FLAGS.cpp) -c
-#COMPILE.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
-
-# $(info smart: $(words $(SM_MODULE_SOURCES)) source files will be compiled.)
 
 ## Compile command.
 compile = $(SM_COMPILE.cpp) -o $$@ $$^
@@ -107,15 +106,23 @@ gen_compile_cmd = @echo "C++: $(SM_MODULE_NAME) <= $$^" \
   && $(call log,$(compile)) \
   && ( $(compile) || $(call log,"failed: $$^") )
 
+#
+gen_dep_cmd = @echo "mk: $$@" && \
+  $(CXX) -MM -MT $$(@:%.d=%.o) -MF $$@ $$<
+
 mk_out_dir = $(if $(wildcard $1),,$(info mkdir: $1)$(shell mkdir -p $1))
 
 d := $(SM_OUT_DIR)
 $(foreach v,$(SM_MODULE_SOURCES),$(call mk_out_dir,$d/$(dir $v)))
+
 $(foreach v,$(SM_MODULE_SOURCES),\
   $(eval $(v:%.cpp=$d/%.o) : $(SM_MODULE_DIR)/$v ; $(gen_compile_cmd)))
 
-#$(info $(abspath $(SM_MODULE_SOURCES)))
-#$(info $(realpath $(SM_MODULE_SOURCES)))
+$(foreach v,$(SM_MODULE_SOURCES),\
+  $(eval $(v:%.cpp=$d/%.d) : $(SM_MODULE_DIR)/$v ; $(gen_dep_cmd)))
+
+deps := $(SM_MODULE_SOURCES:%.cpp=$d/%.d)
+include $(deps)
 
 gen_compile_cmd :=
 d :=

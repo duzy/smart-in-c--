@@ -8,7 +8,7 @@
  **/
 
 #if SMART_USE_GRAMMAR_1
-#  include "compiler-1.ipp"
+#  include "compiler/compiler-1.ipp"
 #else
-#  include "compiler-2.ipp"
+#  include "compiler/compiler-2.ipp"
 #endif

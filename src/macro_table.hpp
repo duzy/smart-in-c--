@@ -10,7 +10,7 @@
 #ifndef __SMART_MACRO_TABLE__HPP____by_Duzy_Chan__
 #define __SMART_MACRO_TABLE__HPP____by_Duzy_Chan__ 1
 #	include <boost/unordered/unordered_map.hpp>
-#	include "builtin_macro.hpp"
+#	include "builtin/builtin_macro.hpp"
 
 namespace smart
 {

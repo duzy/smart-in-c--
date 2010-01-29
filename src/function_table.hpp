@@ -11,7 +11,7 @@
 #define __SMART_FUNCTION_TABLE__HPP____by_Duzy_Chan__ 1
 #	include <boost/unordered/unordered_map.hpp>
 //#	include "vm_fwd.hpp"
-#	include "vm_types.hpp"
+#	include "vm/vm_types.hpp"
 
 namespace smart
 {
