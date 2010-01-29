@@ -9,7 +9,7 @@
 
 #include "builtin_macro.hpp"
 #include "builtin_macro_imp.hpp"
-#include "expand.hpp"
+#include "../expand.hpp"
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 //#include <boost/algorithm/string/predicate.hpp>

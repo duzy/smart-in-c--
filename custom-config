@@ -1,7 +1,8 @@
 # -*- mode: Makefile -*-
 #
 
-BOOST_DIR := $(HOME)/temp/boost_libraries
+#BOOST_DIR := $(HOME)/temp/boost_libraries
+BOOST_DIR := $(HOME)/open/boost_libraries
 BOOST_LIB_DIR := $(BOOST_DIR)/stage-$V/lib
 ifeq ($(UNAME),Linux)
   BOOST_LIB = boost_$(strip $1)

@@ -9,9 +9,9 @@
 
 #include "builtin_make_rule.hpp"
 #include "builtin_macro.hpp"
-#include "exceptions.hpp"
-#include "context.hpp"
-#include "expand.hpp"
+#include "../exceptions.hpp"
+#include "../context.hpp"
+#include "../expand.hpp"
 #include <boost/ref.hpp>
 #include <algorithm>
 //#include <stdexcept>

@@ -10,9 +10,9 @@
 #include "builtin_target.hpp"
 #include "builtin_make_rule.hpp"
 #include "builtin_target_imp.hpp"
-#include "macro_table.hpp"
-#include "context.hpp"
-#include "exceptions.hpp"
+#include "../macro_table.hpp"
+#include "../context.hpp"
+#include "../exceptions.hpp"
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <boost/filesystem/operations.hpp>

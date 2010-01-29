@@ -99,12 +99,12 @@ SM_COMPILE_FLAGS.cpp = $(SM_INCLUDES) $(SM_MODULE_COMPILE_FLAGS)
 SM_COMPILE.cpp = $(CXX) $(SM_COMPILE_FLAGS.cpp) -c
 
 ## Compile command.
-compile = $(SM_COMPILE.cpp) -o $$@ $$^
+compile = $(SM_COMPILE.cpp) -o $$@ $$<
 
 #gen_compile_cmd = $(compile)
-gen_compile_cmd = @echo "C++: $(SM_MODULE_NAME) <= $$^" \
+gen_compile_cmd = @echo "C++: $(SM_MODULE_NAME) <= $$<" \
   && $(call log,$(compile)) \
-  && ( $(compile) || $(call log,"failed: $$^") )
+  && ( $(compile) || $(call log,"failed: $$<") )
 
 #
 gen_dep_cmd = @echo "mk: $$@" && \

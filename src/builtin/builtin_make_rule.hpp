@@ -9,7 +9,7 @@
 
 #ifndef __SMART_BUILTIN_MAKE_RULE__HPP____by_Duzy_Chan__
 #define __SMART_BUILTIN_MAKE_RULE__HPP____by_Duzy_Chan__ 1
-#	include "vm_types.hpp"
+#	include "../vm/vm_types.hpp"
 #	include "builtin_target.hpp"
 #	include <vector>
 #	include <ctime>

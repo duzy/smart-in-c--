@@ -7,14 +7,14 @@
  *
  **/
 
-#include "compiler.hpp"
-#include "context.hpp"
-#include "string_table.hpp"
-#include "macro_table.hpp"
-#include "builtins.hpp"
-#include "vm_types.hpp"
-#include "expand.hpp"
-#include "exceptions.hpp"
+#include "../compiler.hpp"
+#include "../context.hpp"
+#include "../string_table.hpp"
+#include "../macro_table.hpp"
+#include "../builtin.hpp"
+#include "../vm/vm_types.hpp"
+#include "../expand.hpp"
+#include "../exceptions.hpp"
 
 #include <sstream>
 #include <fstream>

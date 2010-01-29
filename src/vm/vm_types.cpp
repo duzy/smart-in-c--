@@ -7,7 +7,7 @@
  *
  **/
 
-#include "string_table.hpp"
+#include "../string_table.hpp"
 #include "vm_types.hpp"
 #include "vm_string_imp.hpp"
 #include <boost/algorithm/string/trim.hpp>

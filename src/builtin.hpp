@@ -9,7 +9,7 @@
 
 #ifndef __SMART_BUILTIN__hpp____by_Duzy_Chan__
 #define __SMART_BUILTIN__hpp____by_Duzy_Chan__ 1
-#	include "vm_fwd.hpp"
+#	include "vm/vm_fwd.hpp"
 
 namespace smart
 {
