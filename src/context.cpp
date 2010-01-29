@@ -12,7 +12,7 @@
 #include "string_table.hpp"
 #include "macro_table.hpp"
 #include "function_table.hpp"
-#include "vm_types.hpp"
+#include "vm/vm_types.hpp"
 #include <boost/bind.hpp>
 #include <sstream>
 #include <iostream>

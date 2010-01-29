@@ -27,6 +27,10 @@
 
 namespace smart
 {
+  static void compile_parse_tree( parse_tree & tree )
+  {
+  }
+
   void include( context &, const std::string & filename )
   {
   }
