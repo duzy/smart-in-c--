@@ -20,8 +20,7 @@
 #include <fstream>
 
 //#include "parse_tree.ipp"
-#include "grammar-2.ipp"
-#include "compiling.ipp"
+#include "grammar/grammar.ipp"
 
 //#include <boost/spirit/home/qi/parse.hpp>
 
