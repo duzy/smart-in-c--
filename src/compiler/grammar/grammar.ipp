@@ -71,7 +71,7 @@ namespace smart
 
       macro_name
         = +(char_ - char_("$:=+?"))
-        //>> eps( lit('=') | "+=" | ":=" | "?=" )
+        >> &( lit('=') | "+=" | ":=" | "?=" )
         ;
 
       macro_value

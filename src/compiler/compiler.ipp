@@ -83,4 +83,15 @@ namespace smart
 
     compile_parse_tree( tree );
   }
+
+  vm::type_string expand( const context & ctx, const vm::type_string & str )
+  {
+    return vm::type_string();
+  }
+
+  vm::type_string expand( const context & ctx, const vm::type_string & str,
+                          const std::vector<vm::type_string> & args )
+  {
+    return vm::type_string();
+  }
 }
