@@ -7,7 +7,7 @@
  *
  **/
 
-#if SMART_USE_GRAMMAR_1
+#if SMART_USE_DEPRECATED_GRAMMAR
 #  include "compiler/deprecated/compiler.ipp"
 #else
 #  include "compiler/compiler.ipp"

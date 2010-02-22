@@ -67,7 +67,7 @@ namespace smart
   }
 
   void compiler::compile( const std::string::const_iterator & codeBegin,
-			  const std::string::const_iterator & codeEnd )
+                          const std::string::const_iterator & codeEnd )
   {
     grammar<std::string::const_iterator> g;
     parse_tree tree; //!< abstract syntax tree

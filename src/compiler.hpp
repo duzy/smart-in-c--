@@ -20,7 +20,7 @@ namespace smart
     void compile_file( const std::string & filename );
     void compile( const std::string & code );
     void compile( const std::string::const_iterator & codeBeg,
-		  const std::string::const_iterator & codeEnd );
+                  const std::string::const_iterator & codeEnd );
 
   private:
     context & _context;
